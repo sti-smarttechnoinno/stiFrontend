@@ -18,6 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useTranslations } from "../[locale]/use-translations";
+import { formatBusinessHours } from "../utils/formatHours";
 
 const languages = ["en", "fr", "ar"];
 
@@ -51,20 +52,14 @@ export default function Navbar() {
   const currentLocale = pathname.split("/")[1] || "en";
 
   useEffect(() => {
-    const localPhone = localStorage.getItem("sti_pref_phone");
-    const localHoursJson = localStorage.getItem("sti_pref_working_hours_json");
-    if (localPhone) setPhone(localPhone);
-    if (localHoursJson) {
-      try {
-        setWorkingHoursObj(JSON.parse(localHoursJson));
-      } catch {}
-    }
-
     fetch("/api/preferences")
       .then((res) => res.json())
       .then((data) => {
         if (data.phone) setPhone(data.phone);
-        if (data.workingHours) {
+        if (data.businessHours) {
+          const hoursText = formatBusinessHours(data.businessHours, currentLocale, t.nav.phone_hours);
+          setWorkingHoursObj((prev) => ({ ...prev, [currentLocale]: hoursText }));
+        } else if (data.workingHours) {
           if (typeof data.workingHours === "object") {
             setWorkingHoursObj(data.workingHours);
           } else if (typeof data.workingHours === "string") {

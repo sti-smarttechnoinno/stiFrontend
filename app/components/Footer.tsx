@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { useTranslations } from "../[locale]/use-translations";
+import { formatBusinessHours } from "../utils/formatHours";
 
 const LinkedinIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -61,12 +62,15 @@ export default function Footer() {
         if (data.location && typeof data.location === "object") {
           setLocationObj(data.location);
         }
-        if (data.workingHours && typeof data.workingHours === "object") {
+        if (data.businessHours) {
+          const hoursText = formatBusinessHours(data.businessHours, currentLocale, t.nav.phone_hours);
+          setWorkingHoursObj((prev) => ({ ...prev, [currentLocale]: hoursText }));
+        } else if (data.workingHours && typeof data.workingHours === "object") {
           setWorkingHoursObj(data.workingHours);
         }
       })
       .catch(() => {});
-  }, []);
+  }, [currentLocale]);
 
   const activeWorkingHours = workingHoursObj[currentLocale] || workingHoursObj.en || t.nav.phone_hours;
   const activeLocation = locationObj[currentLocale] || locationObj.en || "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria";
