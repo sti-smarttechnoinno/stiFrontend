@@ -52,7 +52,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
     const body = await request.json();
-    const updatedLocal: any = updateMemoryProduct(id, body);
 
     try {
       const controller = new AbortController();
@@ -69,9 +68,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
       if (res.ok) {
         const data = await res.json().catch(() => null);
         if (data) {
-          if (updatedLocal) {
-            updateMemoryProduct(id, data);
-          }
           const result = {
             ...data,
             productType: data.productType || data.product_type || "SIM Card",
@@ -84,6 +80,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
       }
     } catch {}
 
+    const updatedLocal: any = updateMemoryProduct(id, body);
     if (updatedLocal) {
       return NextResponse.json({
         ...updatedLocal,

@@ -394,8 +394,6 @@ export async function POST(req: Request) {
       translations: body.translations || { en: { name: body.slug, shortDescription: "", description: "", features: [], specifications: [], faqs: [] }, ar: { name: body.slug, shortDescription: "", description: "", features: [], specifications: [], faqs: [] }, fr: { name: body.slug, shortDescription: "", description: "", features: [], specifications: [], faqs: [] } },
     };
 
-    memoryProducts.push(newProduct);
-
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 2000);
@@ -415,14 +413,15 @@ export async function POST(req: Request) {
             ...data,
             productType: data.productType || data.product_type || "SIM Card",
             product_type: data.product_type || data.productType || "SIM Card",
-            image: data.image || body.image || "/assets/sim-card.png",
+            image: data.image || "/assets/sim-card.png",
           };
-          memoryProducts[memoryProducts.length - 1] = mapped;
+          memoryProducts.push(mapped);
           return NextResponse.json(mapped);
         }
       }
     } catch {}
 
+    memoryProducts.push(newProduct);
     return NextResponse.json(newProduct);
   } catch (err: any) {
     return NextResponse.json({ error: "Failed to save product" }, { status: 500 });
