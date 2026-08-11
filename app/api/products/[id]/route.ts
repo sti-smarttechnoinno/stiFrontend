@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getMemoryProducts, updateMemoryProduct, deleteMemoryProduct } from "../route";
 
+// Vercel serverless config: allow 30s execution and 10MB body for image uploads
+export const maxDuration = 30;
+export const dynamic = "force-dynamic";
+
 const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 
 interface Params {
@@ -55,7 +59,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2000);
+      // Longer timeout for image uploads (base64 images can be large)
+      const timer = setTimeout(() => controller.abort(), 15000);
 
       const res = await fetch(`${BACKEND_API_URL}/products/${id}`, {
         method: "PUT",
@@ -80,7 +85,12 @@ export async function PUT(request: NextRequest, { params }: Params) {
       }
     } catch {}
 
-    const updatedLocal: any = updateMemoryProduct(id, body);
+    // Fallback: update memory locally but strip base64 from image to avoid huge memory usage
+    const localBody = {
+      ...body,
+      image: body.image && body.image.startsWith("data:") ? "/assets/sim-card.png" : body.image,
+    };
+    const updatedLocal: any = updateMemoryProduct(id, localBody);
     if (updatedLocal) {
       return NextResponse.json({
         ...updatedLocal,

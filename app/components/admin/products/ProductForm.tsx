@@ -543,14 +543,26 @@ export default function ProductForm({
                     <img
                       src={formData.image}
                       alt="Product Image"
+                      crossOrigin="anonymous"
                       className="max-h-full max-w-full object-contain"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                        if (target.nextElementSibling) {
+                          (target.nextElementSibling as HTMLElement).style.display = "flex";
+                        }
+                      }}
                     />
+                    <div className="hidden flex-col items-center justify-center text-gray-400 text-[10px] font-medium text-center gap-1">
+                      <Package size={20} />
+                      <span>Saved on server</span>
+                    </div>
                   </div>
                   <div className="space-y-2 text-center sm:text-left flex-1">
                     <div className="flex items-center gap-2 justify-center sm:justify-start">
                       <span className="text-xs font-bold text-gray-900">Current Product Image</span>
                       <span className="px-2 py-0.5 rounded-md bg-red-50 text-[10px] font-bold uppercase text-red-primary">
-                        PNG Image
+                        {formData.image.startsWith("data:") ? "New Upload" : "Stored"}
                       </span>
                     </div>
                     <p className="text-xs text-gray-500">

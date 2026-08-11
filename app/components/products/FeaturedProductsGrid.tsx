@@ -55,6 +55,7 @@ export default function FeaturedProductsGrid() {
                 category: s.category || "Recharge Credit",
                 productType: s.productType || "Recharge",
                 value: s.value || "Available",
+                image: s.image,
               };
             });
 
@@ -120,10 +121,14 @@ export default function FeaturedProductsGrid() {
                 <div className="absolute left-0 top-0 h-[3px] w-0 bg-red-primary transition-all duration-500 group-hover:w-full" />
 
                 <div>
-                  {/* Top row: Icon & Value badge */}
+                  {/* Top row: Image/Icon & Value badge */}
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 bg-red-primary/10 rounded-xl flex items-center justify-center text-red-primary group-hover:bg-red-primary group-hover:text-white transition-colors duration-300">
-                      <Icon size={24} />
+                    <div className="w-12 h-12 bg-red-primary/10 rounded-xl flex items-center justify-center text-red-primary group-hover:bg-red-primary group-hover:text-white transition-colors duration-300 overflow-hidden p-1">
+                      {product.image ? (
+                        <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
+                      ) : (
+                        <Icon size={24} />
+                      )}
                     </div>
                     <span className="text-xs font-bold px-3 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-900">
                       {product.value}

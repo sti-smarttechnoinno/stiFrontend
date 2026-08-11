@@ -55,8 +55,8 @@ export function formatBusinessHours(
   const firstName = dayNamesMap[firstDayKey]?.[lang] || firstDayKey;
   const lastName = dayNamesMap[lastDayKey]?.[lang] || lastDayKey;
 
-  let rawOpen = firstDayData?.open || "08:00";
-  let rawClose = firstDayData?.close || "17:00";
+  let rawOpen = firstDayData?.open || "";
+  let rawClose = firstDayData?.close || "";
 
   if (lang === "fr") {
     rawOpen = rawOpen.replace(":", "h");
@@ -66,3 +66,43 @@ export function formatBusinessHours(
   const dayRange = firstDayKey === lastDayKey ? firstName : `${firstName} - ${lastName}`;
   return `${dayRange} ${rawOpen} - ${rawClose}`;
 }
+
+const fullDayNamesMap: Record<string, Record<string, string>> = {
+  saturday: { en: "Saturday", fr: "Samedi", ar: "السبت" },
+  sunday: { en: "Sunday", fr: "Dimanche", ar: "الأحد" },
+  monday: { en: "Monday", fr: "Lundi", ar: "الإثنين" },
+  tuesday: { en: "Tuesday", fr: "Mardi", ar: "الثلاثاء" },
+  wednesday: { en: "Wednesday", fr: "Mercredi", ar: "الأربعاء" },
+  thursday: { en: "Thursday", fr: "Jeudi", ar: "الخميس" },
+  friday: { en: "Friday", fr: "Vendredi", ar: "الجمعة" },
+};
+
+export function formatClosedDays(
+  businessHours?: BusinessHours | null,
+  locale: string = "en",
+  fallback: string = ""
+): string {
+  if (!businessHours || typeof businessHours !== "object") {
+    return fallback;
+  }
+
+  const closedDays = weekOrder.filter((dayKey) => {
+    const dayData = (businessHours as any)[dayKey];
+    return dayData && dayData.isClosed;
+  });
+
+  const lang = ["en", "fr", "ar"].includes(locale) ? locale : "en";
+
+  if (closedDays.length === 0) {
+    if (lang === "ar") return "مفتوح 7 أيام في الأسبوع";
+    if (lang === "fr") return "Ouvert 7j/7";
+    return "Open 7 days a week";
+  }
+
+  const dayNames = closedDays.map((d) => fullDayNamesMap[d]?.[lang] || d).join(", ");
+
+  if (lang === "ar") return `${dayNames}: مغلق`;
+  if (lang === "fr") return `${dayNames} : Fermé`;
+  return `${dayNames}: Closed`;
+}
+

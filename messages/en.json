@@ -350,7 +350,7 @@
       "address_value": "Sétif, Algeria",
       "address_desc": "Headquarters Office",
       "hours_title": "Business Hours",
-      "hours_value": "Sat–Thu: 08:30–17:30",
+      "hours_value": "Sat - Thu 08:00 - 17:00",
       "hours_desc": "Friday: Closed"
     },
     "form": {
@@ -383,7 +383,7 @@
       "email_label": "Email Us Anytime",
       "address_value": "Sétif, Algeria",
       "address_label": "Headquarters",
-      "hours_value": "Sat–Thu: 08:30–17:30",
+      "hours_value": "Sat - Thu 08:00 - 17:00",
       "hours_label": "Business Hours",
       "follow_us": "Follow Us"
     },

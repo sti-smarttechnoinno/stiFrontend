@@ -13,19 +13,13 @@ import FinalCTA from "../../../components/FinalCTA";
 import { getProductBySlug, getRelatedProducts, getAllProductSlugs } from "../../../data/products";
 import type { Product } from "../../../data/products";
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL || "http://127.0.0.1:8000/api";
+const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 const LOCALES = ["en", "fr", "ar"];
 
 async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
-  const isLocalHostUrl = !process.env.BACKEND_API_URL || process.env.BACKEND_API_URL.includes("127.0.0.1") || process.env.BACKEND_API_URL.includes("localhost");
-
-  if (process.env.NODE_ENV === "production" && isLocalHostUrl) {
-    return getProductBySlug(slug);
-  }
-
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 1500);
+    const timer = setTimeout(() => controller.abort(), 3000);
 
     const res = await fetch(`${BACKEND_API_URL}/products/${slug}`, {
       cache: "no-store",
@@ -35,7 +29,7 @@ async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
 
     if (res.ok) {
       const data = await res.json();
-      if (data && data.slug) {
+      if (data && (data.slug || data.id)) {
         const enTrans = data.translations?.en || {};
         return {
           id: String(data.id),
@@ -52,7 +46,7 @@ async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
           wholesale: "Available",
           suitableFor: ["Retailers", "Wholesalers", "Business Partners"],
           brand: data.brand || "Ooredoo",
-          productType: data.productType || "Recharge",
+          productType: data.productType || data.product_type || "Recharge",
           authenticity: "Official Ooredoo Product",
           features: Array.isArray(enTrans.features) ? enTrans.features : [],
           specifications: Array.isArray(enTrans.specifications) ? enTrans.specifications : [],

@@ -8,6 +8,8 @@ import { useTranslations } from "../../[locale]/use-translations";
 import { useScrollReveal } from "../../hooks";
 import type { CompanyPreferences } from "../../api/preferences/route";
 
+import { formatBusinessHours, formatClosedDays } from "../../utils/formatHours";
+
 const icons = [
   <Phone size={24} key="phone" />,
   <Mail size={24} key="mail" />,
@@ -79,27 +81,24 @@ export default function ContactCards() {
   const emailValue = prefs?.email || t.contact.cards.email_value;
   const addressValue = prefs?.address?.[currentLocale] || prefs?.address?.en || t.contact.cards.address_value;
 
-  // Working Hours Display Logic
-  let workingHoursValue = t.contact.cards.hours_value;
-  if (prefs?.businessHours) {
-    const sampleDay = prefs.businessHours.saturday || prefs.businessHours.sunday || { open: "08:00", close: "17:00" };
-    const openStr = currentLocale === "fr" ? sampleDay.open.replace(":", "h") : sampleDay.open;
-    const closeStr = currentLocale === "fr" ? sampleDay.close.replace(":", "h") : sampleDay.close;
+  // Working Hours Display Logic dynamically fetched from api/preferences
+  const workingHoursValue = formatBusinessHours(
+    prefs?.businessHours,
+    currentLocale,
+    t.contact.cards.hours_value
+  );
 
-    if (currentLocale === "ar") {
-      workingHoursValue = `السبت - الخميس ${openStr} - ${closeStr}`;
-    } else if (currentLocale === "fr") {
-      workingHoursValue = `Sam - Jeu ${openStr} - ${closeStr}`;
-    } else {
-      workingHoursValue = `Sat - Thu ${openStr} - ${closeStr}`;
-    }
-  }
+  const closedDaysDesc = formatClosedDays(
+    prefs?.businessHours,
+    currentLocale,
+    t.contact.cards.hours_desc
+  );
 
   const items = [
     { title: t.contact.cards.phone_title, value: phoneValue, description: t.contact.cards.phone_desc },
     { title: t.contact.cards.email_title, value: emailValue, description: t.contact.cards.email_desc },
     { title: t.contact.cards.address_title, value: addressValue, description: t.contact.cards.address_desc },
-    { title: t.contact.cards.hours_title, value: workingHoursValue, description: t.contact.cards.hours_desc },
+    { title: t.contact.cards.hours_title, value: workingHoursValue, description: closedDaysDesc },
   ];
 
   const quickConnectBadge = currentLocale === "ar" ? "تواصل سريع" : currentLocale === "fr" ? "Contact Rapide" : "Quick Connect";

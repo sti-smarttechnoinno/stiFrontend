@@ -5,7 +5,7 @@ const locales = ["en", "fr", "ar"];
 const defaultLocale = "en";
 
 // Routes that should NOT get locale prefixes like /en or /ar
-const skippedPrefixes = ["/console", "/gate", "/api", "/_next", "/assets"];
+const skippedPrefixes = ["/console", "/gate", "/api", "/_next", "/assets", "/storage"];
 
 function getLocale(request: NextRequest): string {
   const acceptLanguage = request.headers.get("accept-language");
@@ -59,5 +59,5 @@ export function proxy(request: NextRequest) {
 export const middleware = proxy;
 
 export const config = {
-  matcher: ["/((?!_next|assets|favicon\\.ico|site\\.webmanifest).*)"],
+  matcher: ["/((?!_next|assets|storage|favicon\\.ico|site\\.webmanifest).*)"],
 };

@@ -376,7 +376,7 @@
       "address_value": "Sétif, Algérie",
       "address_desc": "Siège Social",
       "hours_title": "Horaires d'Ouverture",
-      "hours_value": "Sam–Jeu : 08h30–17h30",
+      "hours_value": "Sam - Jeu 08h00 - 17h00",
       "hours_desc": "Vendredi : Fermé"
     },
     "form": {
@@ -409,7 +409,7 @@
       "email_label": "Écrivez-Nous à Tout Moment",
       "address_value": "Sétif, Algérie",
       "address_label": "Siège Social",
-      "hours_value": "Sam–Jeu : 08h30–17h30",
+      "hours_value": "Sam - Jeu 08h00 - 17h00",
       "hours_label": "Horaires d'Ouverture",
       "follow_us": "Suivez-Nous"
     },

@@ -89,12 +89,12 @@ const defaultPreferences: CompanyPreferences = {
     instagram: "",
   },
   businessHours: {
-    saturday: { open: "08:00", close: "17:00", isClosed: true },
-    sunday: { open: "08:30", close: "17:00", isClosed: false },
-    monday: { open: "08:30", close: "17:00", isClosed: false },
-    tuesday: { open: "08:30", close: "17:00", isClosed: false },
-    wednesday: { open: "08:30", close: "17:00", isClosed: false },
-    thursday: { open: "08:30", close: "17:00", isClosed: false },
+    saturday: { open: "08:00", close: "17:00", isClosed: false },
+    sunday: { open: "08:00", close: "17:00", isClosed: false },
+    monday: { open: "08:00", close: "17:00", isClosed: false },
+    tuesday: { open: "08:00", close: "17:00", isClosed: false },
+    wednesday: { open: "08:00", close: "17:00", isClosed: false },
+    thursday: { open: "08:00", close: "17:00", isClosed: false },
     friday: { open: "00:00", close: "00:00", isClosed: true },
   },
   statistics: {
