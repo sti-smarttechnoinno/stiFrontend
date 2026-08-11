@@ -9,6 +9,7 @@
     "news": "Actualités",
     "contact": "Contact",
     "menu": "Menu",
+    "view_all_solutions": "Voir toutes les solutions",
     "phone_hours": "Lun-Sam 08h00-18h00",
     "solutions_sub": {
       "mobile_recharge": "Crédit de Recharge Mobile",
@@ -40,6 +41,32 @@
       "digital": "Transformation Numérique",
       "digital_desc": "IoT, cloud et enablement numérique"
     }
+  },
+  "solutionDetail": {
+    "home": "Accueil",
+    "solutions": "Solutions",
+    "become_partner": "Devenir Partenaire",
+    "contact_sales": "Contacter l'Équipe Commerciale",
+    "learn_more": "En Savoir Plus",
+    "key_features_badge": "Caractéristiques Clés",
+    "key_features_title": "Caractéristiques Clés",
+    "key_features_subtitle": "Tout ce dont vous avez besoin pour une distribution télécom réussie",
+    "process_badge": "Processus",
+    "process_title": "Comment Ça Marche",
+    "process_subtitle": "Étapes simples, de la commande à la livraison",
+    "steps": [
+      { "title": "Demande de Commande", "description": "Le partenaire soumet une commande via notre processus simplifié." },
+      { "title": "Confirmation", "description": "Notre équipe confirme et valide les détails de la commande." },
+      { "title": "Préparation", "description": "Les produits sont soigneusement préparés et contrôlés." },
+      { "title": "Collecte / Livraison", "description": "Le partenaire récupère sa commande en toute commodité." },
+      { "title": "Support Partenaire", "description": "Assistance et accompagnement continus après l'achat." }
+    ],
+    "other_solutions_badge": "Solutions",
+    "other_solutions_title": "Explorer les Autres Solutions",
+    "other_solutions_subtitle": "Découvrez d'autres solutions de distribution STI adaptées à votre entreprise",
+    "faq_badge": "FAQ",
+    "faq_title": "Foire Aux Questions",
+    "faq_subtitle": "Trouvez les réponses aux questions fréquentes sur cette solution."
   },
   "hero": {
     "badge": "Distributeur Officiel Ooredoo",
@@ -223,7 +250,7 @@
       {
         "name": "Ahmed Benali",
         "role": "Directeur IT, Sonatrach",
-        "review": "STI est notre partenaire télécom de confiance depuis plus de 5 ans. Leurs solutions de connectivité d'entreprise sont excellentes et leur équipe de support est toujours réactive."
+        "review": "STI est notre partenaire télécom de confiance depuis plus de 2 ans. Leurs solutions de connectivité d'entreprise sont excellentes et leur équipe de support est toujours réactive."
       },
       {
         "name": "Fatima Hadj",

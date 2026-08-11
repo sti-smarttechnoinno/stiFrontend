@@ -1,23 +1,76 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Clock, User, ArrowRight, BadgeCheck } from "lucide-react";
+import { Calendar, Clock, User, ArrowRight, BadgeCheck, Loader2 } from "lucide-react";
 import { useTranslations } from "../../[locale]/use-translations";
+import type { ApiNewsItem } from "../../api/news/route";
+import type { ApiCategoryItem } from "../../api/news/categories/route";
 
 export default function FeaturedArticle() {
   const t = useTranslations();
-  const featT = t.newsPage?.featured || {
-    badge: "Featured Article",
-    title: "STI Expands Distribution Services Across Algeria",
-    description: "SARL Smart Technologie Innovation continues strengthening its distribution capabilities, ensuring retailers and business partners receive reliable access to official Ooredoo mobile recharge credit and prepaid SIM cards throughout Algeria.",
-    date: "May 20, 2026",
-    category: "Announcements",
-    read_time: "5 min read",
-    read_more: "Read Full Article",
-  };
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const [article, setArticle] = useState<ApiNewsItem | null>(null);
+  const [categories, setCategories] = useState<ApiCategoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [newsRes, featRes, catRes] = await Promise.all([
+          fetch("/api/news"),
+          fetch("/api/news/featured"),
+          fetch("/api/news/categories"),
+        ]);
+
+        let newsList: ApiNewsItem[] = [];
+        let featId: string | number | null = null;
+        let cats: ApiCategoryItem[] = [];
+
+        if (newsRes.ok) newsList = await newsRes.json();
+        if (featRes.ok) {
+          const featData = await featRes.json();
+          featId = featData.featuredId;
+        }
+        if (catRes.ok) cats = await catRes.json();
+        setCategories(cats);
+
+        if (newsList.length > 0) {
+          // Find featured, fallback to first
+          const matched = newsList.find((n) => String(n.id) === String(featId)) || newsList[0];
+          setArticle(matched);
+        }
+      } catch (err) {
+        console.error("Failed to load featured article", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="py-24 text-center text-gray-400 flex flex-col items-center justify-center gap-2">
+        <Loader2 size={24} className="animate-spin text-red-primary" />
+      </div>
+    );
+  }
+
+  if (!article) return null;
+
+  const translation = article.translations?.[currentLocale] || article.translations?.en || {};
+  const title = translation.title || article.slug;
+  const description = translation.excerpt || "";
+  const categoryItem = categories.find((c) => c.id === article.category || c.translations?.en === article.category);
+  const categoryLabel = categoryItem?.translations?.[currentLocale] || categoryItem?.translations?.en || article.category;
 
   return (
-    <section className="py-28 lg:py-36 bg-gray-50">
+    <section className="py-20 sm:py-28 lg:py-36 bg-gray-50">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -28,13 +81,13 @@ export default function FeaturedArticle() {
           className="text-center mb-16"
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            {featT.badge}
+            {t.newsPage?.featured?.badge || "Featured Article"}
           </span>
           <h2
             className="mb-4 text-3xl font-extrabold text-gray-900 lg:text-4xl"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            {featT.title}
+            {title}
           </h2>
         </motion.div>
 
@@ -48,26 +101,34 @@ export default function FeaturedArticle() {
         >
           <div className="grid lg:grid-cols-[45%_55%]">
             {/* Image Container */}
-            <div className="relative h-64 lg:h-auto bg-gradient-to-br from-gray-50 to-white flex items-center justify-center border-b lg:border-b-0 lg:border-r border-gray-100">
-              <div className="relative w-48 h-32 bg-white rounded-2xl shadow-lg border border-gray-100 p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-red-primary rounded-xl flex items-center justify-center">
-                    <span className="text-white text-[8px] font-bold">STI</span>
+            <div className="relative h-64 lg:h-auto bg-gradient-to-br from-gray-50 to-white flex items-center justify-center border-b lg:border-b-0 lg:border-r border-gray-100 overflow-hidden">
+              {article.heroImage ? (
+                <img
+                  src={article.heroImage}
+                  alt={title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <div className="relative w-48 h-32 bg-white rounded-2xl shadow-lg border border-gray-100 p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-red-primary rounded-xl flex items-center justify-center">
+                      <span className="text-white text-[8px] font-bold">STI</span>
+                    </div>
+                    <div>
+                      <div className="h-2 bg-gray-200 rounded-full w-20 mb-1" />
+                      <div className="h-1.5 bg-gray-100 rounded-full w-14" />
+                    </div>
                   </div>
-                  <div>
-                    <div className="h-2 bg-gray-200 rounded-full w-20 mb-1" />
-                    <div className="h-1.5 bg-gray-100 rounded-full w-14" />
+                  <div className="space-y-2">
+                    <div className="h-12 bg-gradient-to-r from-red-primary/10 to-red-primary/5 rounded-lg" />
+                    <div className="h-2 bg-gray-100 rounded-full w-full" />
+                    <div className="h-2 bg-gray-100 rounded-full w-3/4" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="h-12 bg-gradient-to-r from-red-primary/10 to-red-primary/5 rounded-lg" />
-                  <div className="h-2 bg-gray-100 rounded-full w-full" />
-                  <div className="h-2 bg-gray-100 rounded-full w-3/4" />
-                </div>
-              </div>
+              )}
               {/* Floating element */}
               <div className="absolute top-8 right-8 rtl:right-auto rtl:left-8">
-                <div className="w-12 h-12 bg-red-primary/10 rounded-xl flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 bg-red-primary/10 rounded-xl flex items-center justify-center shadow-md backdrop-blur-sm">
                   <BadgeCheck size={20} className="text-red-primary" />
                 </div>
               </div>
@@ -78,7 +139,7 @@ export default function FeaturedArticle() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-primary/10 mb-6 w-fit">
                 <BadgeCheck size={14} className="text-red-primary" />
-                <span className="text-xs font-bold text-red-primary">{featT.category}</span>
+                <span className="text-xs font-bold text-red-primary">{categoryLabel}</span>
               </div>
 
               {/* Headline */}
@@ -86,38 +147,38 @@ export default function FeaturedArticle() {
                 className="text-2xl lg:text-3xl font-extrabold text-gray-900 mb-4 leading-tight"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                {featT.title}
+                {title}
               </h3>
 
               {/* Description */}
               <p className="text-gray-500 leading-relaxed mb-8">
-                {featT.description}
+                {description}
               </p>
 
               {/* Meta */}
               <div className="flex flex-wrap items-center gap-6 mb-8 text-sm text-gray-400">
                 <div className="flex items-center gap-2">
                   <Calendar size={16} />
-                  <span>{featT.date}</span>
+                  <span>{article.publishedAt}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock size={16} />
-                  <span>{featT.read_time}</span>
+                  <span>{article.readingTime}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <User size={16} />
-                  <span>STI Team</span>
+                  <span>{article.author}</span>
                 </div>
               </div>
 
               {/* CTA */}
-              <a
-                href="#articles"
+              <Link
+                href={`/${currentLocale}/news/${article.slug}`}
                 className="group inline-flex items-center gap-2 text-sm font-semibold text-red-primary transition-all duration-300 hover:gap-3"
               >
-                {featT.read_more}
+                {t.newsPage?.featured?.read_more || "Read Full Article"}
                 <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-              </a>
+              </Link>
             </div>
           </div>
         </motion.article>

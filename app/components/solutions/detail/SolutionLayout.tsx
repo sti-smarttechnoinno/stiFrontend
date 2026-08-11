@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import HeroSolution from "./HeroSolution";
 import { FeaturesSection } from "./FeatureCard";
 import SolutionTimeline from "./SolutionTimeline";
 import RelatedCard from "./RelatedCard";
 import FAQAccordion from "./FAQAccordion";
 import FinalCTA from "../../FinalCTA";
+import { useTranslations } from "../../../[locale]/use-translations";
 import type { SolutionData } from "../../../solutions/[slug]/data";
 
 interface Props {
@@ -13,18 +16,121 @@ interface Props {
   related: SolutionData[];
 }
 
-export default function SolutionLayout({ solution, related }: Props) {
+interface ApiSolutionItem {
+  id: number;
+  slug: string;
+  status?: string;
+  image?: string;
+  translations?: {
+    en?: { name: string; shortName: string; badge: string; title?: string; description: string[]; highlights: string[]; features: any[]; benefits: any[]; faqs: any[] };
+    ar?: { name: string; shortName: string; badge: string; title?: string; description: string[]; highlights: string[]; features: any[]; benefits: any[]; faqs: any[] };
+    fr?: { name: string; shortName: string; badge: string; title?: string; description: string[]; highlights: string[]; features: any[]; benefits: any[]; faqs: any[] };
+  };
+}
+
+export default function SolutionLayout({ solution: initialSolution, related: initialRelated }: Props) {
+  const pathname = usePathname();
+  const t = useTranslations();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const [activeSolution, setActiveSolution] = useState<SolutionData>(initialSolution);
+  const [otherSolutions, setOtherSolutions] = useState<SolutionData[]>(
+    initialRelated.filter((r) => r.slug !== initialSolution.slug)
+  );
+
+  useEffect(() => {
+    async function fetchDatabaseSolutions() {
+      try {
+        const res = await fetch("/api/solutions");
+        if (res.ok) {
+          const apiData: ApiSolutionItem[] = await res.json();
+          if (Array.isArray(apiData) && apiData.length > 0) {
+            const published = apiData.filter((s) => !s.status || s.status === "Published");
+
+            // Match current solution from DB
+            const dbMatch = published.find((s) => s.slug === initialSolution.slug);
+            if (dbMatch) {
+              const langContent = dbMatch.translations?.[currentLocale] || dbMatch.translations?.en;
+              const enContent = dbMatch.translations?.en;
+
+              if (langContent) {
+                const finalFeatures = (langContent.features && langContent.features.length > 0)
+                  ? langContent.features
+                  : (enContent?.features && enContent.features.length > 0)
+                  ? enContent.features
+                  : initialSolution.features;
+
+                const finalBenefits = (langContent.benefits && langContent.benefits.length > 0)
+                  ? langContent.benefits
+                  : (enContent?.benefits && enContent.benefits.length > 0)
+                  ? enContent.benefits
+                  : initialSolution.benefits;
+
+                const finalFaqs = (langContent.faqs && langContent.faqs.length > 0)
+                  ? langContent.faqs
+                  : (enContent?.faqs && enContent.faqs.length > 0)
+                  ? enContent.faqs
+                  : initialSolution.faqs;
+
+                setActiveSolution({
+                  slug: dbMatch.slug,
+                  name: langContent.name || initialSolution.name,
+                  shortName: langContent.shortName || initialSolution.shortName,
+                  badge: langContent.badge || initialSolution.badge,
+                  title: langContent.title || langContent.name || initialSolution.title,
+                  description: langContent.description?.length ? langContent.description : initialSolution.description,
+                  highlights: langContent.highlights?.length ? langContent.highlights : initialSolution.highlights,
+                  features: finalFeatures,
+                  benefits: finalBenefits,
+                  faqs: finalFaqs,
+                  illustration: initialSolution.illustration,
+                });
+              }
+            }
+
+            // Exclude current solution and convert all remaining solutions for Related cards
+            const dbOthers = published
+              .filter((s) => s.slug !== initialSolution.slug)
+              .map((s) => {
+                const lang = s.translations?.[currentLocale] || s.translations?.en;
+                return {
+                  slug: s.slug,
+                  name: lang?.name || s.slug,
+                  shortName: lang?.shortName || lang?.name || s.slug,
+                  badge: lang?.badge || "",
+                  title: lang?.title || lang?.name || s.slug,
+                  description: lang?.description?.length ? lang.description : ["Distribution Solution"],
+                  features: lang?.features || [],
+                  benefits: lang?.benefits || [],
+                  faqs: lang?.faqs || [],
+                  illustration: initialSolution.illustration,
+                };
+              });
+
+            if (dbOthers.length > 0) {
+              setOtherSolutions(dbOthers);
+            }
+          }
+        }
+      } catch {
+        // Fallback to static props
+      }
+    }
+
+    fetchDatabaseSolutions();
+  }, [initialSolution.slug, currentLocale]);
+
   return (
     <main>
       <HeroSolution
-        badge={solution.badge}
-        title={solution.title}
-        description={solution.description}
-        highlights={solution.highlights}
-        illustration={solution.illustration}
+        badge={activeSolution.badge}
+        title={activeSolution.title}
+        description={activeSolution.description}
+        highlights={activeSolution.highlights}
+        illustration={activeSolution.illustration}
       />
 
-      <FeaturesSection features={solution.features} />
+      <FeaturesSection features={activeSolution.features} />
 
       <SolutionTimeline />
 
@@ -32,24 +138,24 @@ export default function SolutionLayout({ solution, related }: Props) {
         <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
           <div className="mb-12 sm:mb-16 text-center">
             <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-              Solutions
+              {(t as any).solutionDetail?.other_solutions_badge || "Solutions"}
             </span>
             <h2 className="mb-3 sm:mb-4 text-2xl sm:text-3xl font-extrabold text-gray-900 lg:text-4xl" style={{ fontFamily: "var(--font-manrope)" }}>
-              Explore More Solutions
+              {(t as any).solutionDetail?.other_solutions_title || "Explore Other Solutions"}
             </h2>
             <p className="mx-auto max-w-xl text-sm sm:text-base text-gray-500">
-              Discover other STI distribution solutions tailored for your business
+              {(t as any).solutionDetail?.other_solutions_subtitle || "Discover other STI distribution solutions tailored for your business"}
             </p>
           </div>
           <div className="grid gap-5 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((r) => (
-              <RelatedCard key={r.slug} slug={r.slug} title={r.shortName} description={r.description[0]} />
+            {otherSolutions.map((r) => (
+              <RelatedCard key={r.slug} slug={r.slug} title={r.shortName || r.name} description={r.description[0]} />
             ))}
           </div>
         </div>
       </section>
 
-      <FAQAccordion faqs={solution.faqs} />
+      <FAQAccordion faqs={activeSolution.faqs} />
 
       <FinalCTA />
     </main>

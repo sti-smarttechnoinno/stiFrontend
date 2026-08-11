@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Briefcase, Users, Handshake, MapPin, ThumbsUp } from "lucide-react";
 import { useScrollReveal } from "../hooks";
 import { useTranslations } from "../[locale]/use-translations";
 
-const icons = [<Briefcase size={24} />, <Users size={24} />, <Handshake size={24} />, <MapPin size={24} />, <ThumbsUp size={24} />];
+const icons = [<Briefcase size={24} key="b" />, <Users size={24} key="u" />, <Handshake size={24} key="h" />, <MapPin size={24} key="m" />, <ThumbsUp size={24} key="t" />];
 
 function StatCard({ icon, title, label }: { icon: React.ReactNode; title: string; label: string }) {
   const { ref, visible } = useScrollReveal(0.3);
@@ -16,10 +17,10 @@ function StatCard({ icon, title, label }: { icon: React.ReactNode; title: string
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       }`}
     >
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-primary/8 text-red-primary transition-colors group-hover:bg-red-primary group-hover:text-white">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-primary/8 text-red-primary transition-colors group-hover:bg-red-primary group-hover:text-white shrink-0">
         {icon}
       </div>
-      <div className="mb-2 text-lg font-extrabold text-gray-900 text-center" style={{ fontFamily: "var(--font-display)" }}>
+      <div className="mb-2 text-lg font-extrabold text-gray-900 text-center leading-snug" style={{ fontFamily: "var(--font-display)" }}>
         {title}
       </div>
       <div className="text-sm text-gray-500 text-center leading-relaxed">{label}</div>
@@ -31,8 +32,27 @@ export default function Statistics() {
   const { ref, visible } = useScrollReveal();
   const t = useTranslations();
 
+  const [provincesCount, setProvincesCount] = useState("58");
+
+  useEffect(() => {
+    async function loadProvinces() {
+      try {
+        const res = await fetch("/api/preferences");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.statistics?.provincesServed) {
+            setProvincesCount(data.statistics.provincesServed);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load provinces count on homepage stats", err);
+      }
+    }
+    loadProvinces();
+  }, []);
+
   return (
-    <section className="py-28 lg:py-36 bg-gray-50">
+    <section className="py-20 sm:py-28 lg:py-36 bg-gray-50">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-8">
         <div
           ref={ref}
@@ -48,9 +68,12 @@ export default function Statistics() {
           </p>
         </div>
         <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-5">
-          {t.statistics.items.map((s, i) => (
-            <StatCard key={s.title} icon={icons[i]} title={s.title} label={s.label} />
-          ))}
+          {t.statistics.items.map((s, i) => {
+            const formattedTitle = s.title.replace("58", provincesCount);
+            return (
+              <StatCard key={s.title} icon={icons[i]} title={formattedTitle} label={s.label} />
+            );
+          })}
         </div>
       </div>
     </section>

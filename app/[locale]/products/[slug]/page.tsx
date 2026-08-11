@@ -11,6 +11,47 @@ import RelatedProducts from "../../../components/product-detail/RelatedProducts"
 import ProductFAQ from "../../../components/product-detail/ProductFAQ";
 import FinalCTA from "../../../components/FinalCTA";
 import { getProductBySlug, getRelatedProducts, getAllProductSlugs } from "../../../data/products";
+import type { Product } from "../../../data/products";
+
+const BACKEND_API_URL = process.env.BACKEND_API_URL || "http://127.0.0.1:8000/api";
+
+async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
+  try {
+    const res = await fetch(`${BACKEND_API_URL}/products/${slug}`, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.slug) {
+        const enTrans = data.translations?.en || {};
+        return {
+          id: String(data.id),
+          sku: data.sku || "",
+          slug: data.slug,
+          name: enTrans.name || data.slug,
+          category: data.category || "Recharge Credit",
+          categoryId: "recharge-credit",
+          value: data.value || "Available",
+          description: enTrans.description || data.description || "",
+          shortDescription: enTrans.shortDescription || data.shortDescription || "",
+          availability: "Available",
+          format: "Standard Product",
+          wholesale: "Available",
+          suitableFor: ["Retailers", "Wholesalers", "Business Partners"],
+          brand: data.brand || "Ooredoo",
+          productType: data.productType || "Recharge",
+          authenticity: "Official Ooredoo Product",
+          features: Array.isArray(enTrans.features) ? enTrans.features : [],
+          specifications: Array.isArray(enTrans.specifications) ? enTrans.specifications : [],
+          faqs: Array.isArray(enTrans.faqs) ? enTrans.faqs : [],
+          image: data.image || "",
+          translations: data.translations,
+          relatedSlugs: [],
+        };
+      }
+    }
+  } catch {}
+
+  return getProductBySlug(slug);
+}
 
 interface PageParams {
   slug: string;
@@ -27,7 +68,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await fetchProductFromApi(slug);
 
   if (!product) {
     return { title: "Product Not Found" };
@@ -47,7 +88,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${product.name} | STI Official Ooredoo Distributor`,
       description: product.description,
-      images: ["/assets/hero.png"],
+      images: [product.image || "/assets/hero.png"],
       type: "website",
     },
     robots: {
@@ -63,7 +104,7 @@ export default async function ProductDetailPage({
   params: Promise<PageParams>;
 }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await fetchProductFromApi(slug);
 
   if (!product) {
     notFound();

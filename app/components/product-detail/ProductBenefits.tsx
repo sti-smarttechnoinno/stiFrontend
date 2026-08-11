@@ -10,38 +10,34 @@ import {
   HeadphonesIcon,
 } from "lucide-react";
 
-const benefits = [
-  {
-    icon: ShieldCheck,
-    title: "Official Ooredoo Product",
-    description: "100% genuine products from authorized channels.",
-  },
-  {
-    icon: Package,
-    title: "Reliable Availability",
-    description: "Continuous stock supply nationwide across Algeria.",
-  },
-  {
-    icon: Tag,
-    title: "Wholesale Pricing",
-    description: "Competitive pricing for retailer & business growth.",
-  },
-  {
-    icon: Zap,
-    title: "Fast Order Processing",
-    description: "Efficient 24-48 hour order fulfillment.",
-  },
-  {
-    icon: CheckCircle,
-    title: "Business Ready",
-    description: "Designed for retailers, wholesalers & partners.",
-  },
-  {
-    icon: HeadphonesIcon,
-    title: "Professional Support",
-    description: "Dedicated account management and assistance.",
-  },
-];
+import { usePathname } from "next/navigation";
+
+const benefitsData = {
+  en: [
+    { icon: ShieldCheck, title: "Official Ooredoo Product", description: "100% genuine products from authorized channels." },
+    { icon: Package, title: "Reliable Availability", description: "Continuous stock supply nationwide across Algeria." },
+    { icon: Tag, title: "Wholesale Pricing", description: "Competitive pricing for retailer & business growth." },
+    { icon: Zap, title: "Fast Order Processing", description: "Efficient 24-48 hour order fulfillment." },
+    { icon: CheckCircle, title: "Business Ready", description: "Designed for retailers, wholesalers & partners." },
+    { icon: HeadphonesIcon, title: "Professional Support", description: "Dedicated account management and assistance." },
+  ],
+  ar: [
+    { icon: ShieldCheck, title: "منتج أوريدو الرسمي", description: "منتجات أصيلة 100% من القنوات المعتمدة." },
+    { icon: Package, title: "توفر دائم ومستمر", description: "تأمين دائم للمخزون عبر كامل القطر الوطني." },
+    { icon: Tag, title: "أسعار البيع بالجملة", description: "أسعار تنافسية لتنمية تجارة الموزعين والمحلات." },
+    { icon: Zap, title: "معالجة سريعة للطلبات", description: "تلبية سريعة للطلبيات خلال 24-48 ساعة." },
+    { icon: CheckCircle, title: "جاهز للأعمال والشركات", description: "مصمم خصيصاً لتجار التجزئة والجملة والشركاء." },
+    { icon: HeadphonesIcon, title: "دعم ومرافقة احترافية", description: "إدارة حسابات مخصصة ومساعدة مستمرة." },
+  ],
+  fr: [
+    { icon: ShieldCheck, title: "Produit Officiel Ooredoo", description: "Produits 100% authentiques issus de canaux agréés." },
+    { icon: Package, title: "Disponibilité Fiable", description: "Stock continu sur tout le territoire algérien." },
+    { icon: Tag, title: "Tarifs de Gros", description: "Tarifs compétitifs pour la croissance des détaillants." },
+    { icon: Zap, title: "Traitement Rapide", description: "Traitement et expécution sous 24-48h." },
+    { icon: CheckCircle, title: "Adapté aux Entreprises", description: "Conçu pour détaillants, grossistes et partenaires." },
+    { icon: HeadphonesIcon, title: "Support Professionnel", description: "Gestion de compte dédiée et assistance continue." },
+  ],
+};
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -66,6 +62,33 @@ const cardVariants = {
 };
 
 export default function ProductBenefits() {
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const staticT = {
+    en: {
+      badge: "Benefits",
+      title: "Why Choose This Product?",
+      subtitle: "Key advantages of sourcing official Ooredoo products from STI",
+    },
+    ar: {
+      badge: "المزايا والفوائد",
+      title: "لماذا تختار هذا المنتج؟",
+      subtitle: "المزايا الرئيسية للحصول على منتجات أوريدو الرسمية من شركة STI",
+    },
+    fr: {
+      badge: "Avantages",
+      title: "Pourquoi Choisir ce Produit ?",
+      subtitle: "Principaux avantages de s'approvisionner en produits officiels Ooredoo auprès de STI",
+    },
+  }[currentLocale] || {
+    badge: "Benefits",
+    title: "Why Choose This Product?",
+    subtitle: "Key advantages of sourcing official Ooredoo products from STI",
+  };
+
+  const benefitsList = benefitsData[currentLocale] || benefitsData.en;
+
   return (
     <section className="py-20 sm:py-28 lg:py-36 bg-gray-50">
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
@@ -78,16 +101,16 @@ export default function ProductBenefits() {
           className="mb-12 sm:mb-16 text-center"
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            Benefits
+            {staticT.badge}
           </span>
           <h2
             className="mb-3 sm:mb-4 text-2xl sm:text-3xl font-extrabold text-gray-900 lg:text-4xl"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Why Choose This Product?
+            {staticT.title}
           </h2>
           <p className="mx-auto max-w-xl text-sm sm:text-base text-gray-500">
-            Key advantages of sourcing official Ooredoo products from STI
+            {staticT.subtitle}
           </p>
         </motion.div>
 
@@ -99,7 +122,7 @@ export default function ProductBenefits() {
           viewport={{ once: true, margin: "-80px" }}
           className="grid gap-5 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {benefits.map((benefit) => (
+          {benefitsList.map((benefit) => (
             <motion.article
               key={benefit.title}
               variants={cardVariants}

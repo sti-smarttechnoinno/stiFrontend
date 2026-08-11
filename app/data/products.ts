@@ -21,6 +21,8 @@ export interface Product {
   features: string[];
   specifications: { label: string; value: string }[];
   faqs: { question: string; answer: string }[];
+  image?: string;
+  translations?: Record<string, any>;
   relatedSlugs: string[];
 }
 

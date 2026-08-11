@@ -63,7 +63,7 @@ export default function ContactPage() {
     email: "contact@sti.dz",
     telephone: "+213-XXX-XX-XX-XX",
     openingHoursSpecification: [
-      { "@type": "OpeningHoursSpecification", dayOfWeek: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"], opens: "08:30", closes: "17:30" },
+      { "@type": "OpeningHoursSpecification", dayOfWeek: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"], opens: "08:00", closes: "17:00" },
     ],
     sameAs: ["https://linkedin.com/company/sti", "https://facebook.com/sti", "https://instagram.com/sti", "https://youtube.com/sti"],
   };

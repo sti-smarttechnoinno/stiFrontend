@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Clock,
@@ -16,6 +17,9 @@ import { useTranslations } from "../../[locale]/use-translations";
 const benefitIcons = [Clock, DollarSign, ShieldCheck, HeadphonesIcon, Package, UserCheck];
 
 export default function QuoteRequestForm() {
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
   const t = useTranslations();
   const formT = t.quote.form;
   const [submitted, setSubmitted] = useState(false);
@@ -31,6 +35,48 @@ export default function QuoteRequestForm() {
     contactMethod: "",
     message: "",
   });
+
+  const [provinces, setProvinces] = useState("58");
+  const [official, setOfficial] = useState("100%");
+  const [partners, setPartners] = useState("1000+");
+  const [response, setResponse] = useState("24h");
+  const [dbProducts, setDbProducts] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function loadStatsAndProducts() {
+      try {
+        const res = await fetch("/api/preferences");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.statistics) {
+            setProvinces(data.statistics.provincesServed || "58");
+            setOfficial(data.statistics.officialProducts || "100%");
+            setPartners(data.statistics.businessPartners || "1000+");
+            setResponse(data.statistics.averageResponse || "24h");
+          }
+        }
+      } catch {}
+
+      try {
+        const prodRes = await fetch("/api/products");
+        if (prodRes.ok) {
+          const prodData = await prodRes.json();
+          if (Array.isArray(prodData)) {
+            const publishedNames = prodData
+              .filter((p) => !p.status || p.status === "Published")
+              .map((p) => {
+                const lang = p.translations?.[currentLocale] || p.translations?.en || {};
+                return lang.name || p.slug;
+              });
+            if (publishedNames.length > 0) {
+              setDbProducts(publishedNames);
+            }
+          }
+        }
+      } catch {}
+    }
+    loadStatsAndProducts();
+  }, [currentLocale]);
 
   const handleProductChange = (product: string) => {
     setFormData((prev) => ({
@@ -48,10 +94,10 @@ export default function QuoteRequestForm() {
   };
 
   const stats = [
-    { value: "58", label: formT.stats.provinces },
-    { value: "100%", label: formT.stats.official },
-    { value: "1000+", label: formT.stats.partners },
-    { value: "24h", label: formT.stats.response },
+    { value: provinces, label: formT.stats.provinces },
+    { value: official, label: formT.stats.official },
+    { value: partners, label: formT.stats.partners },
+    { value: response, label: formT.stats.response },
   ];
 
   return (
@@ -206,7 +252,7 @@ export default function QuoteRequestForm() {
                       {formT.products_needed}
                     </label>
                     <div className="grid sm:grid-cols-2 gap-3">
-                      {formT.product_options.map((product: string) => (
+                      {(dbProducts.length > 0 ? dbProducts : formT.product_options).map((product: string) => (
                         <label
                           key={product}
                           className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
@@ -349,7 +395,7 @@ export default function QuoteRequestForm() {
                           {benefit.title}
                         </h4>
                         <p className="text-sm text-gray-500">
-                          {benefit.description}
+                          {benefit.description.replace("58", provinces)}
                         </p>
                       </div>
                     </div>

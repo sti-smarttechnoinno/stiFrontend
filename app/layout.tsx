@@ -1,25 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Manrope, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
-  variable: "--font-ibm-plex-arabic",
-  subsets: ["arabic"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "STI - Smart Technologie Innovation | Official Ooredoo Distributor Algeria",
@@ -57,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning className={`${inter.variable} ${manrope.variable} ${ibmPlexSansArabic.variable}`}>
+    <html suppressHydrationWarning>
       <body className="min-h-screen">
         {children}
       </body>

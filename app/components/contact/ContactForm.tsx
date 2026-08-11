@@ -2,14 +2,19 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 import { Send } from "lucide-react";
 import { useTranslations } from "../../[locale]/use-translations";
 import { useScrollReveal } from "../../hooks";
 
 export default function ContactForm() {
   const t = useTranslations();
+  const pathname = usePathname();
+  const currentLocale = pathname.split("/")[1] || "en";
   const { ref, visible } = useScrollReveal(0.1);
   const [submitted, setSubmitted] = useState(false);
+
+  const directInquiryBadge = currentLocale === "ar" ? "استفسار مباشر" : currentLocale === "fr" ? "Demande Directe" : "Direct Inquiry";
 
   const subjects = t.contact.form.subjects;
 
@@ -45,7 +50,7 @@ export default function ContactForm() {
           {/* Form Header */}
           <div className="border-b border-gray-100 pb-6">
             <span className="mb-2 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-              Direct Inquiry
+              {directInquiryBadge}
             </span>
             <h2
               className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2"

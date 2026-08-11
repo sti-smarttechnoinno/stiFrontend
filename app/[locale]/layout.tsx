@@ -44,11 +44,6 @@ export default async function LocaleLayout({
   
   return (
     <>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `document.documentElement.dir="${dir}";document.documentElement.lang="${locale}";`,
-        }}
-      />
       <DirSetter locale={locale} />
       <Providers locale={locale}>{children}</Providers>
     </>

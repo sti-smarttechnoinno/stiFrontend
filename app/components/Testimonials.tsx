@@ -4,9 +4,7 @@ import { Star, Quote } from "lucide-react";
 import { useScrollReveal } from "../hooks";
 import { useTranslations } from "../[locale]/use-translations";
 
-const colors = ["from-red-primary to-red-accent", "from-gray-700 to-gray-900", "from-gray-600 to-gray-800"];
-
-function TestimonialCard({ name, role, review, color, index }: { name: string; role: string; review: string; color: string; index: number }) {
+function TestimonialCard({ review, index }: { review: string; index: number }) {
   const { ref, visible } = useScrollReveal(0.2);
 
   return (
@@ -25,19 +23,9 @@ function TestimonialCard({ name, role, review, color, index }: { name: string; r
         ))}
       </div>
 
-      <p className="mb-6 text-sm leading-relaxed text-gray-600">
+      <p className="text-sm leading-relaxed text-gray-700 font-medium">
         &ldquo;{review}&rdquo;
       </p>
-
-      <div className="flex items-center gap-3">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${color} text-sm font-bold text-white`}>
-          {name.split(" ").map((n) => n[0]).join("")}
-        </div>
-        <div>
-          <div className="text-sm font-semibold text-gray-900">{name}</div>
-          <div className="text-xs text-gray-500">{role}</div>
-        </div>
-      </div>
     </article>
   );
 }
@@ -67,7 +55,7 @@ export default function Testimonials() {
         </div>
         <div className="grid gap-5 md:grid-cols-3">
           {t.testimonials.items.map((item, i) => (
-            <TestimonialCard key={item.name} {...item} color={colors[i]} index={i} />
+            <TestimonialCard key={i} review={item.review} index={i} />
           ))}
         </div>
       </div>

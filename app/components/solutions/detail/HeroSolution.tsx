@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Check, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useTranslations } from "../../../[locale]/use-translations";
 
 interface Props {
   badge: string;
@@ -98,105 +100,59 @@ function Illustration({ type }: { type: Props["illustration"] }) {
         <rect x="380" y="285" width="30" height="15" rx="3" fill="#D71920" opacity="0.08" />
         <rect x="340" y="310" width="70" height="2" rx="1" fill="#E5E7EB" />
         <rect x="340" y="318" width="50" height="2" rx="1" fill="#E5E7EB" />
-        <text x="250" y="400" textAnchor="middle" fill="#D71920" fontSize="11" fontWeight="bold">WHOLESALE DISTRIBUTION</text>
-        <circle cx="150" cy="160" r="2" fill="#D71920" opacity="0.2">
-          <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" />
-        </circle>
       </svg>
     ),
     retail: (
       <svg viewBox="0 0 500 500" fill="none" className="w-full h-full" aria-hidden="true">
         <g opacity="0.08"><circle cx="250" cy="250" r="180" stroke="#D71920" strokeWidth="1" strokeDasharray="4 6" fill="none" /></g>
-        <rect x="100" y="180" width="300" height="180" rx="12" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
-        <rect x="120" y="200" width="60" height="80" rx="6" fill="#D71920" opacity="0.08" />
-        <rect x="190" y="200" width="60" height="80" rx="6" fill="#D71920" opacity="0.06" />
-        <rect x="260" y="200" width="60" height="80" rx="6" fill="#D71920" opacity="0.08" />
-        <rect x="330" y="200" width="50" height="80" rx="6" fill="#D71920" opacity="0.05" />
-        <rect x="120" y="295" width="60" height="4" rx="2" fill="#E5E7EB" />
-        <rect x="190" y="295" width="60" height="4" rx="2" fill="#E5E7EB" />
-        <rect x="260" y="295" width="60" height="4" rx="2" fill="#E5E7EB" />
-        <rect x="120" y="310" width="40" height="3" rx="1.5" fill="#E5E7EB" />
-        <rect x="190" y="310" width="40" height="3" rx="1.5" fill="#E5E7EB" />
-        <rect x="260" y="310" width="40" height="3" rx="1.5" fill="#E5E7EB" />
-        <text x="250" y="365" textAnchor="middle" fill="#D71920" fontSize="9" fontWeight="bold">RETAIL DISPLAY</text>
-        <rect x="180" y="390" width="140" height="50" rx="8" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
-        <rect x="195" y="402" width="25" height="8" rx="2" fill="#D71920" opacity="0.2" />
-        <text x="250" y="428" textAnchor="middle" fill="#6B7280" fontSize="7">COUNTER</text>
-        <circle cx="130" cy="150" r="2" fill="#D71920" opacity="0.2">
-          <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" />
-        </circle>
+        <rect x="120" y="160" width="260" height="180" rx="14" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
+        <path d="M120 210 L250 160 L380 210" stroke="#D71920" strokeWidth="1" fill="#D71920" opacity="0.05" />
+        <rect x="150" y="230" width="60" height="80" rx="6" fill="#D71920" opacity="0.08" />
+        <rect x="230" y="230" width="60" height="80" rx="6" fill="#D71920" opacity="0.06" />
+        <rect x="310" y="230" width="40" height="80" rx="6" stroke="#E5E7EB" strokeWidth="1" />
+        <circle cx="330" cy="270" r="4" fill="#D71920" opacity="0.3" />
       </svg>
     ),
     partnership: (
       <svg viewBox="0 0 500 500" fill="none" className="w-full h-full" aria-hidden="true">
         <g opacity="0.08"><circle cx="250" cy="250" r="180" stroke="#D71920" strokeWidth="1" strokeDasharray="4 6" fill="none" /></g>
-        <circle cx="180" cy="220" r="60" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
-        <circle cx="320" cy="220" r="60" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
-        <circle cx="250" cy="320" r="60" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
-        <circle cx="250" cy="230" r="20" fill="#D71920" opacity="0.1" />
-        <text x="250" y="235" textAnchor="middle" fill="#D71920" fontSize="10" fontWeight="bold">STI</text>
-        <circle cx="180" cy="220" r="30" fill="#D71920" opacity="0.06" />
-        <text x="180" y="224" textAnchor="middle" fill="#D71920" fontSize="8">Ooredoo</text>
-        <circle cx="320" cy="220" r="30" fill="#D71920" opacity="0.06" />
-        <text x="320" y="224" textAnchor="middle" fill="#D71920" fontSize="7">Retailers</text>
-        <circle cx="250" cy="320" r="30" fill="#D71920" opacity="0.06" />
-        <text x="250" y="324" textAnchor="middle" fill="#D71920" fontSize="7">Partners</text>
-        <line x1="210" y1="245" x2="235" y2="275" stroke="#D71920" strokeWidth="1" opacity="0.2" />
-        <line x1="290" y1="245" x2="265" y2="275" stroke="#D71920" strokeWidth="1" opacity="0.2" />
-        <line x1="220" y1="270" x2="280" y2="270" stroke="#D71920" strokeWidth="1" opacity="0.15" />
-        <circle cx="150" cy="140" r="2" fill="#D71920" opacity="0.2">
-          <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" />
-        </circle>
+        <rect x="120" y="180" width="120" height="140" rx="12" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
+        <rect x="260" y="180" width="120" height="140" rx="12" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
+        <path d="M220 250 H280" stroke="#D71920" strokeWidth="2" strokeDasharray="4 4" />
+        <circle cx="250" cy="250" r="16" fill="#D71920" opacity="0.1" />
+        <path d="M244 250 L256 250 M250 244 L250 256" stroke="#D71920" strokeWidth="1.5" />
       </svg>
     ),
     support: (
       <svg viewBox="0 0 500 500" fill="none" className="w-full h-full" aria-hidden="true">
         <g opacity="0.08"><circle cx="250" cy="250" r="180" stroke="#D71920" strokeWidth="1" strokeDasharray="4 6" fill="none" /></g>
-        <rect x="120" y="140" width="260" height="180" rx="14" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
-        <rect x="140" y="160" width="100" height="14" rx="3" fill="#D71920" opacity="0.1" />
-        <rect x="140" y="184" width="220" height="6" rx="2" fill="#E5E7EB" />
-        <rect x="140" y="198" width="180" height="6" rx="2" fill="#E5E7EB" />
-        <rect x="140" y="220" width="80" height="28" rx="6" fill="#D71920" opacity="0.12" />
-        <text x="180" y="238" textAnchor="middle" fill="#D71920" fontSize="8" fontWeight="bold">CRM</text>
-        <rect x="230" y="220" width="80" height="28" rx="6" fill="#22C55E" opacity="0.12" />
-        <text x="270" y="238" textAnchor="middle" fill="#22C55E" fontSize="8" fontWeight="bold">CHAT</text>
-        <rect x="320" y="220" width="40" height="28" rx="6" fill="#3B82F6" opacity="0.12" />
-        <text x="340" y="238" textAnchor="middle" fill="#3B82F6" fontSize="8" fontWeight="bold">TEL</text>
-        <rect x="140" y="260" width="220" height="40" rx="6" fill="#F8FAFC" />
-        <rect x="155" y="270" width="30" height="20" rx="4" fill="#D71920" opacity="0.1" />
-        <rect x="195" y="270" width="140" height="4" rx="2" fill="#E5E7EB" />
-        <rect x="195" y="280" width="100" height="4" rx="2" fill="#E5E7EB" />
-        <rect x="100" y="350" width="120" height="60" rx="10" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
-        <rect x="115" y="362" width="20" height="14" rx="3" fill="#D71920" opacity="0.15" />
-        <text x="160" y="395" textAnchor="middle" fill="#6B7280" fontSize="7">PHONE</text>
-        <rect x="280" y="350" width="120" height="60" rx="10" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
-        <rect x="295" y="362" width="20" height="14" rx="3" fill="#D71920" opacity="0.15" />
-        <text x="340" y="395" textAnchor="middle" fill="#6B7280" fontSize="7">EMAIL</text>
-        <circle cx="200" cy="120" r="2" fill="#D71920" opacity="0.2">
-          <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite" />
-        </circle>
+        <circle cx="250" cy="230" r="70" fill="white" stroke="#E5E7EB" strokeWidth="1.5" />
+        <path d="M210 230 C210 200 290 200 290 230 C290 250 250 250 250 270" stroke="#D71920" strokeWidth="2" fill="none" />
+        <circle cx="250" cy="285" r="3" fill="#D71920" />
       </svg>
     ),
   };
-
-  return <>{configs[type]}</>;
+  return configs[type] || configs.recharge;
 }
 
 export default function HeroSolution({ badge, title, description, highlights, illustration }: Props) {
-  const checklist = highlights || [
-    "Official Ooredoo Products",
-    "Reliable Availability",
-    "Business Ready",
-    "Professional Support",
+  const pathname = usePathname();
+  const t = useTranslations();
+  const currentLocale = pathname.split("/")[1] || "en";
+
+  const checklist = highlights && highlights.length > 0 ? highlights : [
+    "Official Ooredoo Product Distribution",
+    "Continuous Stock & Fast Processing",
+    "58 Provinces Coverage across Algeria",
+    "Dedicated Partner Support Team"
   ];
 
   return (
-    <section className="relative min-h-[calc(100vh-88px)] lg:min-h-screen flex items-center bg-white pt-28 pb-16 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden">
-      {/* Background pattern */}
+    <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 via-white to-gray-50/50 pt-28 pb-20 sm:pt-36 sm:pb-28 lg:pt-40 lg:pb-32">
       <div
-        className="absolute inset-0 opacity-[0.025]"
+        className="absolute inset-0 opacity-[0.015] pointer-events-none"
         style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, #C8102E 1px, transparent 0)",
+          backgroundImage: `radial-gradient(#D71920 1px, transparent 1px)`,
           backgroundSize: "48px 48px",
         }}
       />
@@ -212,16 +168,16 @@ export default function HeroSolution({ badge, title, description, highlights, il
         >
           <ol className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
             <li>
-              <Link href="/" className="transition-colors hover:text-red-primary">
-                Home
+              <Link href={`/${currentLocale}`} className="transition-colors hover:text-red-primary">
+                {(t as any).solutionDetail?.home || t.nav?.home || "Home"}
               </Link>
             </li>
             <li>
               <ChevronRight size={12} />
             </li>
             <li>
-              <Link href="/solutions" className="transition-colors hover:text-red-primary">
-                Solutions
+              <Link href={`/${currentLocale}/solutions`} className="transition-colors hover:text-red-primary">
+                {(t as any).solutionDetail?.solutions || t.nav?.solutions || "Solutions"}
               </Link>
             </li>
             <li>
@@ -258,14 +214,14 @@ export default function HeroSolution({ badge, title, description, highlights, il
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              {description.map((p, i) => (
+              {description.map((paragraph, index) => (
                 <p
-                  key={i}
-                  className={`text-gray-500 leading-relaxed ${
-                    i === 0 ? "mb-3 sm:mb-4 text-base sm:text-lg" : "mb-2.5 sm:mb-3 text-sm sm:text-base"
+                  key={index}
+                  className={`text-base sm:text-lg leading-relaxed text-gray-600 ${
+                    index > 0 ? "mt-4" : ""
                   }`}
                 >
-                  {p}
+                  {paragraph}
                 </p>
               ))}
             </motion.div>
@@ -290,19 +246,19 @@ export default function HeroSolution({ badge, title, description, highlights, il
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4"
             >
-              <a
-                href="#contact"
+              <Link
+                href={`/${currentLocale}/contact`}
                 className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-red-primary px-7 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-red-primary/20 transition-all duration-300 hover:bg-red-primary/90 hover:shadow-xl hover:shadow-red-primary/25 hover:scale-[1.03]"
               >
-                Become a Partner
-                <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
-              </a>
-              <a
-                href="#contact"
+                {(t as any).solutionDetail?.become_partner || "Become a Partner"}
+                <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
+              </Link>
+              <Link
+                href={`/${currentLocale}/contact`}
                 className="inline-flex items-center justify-center gap-2.5 rounded-full border border-gray-200 bg-white px-7 py-3.5 text-[15px] font-semibold text-gray-700 shadow-sm transition-all duration-300 hover:border-gray-300 hover:shadow-md hover:scale-[1.03]"
               >
-                Contact Sales
-              </a>
+                {(t as any).solutionDetail?.contact_sales || "Contact Sales"}
+              </Link>
             </motion.div>
           </div>
 

@@ -4,8 +4,10 @@ import type { NextRequest } from "next/server";
 const locales = ["en", "fr", "ar"];
 const defaultLocale = "en";
 
+// Routes that should NOT get locale prefixes like /en or /ar
+const skippedPrefixes = ["/console", "/gate", "/api", "/_next", "/assets"];
+
 function getLocale(request: NextRequest): string {
-  // Check Accept-Language header
   const acceptLanguage = request.headers.get("accept-language");
   if (acceptLanguage) {
     const preferred = acceptLanguage
@@ -19,28 +21,43 @@ function getLocale(request: NextRequest): string {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get("sti_admin_token")?.value;
 
-  // Skip dashboard routes and API routes
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/api")) {
-    return;
+  // Protect /console and /console/* routes
+  if (pathname.startsWith("/console")) {
+    if (!token) {
+      const loginUrl = new URL("/gate/login", request.url);
+      loginUrl.searchParams.set("from", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
   }
-  
-  // Check if there is any supported locale in the pathname
+
+  // Handle /gate/login route: DO NOT redirect to /en/gate/login
+  if (pathname.startsWith("/gate")) {
+    if (token) {
+      return NextResponse.redirect(new URL("/console", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  if (skippedPrefixes.some((prefix) => pathname.startsWith(prefix))) {
+    return NextResponse.next();
+  }
+
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  if (pathnameHasLocale) return;
+  if (pathnameHasLocale) return NextResponse.next();
 
-  // Redirect if there is no locale
   const locale = getLocale(request);
   request.nextUrl.pathname = `/${locale}${pathname}`;
   return NextResponse.redirect(request.nextUrl);
 }
 
+export const middleware = proxy;
+
 export const config = {
-  matcher: [
-    // Skip all internal paths, static files, dashboard, api, and assets
-    "/((?!_next/static|_next/image|assets|dashboard|api|favicon.ico|site.webmanifest).*)",
-  ],
+  matcher: ["/((?!_next|assets|favicon\\.ico|site\\.webmanifest).*)"],
 };

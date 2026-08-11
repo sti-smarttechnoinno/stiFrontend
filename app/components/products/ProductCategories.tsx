@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CardSim, CreditCard, FileCheck } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "../../[locale]/use-translations";
 import { productCategories } from "../../data/products";
 
@@ -33,8 +34,29 @@ const cardVariants = {
   },
 };
 
+const categoryTranslations: Record<string, Record<string, { name: string; description: string }>> = {
+  "sim-cards": {
+    en: { name: "SIM Cards", description: "Official Ooredoo prepaid SIM cards for retailers, wholesalers, and business partners." },
+    ar: { name: "شرائح SIM", description: "شرائح SIM مدفوعة مسبقاً من أوريدو لتجار التجزئة والجملة وشركاء الأعمال." },
+    fr: { name: "Cartes SIM", description: "Cartes SIM prépayées Ooredoo officielles pour détaillants, grossistes et partenaires." },
+  },
+  "recharge-credit": {
+    en: { name: "Recharge Credit Distribution", description: "Official Ooredoo recharge credit available in multiple denominations for business partners." },
+    ar: { name: "توزيع رصيد الشحن", description: "رصيد شحن رسمي من أوريدو متوفر بمختلف الفئات والكميات لشركاء الأعمال." },
+    fr: { name: "Distribution de Crédit de Rechargement", description: "Crédit de rechargement Ooredoo officiel disponible en plusieurs valeurs." },
+  },
+  "delivery-tickets": {
+    en: { name: "Recharge Delivery Tickets", description: "Official delivery tickets used for the distribution of Ooredoo recharge credit." },
+    ar: { name: "وصلات تسليم الشحن", description: "وصلات تسليم رسمية معتمدة تستخدم لتوزيع رصيد شحن أوريدو." },
+    fr: { name: "Bons de Livraison de Rechargement", description: "Bons de livraison officiels utilisés pour la distribution du crédit Ooredoo." },
+  },
+};
+
 export default function ProductCategories() {
   const t = useTranslations();
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
   const catT = t.productsPage?.categories || {
     badge: "Product Categories",
     title: "Official Product Lines",
@@ -76,6 +98,11 @@ export default function ProductCategories() {
         >
           {productCategories.map((category) => {
             const IconComponent = categoryIcons[category.id] || CreditCard;
+            const trans = categoryTranslations[category.id]?.[currentLocale] || categoryTranslations[category.id]?.en || {
+              name: category.name,
+              description: category.description,
+            };
+
             return (
               <motion.div
                 key={category.id}
@@ -96,10 +123,10 @@ export default function ProductCategories() {
                   className="text-lg font-bold text-gray-900 mb-3"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  {category.name}
+                  {trans.name}
                 </h3>
                 <p className="text-sm leading-relaxed text-gray-500">
-                  {category.description}
+                  {trans.description}
                 </p>
               </motion.div>
             );

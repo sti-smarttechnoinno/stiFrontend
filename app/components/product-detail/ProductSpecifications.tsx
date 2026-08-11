@@ -1,9 +1,42 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 import type { Product } from "../../data/products";
 
 export default function ProductSpecifications({ product }: { product: Product }) {
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const staticT = {
+    en: {
+      badge: "Specifications",
+      title: "Product Specifications",
+      feature: "Feature",
+      value: "Value",
+    },
+    ar: {
+      badge: "المواصفات",
+      title: "مواصفات المنتج",
+      feature: "الخاصية",
+      value: "القيمة",
+    },
+    fr: {
+      badge: "Spécifications",
+      title: "Spécifications du Produit",
+      feature: "Caractéristique",
+      value: "Valeur",
+    },
+  }[currentLocale] || {
+    badge: "Specifications",
+    title: "Product Specifications",
+    feature: "Feature",
+    value: "Value",
+  };
+
+  const langTrans = product.translations?.[currentLocale] || product.translations?.en;
+  const specifications = langTrans?.specifications?.length ? langTrans.specifications : product.specifications;
+
   return (
     <section className="py-20 sm:py-28 lg:py-36 bg-white">
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
@@ -16,13 +49,13 @@ export default function ProductSpecifications({ product }: { product: Product })
           className="text-center mb-16"
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            Specifications
+            {staticT.badge}
           </span>
           <h2
             className="mb-4 text-3xl font-extrabold text-gray-900 lg:text-4xl"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Product Specifications
+            {staticT.title}
           </h2>
         </motion.div>
 
@@ -38,12 +71,12 @@ export default function ProductSpecifications({ product }: { product: Product })
             <table className="w-full">
               <thead>
                 <tr className="bg-red-primary/5">
-                  <th className="text-left rtl:text-right py-4 px-6 text-sm font-bold text-gray-900">Feature</th>
-                  <th className="text-left rtl:text-right py-4 px-6 text-sm font-bold text-gray-900">Value</th>
+                  <th className="text-left rtl:text-right py-4 px-6 text-sm font-bold text-gray-900">{staticT.feature}</th>
+                  <th className="text-left rtl:text-right py-4 px-6 text-sm font-bold text-gray-900">{staticT.value}</th>
                 </tr>
               </thead>
               <tbody>
-                {product.specifications.map((spec, index) => (
+                {specifications.map((spec: { label: string; value: string }, index: number) => (
                   <tr
                     key={spec.label}
                     className={`border-t border-gray-100 ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}

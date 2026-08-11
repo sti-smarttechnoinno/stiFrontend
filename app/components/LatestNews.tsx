@@ -1,12 +1,36 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useScrollReveal } from "../hooks";
 import { useTranslations } from "../[locale]/use-translations";
+import type { ApiNewsItem } from "../api/news/route";
 
-function ArticleCard({ image, category, title, excerpt, date, index, ctaText, currentLocale }: { image: string; category: string; title: string; excerpt: string; date: string; index: number; ctaText: string; currentLocale: string }) {
+function ArticleCard({
+  image,
+  category,
+  title,
+  excerpt,
+  date,
+  slug,
+  index,
+  ctaText,
+  currentLocale,
+}: {
+  image: string;
+  category: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  slug?: string;
+  index: number;
+  ctaText: string;
+  currentLocale: string;
+}) {
   const { ref, visible } = useScrollReveal(0.2);
+  const href = slug ? `/${currentLocale}/news/${slug}` : `/${currentLocale}/news`;
 
   return (
     <article
@@ -18,7 +42,7 @@ function ArticleCard({ image, category, title, excerpt, date, index, ctaText, cu
     >
       <div className="relative overflow-hidden">
         <img
-          src={image}
+          src={image || "/assets/hero.png"}
           alt={title}
           className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -34,13 +58,13 @@ function ArticleCard({ image, category, title, excerpt, date, index, ctaText, cu
         <p className="mb-5 text-sm leading-relaxed text-gray-500 line-clamp-2">
           {excerpt}
         </p>
-        <a
-          href={`/${currentLocale}/about`}
+        <Link
+          href={href}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-red-primary transition-colors hover:text-red-accent"
         >
           {ctaText}
           <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
-        </a>
+        </Link>
       </div>
     </article>
   );
@@ -50,7 +74,32 @@ export default function LatestNews() {
   const { ref, visible } = useScrollReveal();
   const t = useTranslations();
   const pathname = usePathname();
-  const currentLocale = pathname.split("/")[1] || "en";
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const [articles, setArticles] = useState<ApiNewsItem[]>([]);
+
+  useEffect(() => {
+    async function loadNews() {
+      try {
+        const res = await fetch("/api/news");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            // Sort by publishedAt or ID descending to get the 3 latest articles
+            const sorted = [...data].sort((a, b) => {
+              const dateA = new Date(a.publishedAt || a.updated_at || 0).getTime();
+              const dateB = new Date(b.publishedAt || b.updated_at || 0).getTime();
+              return dateB - dateA;
+            });
+            setArticles(sorted.slice(0, 3));
+          }
+        }
+      } catch {}
+    }
+    loadNews();
+  }, []);
+
+  const fallbackArticles = t.latestNews?.items?.slice(0, 3) || [];
 
   return (
     <section id="news" className="py-28 lg:py-36 bg-white">
@@ -62,19 +111,44 @@ export default function LatestNews() {
           }`}
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            {t.latestNews.badge}
+            {t.latestNews?.badge || "News & Insights"}
           </span>
           <h2 className="mb-4 text-3xl font-extrabold text-gray-900 lg:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
-            {t.latestNews.title}
+            {t.latestNews?.title || "Latest News & Updates"}
           </h2>
           <p className="mx-auto max-w-xl text-gray-500">
-            {t.latestNews.subtitle}
+            {t.latestNews?.subtitle || "Stay informed with the latest news, announcements, and telecom market insights from STI."}
           </p>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
-          {t.latestNews.items.map((a, i) => (
-            <ArticleCard key={a.title} image="/assets/hero.png" {...a} index={i} ctaText={t.latestNews.cta} currentLocale={currentLocale} />
-          ))}
+          {articles.length > 0
+            ? articles.map((art, i) => {
+                const trans = art.translations?.[currentLocale] || art.translations?.en || {};
+                return (
+                  <ArticleCard
+                    key={art.id || art.slug || i}
+                    image={art.heroImage || "/assets/hero.png"}
+                    category={art.category}
+                    title={trans.title || art.slug}
+                    excerpt={trans.excerpt || ""}
+                    date={art.publishedAt}
+                    slug={art.slug}
+                    index={i}
+                    ctaText={t.latestNews?.cta || "Read More"}
+                    currentLocale={currentLocale}
+                  />
+                );
+              })
+            : fallbackArticles.map((a, i) => (
+                <ArticleCard
+                  key={a.title}
+                  image="/assets/hero.png"
+                  {...a}
+                  index={i}
+                  ctaText={t.latestNews?.cta || "Read More"}
+                  currentLocale={currentLocale}
+                />
+              ))}
         </div>
       </div>
     </section>

@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
 import { useTranslations } from "../[locale]/use-translations";
 
 const LinkedinIcon = () => (
@@ -18,9 +20,9 @@ const FacebookIcon = () => (
   </svg>
 );
 
-const InstagramIcon = () => (
+const TwitterIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
   </svg>
 );
 
@@ -31,45 +33,112 @@ const YoutubeIcon = () => (
   </svg>
 );
 
-const socials = [
-  { icon: <LinkedinIcon />, href: "#", label: "LinkedIn" },
-  { icon: <FacebookIcon />, href: "#", label: "Facebook" },
-  { icon: <InstagramIcon />, href: "#", label: "Instagram" },
-  { icon: <YoutubeIcon />, href: "#", label: "YouTube" },
-];
-
 export default function Footer() {
   const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = pathname.split("/")[1] || "en";
 
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("contact@sti.dz");
+  const [socialMedia, setSocialMedia] = useState<{ linkedin?: string; facebook?: string; twitter?: string; youtube?: string }>({});
+  const [locationObj, setLocationObj] = useState<{ [key: string]: string }>({
+    en: "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria",
+    ar: "المنطقة الصناعية رقم 24، باب الزوار، الجزائر العاصمة",
+    fr: "Lot 24, Zone Industrielle, Bab Ezzouar, Alger, Algérie",
+  });
+  const [workingHoursObj, setWorkingHoursObj] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    fetch("/api/preferences")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.phone) setPhone(data.phone);
+        if (data.email) setEmail(data.email);
+        if (data.socialMedia) setSocialMedia(data.socialMedia);
+        if (data.address && typeof data.address === "object") {
+          setLocationObj(data.address);
+        }
+        if (data.location && typeof data.location === "object") {
+          setLocationObj(data.location);
+        }
+        if (data.workingHours && typeof data.workingHours === "object") {
+          setWorkingHoursObj(data.workingHours);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const activeWorkingHours = workingHoursObj[currentLocale] || workingHoursObj.en || t.nav.phone_hours;
+  const activeLocation = locationObj[currentLocale] || locationObj.en || "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria";
+
+  const socials = [
+    { icon: <LinkedinIcon />, href: socialMedia.linkedin, label: "LinkedIn" },
+    { icon: <FacebookIcon />, href: socialMedia.facebook, label: "Facebook" },
+    { icon: <TwitterIcon />, href: socialMedia.twitter, label: "Twitter" },
+    { icon: <YoutubeIcon />, href: socialMedia.youtube, label: "YouTube" },
+  ].filter((s) => s.href && s.href.trim() !== "" && s.href !== "#");
+
+  const linkLabels = {
+    en: {
+      about: "About Us",
+      careers: "Careers",
+      news: "News & Insights",
+      contact: "Contact Us",
+      solutions: "Solutions",
+      products: "Products",
+      quote: "Request Quote",
+    },
+    ar: {
+      about: "من نحن",
+      careers: "الوظائف",
+      news: "الأخبار والمقالات",
+      contact: "اتصل بنا",
+      solutions: "الحلول",
+      products: "المنتجات",
+      quote: "طلب عرض سعر",
+    },
+    fr: {
+      about: "À propos de nous",
+      careers: "Carrières",
+      news: "Actualités",
+      contact: "Contactez-nous",
+      solutions: "Solutions",
+      products: "Produits",
+      quote: "Demander un Devis",
+    },
+  }[currentLocale] || {
+    about: "About Us",
+    careers: "Careers",
+    news: "News & Insights",
+    contact: "Contact Us",
+    solutions: "Solutions",
+    products: "Products",
+    quote: "Request Quote",
+  };
+
   const columns = [
     {
       title: t.footer.company,
       links: [
-        { label: t.footer.about, href: `/${currentLocale}/about` },
-        { label: t.footer.careers, href: `/${currentLocale}/careers` },
-        { label: t.footer.news, href: `/${currentLocale}/news` },
-        { label: t.footer.contact_link, href: `/${currentLocale}/contact` },
+        { label: linkLabels.about, href: `/${currentLocale}/about` },
+        { label: linkLabels.careers, href: `/${currentLocale}/careers` },
+        { label: linkLabels.news, href: `/${currentLocale}/news` },
+        { label: linkLabels.contact, href: `/${currentLocale}/contact` },
       ],
     },
     {
       title: t.footer.solutions,
       links: [
-        { label: t.footer.mobile_recharge, href: `/${currentLocale}/solutions` },
-        { label: t.footer.sim_activation, href: `/${currentLocale}/solutions` },
-        { label: t.footer.enterprise_link, href: `/${currentLocale}#enterprise` },
-        { label: t.footer.internet, href: `/${currentLocale}/solutions` },
-        { label: t.footer.support, href: `/${currentLocale}#support` },
+        { label: linkLabels.solutions, href: `/${currentLocale}/solutions` },
+        { label: linkLabels.products, href: `/${currentLocale}/products` },
+        { label: linkLabels.quote, href: `/${currentLocale}/quote` },
       ],
     },
     {
       title: t.footer.resources,
       links: [
-        { label: t.footer.faq, href: `/${currentLocale}#support` },
-        { label: t.footer.documentation, href: `/${currentLocale}/quote` },
-        { label: t.footer.privacy_policy, href: `/${currentLocale}/about` },
-        { label: t.footer.terms, href: `/${currentLocale}/about` },
+        { label: linkLabels.contact, href: `/${currentLocale}/contact` },
+        { label: linkLabels.quote, href: `/${currentLocale}/quote` },
       ],
     },
   ];
@@ -81,29 +150,35 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="mb-5 flex items-center gap-2.5">
-              <Image
-                src="/assets/logo.png"
-                alt="STI - Smart Technologie Innovation"
-                width={200}
-                height={70}
-                className="h-14 w-auto brightness-0 invert opacity-90 hover:opacity-100 transition-opacity duration-300"
-              />
+              <Link href={`/${currentLocale}`}>
+                <Image
+                  src="/assets/logo.png"
+                  alt="STI - Smart Technologie Innovation"
+                  width={200}
+                  height={70}
+                  className="h-14 w-auto brightness-0 invert opacity-90 hover:opacity-100 transition-opacity duration-300"
+                />
+              </Link>
             </div>
             <p className="mb-6 max-w-xs text-sm leading-relaxed text-gray-400">
               {t.footer.brand_description}
             </p>
-            <div className="flex gap-3">
-              {socials.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-gray-400 transition-all hover:bg-red-primary hover:text-white"
-                >
-                  {s.icon}
-                </a>
-              ))}
-            </div>
+            {socials.length > 0 && (
+              <div className="flex gap-3">
+                {socials.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-gray-400 transition-all hover:bg-red-primary hover:text-white"
+                  >
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Link columns */}
@@ -115,12 +190,12 @@ export default function Footer() {
               <ul className="space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <a
+                    <Link
                       href={link.href}
                       className="text-sm text-gray-400 transition-colors hover:text-white"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -133,39 +208,43 @@ export default function Footer() {
               {t.footer.contact}
             </h4>
             <ul className="space-y-3">
-              <li className="flex items-start gap-2.5">
-                <Phone size={15} className="mt-0.5 shrink-0 text-gray-500" />
-                <div>
-                  <div className="text-sm text-gray-300" dir="ltr">0550 123 456</div>
-                  <div className="text-xs text-gray-500">{t.footer.phone_hours}</div>
-                </div>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Mail size={15} className="mt-0.5 shrink-0 text-gray-500" />
-                <span className="text-sm text-gray-300">contact@sti-dz.com</span>
+              {phone && (
+                <li className="flex items-start gap-2.5">
+                  <Phone size={15} className="mt-0.5 shrink-0 text-red-primary" />
+                  <div className="text-start">
+                    <div className="text-sm font-bold text-gray-200">
+                      <bdo dir="ltr" className="inline-block">{phone}</bdo>
+                    </div>
+                    {activeWorkingHours && <div className="text-xs text-gray-500">{activeWorkingHours}</div>}
+                  </div>
+                </li>
+              )}
+              <li className="flex items-center gap-2.5">
+                <Mail size={15} className="shrink-0 text-gray-500" />
+                <a href={`mailto:${email}`} className="text-sm text-gray-300 hover:text-white transition-colors">
+                  {email}
+                </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-gray-500" />
-                <span className="text-sm text-gray-300">{t.footer.location}</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Clock size={15} className="mt-0.5 shrink-0 text-gray-500" />
-                <span className="text-sm text-gray-300">{t.footer.hours_full}</span>
+                <span className="text-sm text-gray-300 leading-snug">
+                  {activeLocation}
+                </span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
+        {/* Bottom */}
+        <div className="mt-16 border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} {t.footer.copyright}
+            {currentLocale === "ar"
+              ? `© ${new Date().getFullYear()} شركة سمارت تكنولوجي إينوفيشين (STI). جميع الحقوق محفوظة.`
+              : currentLocale === "fr"
+              ? `© ${new Date().getFullYear()} SARL Smart Technologie Innovation (STI). Tous droits réservés.`
+              : `© ${new Date().getFullYear()} SARL Smart Technologie Innovation (STI). All rights reserved.`}
           </p>
-          <div className="flex gap-6">
-            <a href="#" className="text-xs text-gray-500 transition-colors hover:text-white">{t.footer.privacy}</a>
-            <a href="#" className="text-xs text-gray-500 transition-colors hover:text-white">{t.footer.terms_link}</a>
-            <a href="#" className="text-xs text-gray-500 transition-colors hover:text-white">{t.footer.cookies}</a>
-          </div>
+          <div />
         </div>
       </div>
     </footer>

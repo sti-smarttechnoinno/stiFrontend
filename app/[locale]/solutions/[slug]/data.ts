@@ -442,5 +442,5 @@ export function getSolutionBySlug(slug: string): SolutionData | undefined {
 }
 
 export function getRelatedSolutions(currentSlug: string): SolutionData[] {
-  return solutions.filter((s) => s.slug !== currentSlug).slice(0, 4);
+  return solutions.filter((s) => s.slug !== currentSlug).slice(0, 5);
 }

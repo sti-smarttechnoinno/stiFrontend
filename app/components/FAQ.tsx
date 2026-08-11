@@ -48,7 +48,7 @@ export default function FAQ() {
   const t = useTranslations();
 
   return (
-    <section id="support" className="py-28 lg:py-36 bg-gray-50">
+    <section id="support" className="py-28 lg:py-36 bg-white">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-8">
         <div
           ref={ref}

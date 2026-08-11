@@ -2,7 +2,9 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight, Smartphone, CardSim, Building2, Zap, Package } from "lucide-react";
+import { useTranslations } from "../../../[locale]/use-translations";
 
 interface Props {
   slug: string;
@@ -26,6 +28,10 @@ function getSolutionIcon(slug: string) {
 }
 
 export default function RelatedCard({ slug, title, description }: Props) {
+  const pathname = usePathname();
+  const t = useTranslations();
+  const currentLocale = pathname.split("/")[1] || "en";
+
   return (
     <motion.article
       whileHover={{ y: -4 }}
@@ -41,13 +47,23 @@ export default function RelatedCard({ slug, title, description }: Props) {
       <h3 className="mb-3 text-lg font-bold text-gray-900" style={{ fontFamily: "var(--font-manrope)" }}>
         {title}
       </h3>
-      <p className="mb-6 text-sm leading-relaxed text-gray-500">{description}</p>
+      <p
+        className="mb-6 text-sm leading-relaxed text-gray-500 line-clamp-3 overflow-hidden"
+        style={{
+          display: "-webkit-box",
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}
+      >
+        {description}
+      </p>
       <Link
-        href={`/solutions/${slug}`}
+        href={`/${currentLocale}/solutions/${slug}`}
         className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-red-primary transition-colors hover:text-red-accent"
       >
-        Learn More
-        <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+        {(t as any).solutionDetail?.learn_more || t.services?.cta || "Learn More"}
+        <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
       </Link>
     </motion.article>
   );

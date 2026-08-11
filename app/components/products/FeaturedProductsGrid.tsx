@@ -1,33 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, CreditCard, CardSim, FileCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "../../[locale]/use-translations";
-import { products } from "../../data/products";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.16, 1, 0.3, 1] as const,
-    },
-  },
-};
+import { products as initialStaticProducts } from "../../data/products";
+import type { ApiProductItem } from "../../api/products/route";
 
 function getProductIcon(category: string, type: string) {
   if (category.toLowerCase().includes("sim") || type.toLowerCase().includes("sim")) {
@@ -42,7 +22,53 @@ function getProductIcon(category: string, type: string) {
 export default function FeaturedProductsGrid() {
   const t = useTranslations();
   const pathname = usePathname();
-  const currentLocale = pathname.split("/")[1] || "en";
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const [displayProducts, setDisplayProducts] = useState(() => {
+    return initialStaticProducts.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      shortDescription: p.shortDescription || p.description,
+      category: p.category,
+      productType: p.productType,
+      value: p.value,
+    }));
+  });
+
+  useEffect(() => {
+    async function loadApiProducts() {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const apiData: ApiProductItem[] = await res.json();
+          if (Array.isArray(apiData) && apiData.length > 0) {
+            const published = apiData.filter((s) => !s.status || s.status === "Published");
+            const mapped = published.map((s) => {
+              const lang = s.translations?.[currentLocale] || s.translations?.en || {};
+              const desc = lang.shortDescription || (Array.isArray(lang.description) ? lang.description[0] : (lang.description || ""));
+              return {
+                id: String(s.id),
+                slug: s.slug,
+                name: lang.name || s.slug,
+                shortDescription: desc,
+                category: s.category || "Recharge Credit",
+                productType: s.productType || "Recharge",
+                value: s.value || "Available",
+              };
+            });
+
+            if (mapped.length > 0) {
+              setDisplayProducts(mapped);
+            }
+          }
+        }
+      } catch {}
+    }
+
+    loadApiProducts();
+  }, [currentLocale]);
+
   const featT = t.productsPage?.featured || {
     badge: "Featured Range",
     title: "Official Ooredoo Products Catalogue",
@@ -77,20 +103,16 @@ export default function FeaturedProductsGrid() {
         </motion.div>
 
         {/* Products Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {products.map((product) => {
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayProducts.map((product, i) => {
             const Icon = getProductIcon(product.category, product.productType);
 
             return (
               <motion.article
-                key={product.id}
-                variants={cardVariants}
+                key={product.slug || product.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
                 whileHover={{ y: -4 }}
                 className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-7 shadow-[0_2px_16px_rgba(0,0,0,0.03)] transition-all duration-500 hover:shadow-[0_12px_48px_rgba(200,16,46,0.08)] flex flex-col justify-between"
               >
@@ -119,7 +141,7 @@ export default function FeaturedProductsGrid() {
                   </Link>
 
                   {/* Description */}
-                  <p className="text-xs text-gray-500 leading-relaxed mb-6">
+                  <p className="text-xs text-gray-500 leading-relaxed mb-6 line-clamp-3">
                     {product.shortDescription}
                   </p>
                 </div>
@@ -134,7 +156,7 @@ export default function FeaturedProductsGrid() {
                     <ArrowRight size={14} className="ml-1.5 rtl:mr-1.5 rtl:ml-0 rtl:rotate-180" />
                   </Link>
                   <Link
-                    href={`/${currentLocale}/quote`}
+                    href={`/${currentLocale}/contact`}
                     className="flex items-center justify-center w-full py-2.5 rounded-full border border-gray-200 text-xs font-semibold text-gray-700 transition-all duration-300 hover:border-gray-300 hover:bg-gray-50"
                   >
                     <span>{featT.cta_quote || "Request Quote"}</span>
@@ -143,7 +165,7 @@ export default function FeaturedProductsGrid() {
               </motion.article>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

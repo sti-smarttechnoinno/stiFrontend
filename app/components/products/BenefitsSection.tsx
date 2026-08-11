@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ShieldCheck,
@@ -9,6 +10,7 @@ import {
   Truck,
   HeadphonesIcon,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "../../[locale]/use-translations";
 
 const benefitIcons = [ShieldCheck, Tag, Package, Zap, Truck, HeadphonesIcon];
@@ -37,14 +39,52 @@ const cardVariants = {
 
 export default function BenefitsSection() {
   const t = useTranslations();
-  const defaultBenefits = [
-    { title: "Official Ooredoo Products", description: "100% genuine products directly from Ooredoo Algeria." },
-    { title: "Competitive Wholesale Pricing", description: "Designed to maximize margins for business growth." },
-    { title: "Reliable Stock Availability", description: "Continuous inventory supply without interruptions." },
-    { title: "Fast Order Processing", description: "Efficient fulfillment and rapid dispatch." },
-    { title: "Nationwide Distribution Support", description: "Serving partners across all 58 Algerian provinces." },
-    { title: "Dedicated Business Support", description: "Professional account management and assistance." },
-  ];
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const [provincesCount, setProvincesCount] = useState("58");
+
+  useEffect(() => {
+    async function loadPreferences() {
+      try {
+        const res = await fetch("/api/preferences");
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.statistics?.provincesServed) {
+            setProvincesCount(data.statistics.provincesServed);
+          }
+        }
+      } catch {}
+    }
+    loadPreferences();
+  }, []);
+
+  const localizedBenefits = {
+    en: [
+      { title: "Official Ooredoo Products", description: "100% genuine products directly from Ooredoo Algeria." },
+      { title: "Competitive Wholesale Pricing", description: "Designed to maximize margins for business growth." },
+      { title: "Reliable Stock Availability", description: "Continuous inventory supply without interruptions." },
+      { title: "Fast Order Processing", description: "Efficient fulfillment and rapid dispatch." },
+      { title: "Nationwide Distribution Support", description: `Serving partners across all ${provincesCount} Algerian provinces.` },
+      { title: "Dedicated Business Support", description: "Professional account management and assistance." },
+    ],
+    ar: [
+      { title: "منتجات أوريدو الرسمية", description: "منتجات أصيلة 100% مباشرة من Ooredoo الجزائر." },
+      { title: "أسعار جملة تنافسية", description: "مصممة لزيادة هامش الربح وتنمية التجارة." },
+      { title: "تزود مستمر للمخزون", description: "تأمين مخزون دائم ومستمر دون انقطاع." },
+      { title: "معالجة سريعة للطلبيات", description: "تلبية سريعة وتوزيع فوري للطلبات." },
+      { title: `تغطية توزيع عبر ${provincesCount} ولاية`, description: "خدمة جميع الشركاء والموزعين في كامل الولايات." },
+      { title: "دعم ومرافقة مخصصة", description: "إدارة حسابات احترافية ومتابعة مستمرة." },
+    ],
+    fr: [
+      { title: "Produits Officiels Ooredoo", description: "Produits 100% authentiques issus directement de Ooredoo Algérie." },
+      { title: "Prix de Gros Compétitifs", description: "Conçus pour maximiser vos marges commerciales." },
+      { title: "Stock Toujours Disponible", description: "Approvisionnement continu en inventaire sans interruption." },
+      { title: "Traitement Rapide des Commandes", description: "Exécution efficace et expédition rapide." },
+      { title: "Support de Distribution National", description: `Service aux partenaires à travers les ${provincesCount} wilayas d'Algérie.` },
+      { title: "Support Commercial Dédié", description: "Gestion de compte professionnelle et assistance continue." },
+    ],
+  };
 
   const benT = t.productsPage?.benefits || {
     badge: "Why Choose STI",
@@ -52,7 +92,7 @@ export default function BenefitsSection() {
     subtitle: "Unmatched reliability, stock availability, and wholesale pricing for Algerian businesses.",
   };
 
-  const benefitsList = defaultBenefits;
+  const benefitsList = localizedBenefits[currentLocale] || localizedBenefits.en;
 
   return (
     <section className="py-28 lg:py-36 bg-gray-50">

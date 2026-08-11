@@ -8,34 +8,102 @@ import type { Product } from "../../data/products";
 
 export default function ProductOverview({ product }: { product: Product }) {
   const pathname = usePathname();
-  const currentLocale = pathname.split("/")[1] || "en";
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const staticT = {
+    en: {
+      infoTitle: "Product Information",
+      category: "Category",
+      availability: "Availability",
+      format: "Format",
+      suitableFor: "Suitable For",
+      wholesale: "Wholesale",
+      available: "Available",
+      requestQuote: "Request Quote",
+    },
+    ar: {
+      infoTitle: "معلومات المنتج",
+      category: "الفئة",
+      availability: "التوفر",
+      format: "الصيغة",
+      suitableFor: "مناسب لـ",
+      wholesale: "البيع بالجملة",
+      available: "متوفر",
+      requestQuote: "طلب عرض سعر",
+    },
+    fr: {
+      infoTitle: "Informations sur le Produit",
+      category: "Catégorie",
+      availability: "Disponibilité",
+      format: "Format",
+      suitableFor: "Adapté à",
+      wholesale: "Vente en Gros",
+      available: "Disponible",
+      requestQuote: "Demander un Devis",
+    },
+  }[currentLocale] || {
+    infoTitle: "Product Information",
+    category: "Category",
+    availability: "Availability",
+    format: "Format",
+    suitableFor: "Suitable For",
+    wholesale: "Wholesale",
+    available: "Available",
+    requestQuote: "Request Quote",
+  };
+
+  const availLabel = product.availability === "Available" ? staticT.available : product.availability;
+
+  const translatedCategory = {
+    "SIM Cards": { en: "SIM Cards", ar: "شرائح SIM", fr: "Cartes SIM" },
+    "Recharge Credit Distribution": { en: "Recharge Credit Distribution", ar: "توزيع رصيد الشحن", fr: "Distribution de Crédit de Recharge" },
+    "Recharge Delivery Tickets": { en: "Recharge Delivery Tickets", ar: "وصلات تسليم الشحن", fr: "Bons de Livraison" },
+  }[product.category]?.[currentLocale] || product.category;
+
+  const translatedFormat = {
+    "Standard SIM Card": { en: "Standard SIM Card", ar: "شريحة SIM قياسية", fr: "Carte SIM Standard" },
+    "Physical & Digital Recharge": { en: "Physical & Digital Recharge", ar: "شحن رقمي ورصيد بطاقات", fr: "Recharge Physique & Numérique" },
+    "Official Document": { en: "Official Document", ar: "وثيقة رسمية معتمدة", fr: "Document Officiel" },
+  }[product.format]?.[currentLocale] || product.format;
+
+  const suitableForMap: Record<string, Record<string, string>> = {
+    "Retailers": { en: "Retailers", ar: "تجار التجزئة", fr: "Détaillants" },
+    "Wholesalers": { en: "Wholesalers", ar: "تجار الجملة", fr: "Grossistes" },
+    "Business Partners": { en: "Business Partners", ar: "شركاء الأعمال", fr: "Partenaires Commerciales" },
+    "Distributors": { en: "Distributors", ar: "الموزعين", fr: "Distributeurs" },
+  };
+
+  const translatedSuitableFor = product.suitableFor
+    ? product.suitableFor.map((item) => suitableForMap[item]?.[currentLocale] || item).join(", ")
+    : "";
 
   return (
     <section className="py-20 sm:py-28 lg:py-36 bg-gray-50">
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          {/* Left - Visual Showcase */}
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-stretch">
+          {/* Left - Visual Showcase (Product Image from DB) */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-center justify-center h-full min-h-[380px] sm:min-h-[440px]"
           >
-            {/* Main Image Graphic */}
-            <div className="relative bg-white rounded-3xl border border-gray-100 p-12 flex items-center justify-center shadow-[0_2px_20px_rgba(0,0,0,0.04)] mb-4">
-              <div className="w-48 h-64 bg-red-primary rounded-3xl shadow-2xl shadow-red-primary/30 flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-500">
+            {product.image ? (
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-auto max-h-[440px] object-contain drop-shadow-xl"
+              />
+            ) : (
+              <div className="w-48 h-64 bg-red-primary rounded-3xl shadow-2xl shadow-red-primary/30 flex flex-col items-center justify-center text-center">
                 <CreditCard size={48} className="text-white mb-3" />
                 <span className="text-white text-3xl font-extrabold" style={{ fontFamily: "var(--font-display)" }}>
                   {product.value}
                 </span>
                 <span className="text-white/80 text-xs font-bold tracking-widest uppercase mt-1">OOREDOO</span>
               </div>
-              {/* Availability Badge */}
-              <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
-                <span className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-xs font-semibold text-green-600">{product.availability}</span>
-              </div>
-            </div>
+            )}
           </motion.div>
 
           {/* Right - Info Card */}
@@ -50,56 +118,58 @@ export default function ProductOverview({ product }: { product: Product }) {
                 className="text-xl font-extrabold text-gray-900 mb-6"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                Product Information
+                {staticT.infoTitle}
               </h2>
 
               <div className="space-y-4 mb-8">
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
                   <div className="flex items-center gap-3">
                     <Tag size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-500">Category</span>
+                    <span className="text-sm text-gray-500">{staticT.category}</span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">{product.category}</span>
+                  <span className="text-sm font-semibold text-gray-900">{translatedCategory}</span>
                 </div>
 
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
                   <div className="flex items-center gap-3">
                     <Package size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-500">Availability</span>
+                    <span className="text-sm text-gray-500">{staticT.availability}</span>
                   </div>
-                  <span className="text-sm font-semibold text-green-600">{product.availability}</span>
+                  <span className="text-sm font-semibold text-green-600">{availLabel}</span>
                 </div>
 
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
                   <div className="flex items-center gap-3">
                     <ShoppingBag size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-500">Format</span>
+                    <span className="text-sm text-gray-500">{staticT.format}</span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">{product.format}</span>
+                  <span className="text-sm font-semibold text-gray-900">{translatedFormat}</span>
                 </div>
 
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <Users size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-500">Suitable For</span>
+                {translatedSuitableFor && (
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <Users size={16} className="text-gray-400" />
+                      <span className="text-sm text-gray-500">{staticT.suitableFor}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900">{translatedSuitableFor}</span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">{product.suitableFor.join(", ")}</span>
-                </div>
+                )}
 
                 <div className="flex items-center justify-between py-3">
                   <div className="flex items-center gap-3">
                     <Package size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-500">Wholesale</span>
+                    <span className="text-sm text-gray-500">{staticT.wholesale}</span>
                   </div>
-                  <span className="text-sm font-semibold text-red-primary">{product.wholesale}</span>
+                  <span className="text-sm font-semibold text-red-primary">{product.wholesale === "Available" ? staticT.available : product.wholesale}</span>
                 </div>
               </div>
 
               <Link
                 href={`/${currentLocale}/quote`}
-                className="flex items-center justify-center w-full py-3.5 rounded-full bg-red-primary text-white font-semibold shadow-lg shadow-red-primary/20 transition-all duration-300 hover:shadow-xl hover:shadow-red-primary/25 hover:scale-[1.02]"
+                className="flex items-center justify-center w-full py-3.5 rounded-full bg-red-primary text-white font-semibold shadow-lg shadow-red-primary/20 transition-all duration-300 hover:shadow-xl hover:shadow-red-primary/25"
               >
-                Request Quote
+                {staticT.requestQuote}
               </Link>
             </div>
           </motion.div>

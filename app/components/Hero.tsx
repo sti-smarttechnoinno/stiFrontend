@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { useTranslations } from "../[locale]/use-translations";
@@ -101,13 +100,10 @@ export default function Hero() {
 
           {/* Background Image */}
           <div className="absolute right-0 rtl:right-auto rtl:left-0 top-0 bottom-0 w-[65%] hidden lg:block">
-            <Image
+            <img
               src="/assets/hero.png"
               alt="STI Telecom Solutions"
-              width={1500}
-              height={1500}
               className="w-full h-full object-contain object-right rtl:object-left"
-              priority
             />
           </div>
         </div>

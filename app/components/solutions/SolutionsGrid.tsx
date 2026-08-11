@@ -1,16 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Smartphone, CardSim, Building2, Zap } from "lucide-react";
+import { ArrowRight, Smartphone, Building2, Zap, Wallet, ShieldCheck, Headphones, Users, Package } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "../../[locale]/use-translations";
 
-const solutionIcons = [
+const iconMap: Record<string, React.ReactNode> = {
+  Wallet: <Wallet size={24} />,
+  Zap: <Zap size={24} />,
+  ShieldCheck: <ShieldCheck size={24} />,
+  Smartphone: <Smartphone size={24} />,
+  Building2: <Building2 size={24} />,
+  Headphones: <Headphones size={24} />,
+  Users: <Users size={24} />,
+  Package: <Package size={24} />,
+};
+
+const defaultIcons = [
   <Smartphone key="1" size={24} />,
-  <CardSim key="2" size={24} />,
+  <Zap key="2" size={24} />,
   <Building2 key="3" size={24} />,
-  <Zap key="4" size={24} />,
+  <Wallet key="4" size={24} />,
 ];
 
 const container = {
@@ -23,22 +35,74 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
+interface ApiSolutionItem {
+  id: number;
+  slug: string;
+  status?: string;
+  image?: string;
+  translations?: {
+    en?: { name: string; shortName: string; badge: string; description: string[] };
+    ar?: { name: string; shortName: string; badge: string; description: string[] };
+    fr?: { name: string; shortName: string; badge: string; description: string[] };
+  };
+}
+
 export default function SolutionsGrid() {
   const t = useTranslations();
   const pathname = usePathname();
-  const currentLocale = pathname.split("/")[1] || "en";
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const [apiSolutions, setApiSolutions] = useState<ApiSolutionItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchApiSolutions() {
+      try {
+        const res = await fetch("/api/solutions");
+        if (res.ok) {
+          const data = await res.json();
+          const publishedOnly = Array.isArray(data)
+            ? data.filter((s) => !s.status || s.status === "Published")
+            : [];
+          setApiSolutions(publishedOnly);
+        }
+      } catch {
+        // Fallback
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchApiSolutions();
+  }, []);
+
   const gridT = t.solutionsPage?.grid || {
     badge: "Our Solutions",
     title: "Reliable Distribution Solutions",
     subtitle: "Professional distribution solutions designed for retailers, wholesalers, and business partners across Algeria.",
     learn_more: "Learn More",
-    items: [
-      { slug: "mobile-recharge-credit", title: "Mobile Recharge Credit", description: "Ooredoo mobile recharge credit in multiple denominations." },
-      { slug: "prepaid-sim-cards", title: "SIM Card Distribution", description: "Prepaid SIM cards for retailers and sales partners." },
-      { slug: "wholesale-recharge", title: "Wholesale Solutions", description: "Bulk purchasing options for resellers and wholesalers." },
-      { slug: "partner-services", title: "Partner Services", description: "Dedicated support for orders and product availability." },
-    ],
   };
+
+  // Convert fetched API solutions into grid card items
+  const displayItems: { slug: string; title: string; description: string; icon?: React.ReactNode }[] = apiSolutions.length > 0
+    ? apiSolutions.map((sol) => {
+        const langData = sol.translations?.[currentLocale] || sol.translations?.en;
+        const title = langData?.shortName || langData?.name || sol.slug;
+        const description = langData?.description?.[0] || langData?.name || "Official STI Ooredoo Distribution Solution";
+        return {
+          slug: sol.slug,
+          title,
+          description,
+          icon: iconMap[sol.slug] || null,
+        };
+      })
+    : [
+        { slug: "mobile-recharge-credit", title: "Mobile Recharge Credit", description: "Ooredoo mobile recharge credit in multiple denominations.", icon: null },
+        { slug: "prepaid-sim-cards", title: "SIM Card Distribution", description: "Prepaid SIM cards for retailers and sales partners.", icon: null },
+        { slug: "wholesale-recharge", title: "Wholesale Solutions", description: "Bulk purchasing options for resellers and wholesalers.", icon: null },
+        { slug: "partner-services", title: "Partner Services", description: "Dedicated support for orders and product availability.", icon: null },
+        { slug: "business-partnership", title: "Business Partnership", description: "Strategic distribution partnership for companies in Algeria.", icon: null },
+        { slug: "customer-support", title: "Customer Support", description: "Professional helpline and digital support for business partners.", icon: null },
+      ];
 
   return (
     <section id="solutions-grid" className="py-28 lg:py-36 bg-white">
@@ -66,9 +130,9 @@ export default function SolutionsGrid() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
-          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {gridT.items.map((s, idx) => (
+          {displayItems.map((s, idx) => (
             <motion.article
               key={s.slug || s.title}
               variants={item}
@@ -78,14 +142,22 @@ export default function SolutionsGrid() {
               <div className="absolute left-0 top-0 h-[3px] w-0 bg-red-primary transition-all duration-500 group-hover:w-full" />
 
               <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-primary/8 text-red-primary transition-colors group-hover:bg-red-primary group-hover:text-white">
-                {solutionIcons[idx % solutionIcons.length]}
+                {s.icon || defaultIcons[idx % defaultIcons.length]}
               </div>
 
               <h3 className="mb-3 text-lg font-bold text-gray-900" style={{ fontFamily: "var(--font-display)" }}>
                 {s.title}
               </h3>
 
-              <p className="mb-6 text-sm leading-relaxed text-gray-500">
+              <p
+                className="mb-6 text-sm leading-relaxed text-gray-500 line-clamp-3 overflow-hidden"
+                style={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
                 {s.description}
               </p>
 
@@ -93,7 +165,7 @@ export default function SolutionsGrid() {
                 href={`/${currentLocale}/solutions/${s.slug}`}
                 className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-red-primary transition-colors hover:text-red-accent"
               >
-                {gridT.learn_more}
+                {gridT.learn_more || "Learn More"}
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
               </Link>
             </motion.article>

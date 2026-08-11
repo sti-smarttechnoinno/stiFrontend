@@ -4,30 +4,6 @@ import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { useTranslations } from "../../[locale]/use-translations";
 
-const testimonials = [
-  {
-    name: "Ahmed Benali",
-    role: "IT Director, Sonatrach",
-    review: "STI has been our trusted telecom partner for over 5 years. Their enterprise connectivity solutions are top-notch and their support team is always responsive.",
-    initials: "AB",
-    color: "from-red-primary to-red-accent",
-  },
-  {
-    name: "Fatima Hadj",
-    role: "Operations Manager, Cevital",
-    review: "Switching to STI for our fleet SIM management was a game changer. The bulk recharge system saves us hours every week and the reporting is excellent.",
-    initials: "FH",
-    color: "from-gray-700 to-gray-900",
-  },
-  {
-    name: "Youcef Mansouri",
-    role: "CEO, TechStart Algeria",
-    review: "As a startup, we needed flexible and affordable connectivity. STI provided exactly that with their business packages and dedicated account management.",
-    initials: "YM",
-    color: "from-gray-600 to-gray-800",
-  },
-];
-
 const container = {
   hidden: {},
   show: { transition: { staggerChildren: 0.12 } },
@@ -40,11 +16,7 @@ const item = {
 
 export default function Testimonials() {
   const t = useTranslations();
-  const testT = t.aboutPage?.testimonials || {
-    badge: "Testimonials",
-    title: "What Our Clients Say",
-    subtitle: "Trusted by leading businesses across Algeria",
-  };
+  const testT = t.testimonials;
 
   return (
     <section className="py-28 lg:py-36 bg-gray-50">
@@ -74,30 +46,21 @@ export default function Testimonials() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid gap-6 md:grid-cols-3"
         >
-          {testimonials.map((tItem) => (
+          {testT.items.map((tItem, i) => (
             <motion.article
-              key={tItem.name}
+              key={i}
               variants={item}
               className="group relative overflow-hidden rounded-3xl border border-gray-100 bg-white/80 p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)] backdrop-blur-sm transition-all duration-500 hover:shadow-[0_12px_48px_rgba(0,0,0,0.06)] hover:-translate-y-1"
             >
               <Quote size={32} className="mb-4 text-red-primary/20" />
               <div className="mb-4 flex gap-0.5">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
+                {[0, 1, 2, 3, 4].map((starIndex) => (
+                  <Star key={starIndex} size={14} className="fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <p className="mb-6 text-sm leading-relaxed text-gray-600">
+              <p className="text-sm leading-relaxed text-gray-700 font-medium">
                 &ldquo;{tItem.review}&rdquo;
               </p>
-              <div className="flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${tItem.color} text-xs font-bold text-white`}>
-                  {tItem.initials}
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-900">{tItem.name}</div>
-                  <div className="text-xs text-gray-500">{tItem.role}</div>
-                </div>
-              </div>
             </motion.article>
           ))}
         </motion.div>

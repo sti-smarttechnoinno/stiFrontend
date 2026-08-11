@@ -1,0 +1,182 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL;
+
+export interface ApiJobItem {
+  id: number | string;
+  title: string;
+  slug: string;
+  department: string;
+  location: string;
+  type: string;
+  experience: string;
+  description: string;
+  salary: string;
+  status: string;
+  translations?: Record<string, unknown>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export const defaultJobsData: ApiJobItem[] = [
+  {
+    id: 1,
+    title: "Sales Representative",
+    slug: "sales-representative",
+    department: "Sales",
+    location: "Algiers",
+    type: "Full-time",
+    experience: "2-4 years",
+    description: "Drive sales growth by building relationships with retailers and business partners across your assigned territory.",
+    salary: "Competitive",
+    status: "Published",
+  },
+  {
+    id: 2,
+    title: "Distribution Coordinator",
+    slug: "distribution-coordinator",
+    department: "Distribution",
+    location: "Oran",
+    type: "Full-time",
+    experience: "3-5 years",
+    description: "Coordinate product distribution operations ensuring timely delivery to partners across multiple provinces.",
+    salary: "Competitive",
+    status: "Published",
+  },
+  {
+    id: 3,
+    title: "Warehouse Assistant",
+    slug: "warehouse-assistant",
+    department: "Warehouse",
+    location: "Algiers",
+    type: "Full-time",
+    experience: "1-2 years",
+    description: "Support warehouse operations including inventory management, order processing, and product organization.",
+    salary: "Competitive",
+    status: "Published",
+  },
+  {
+    id: 4,
+    title: "Customer Support Agent",
+    slug: "customer-support-agent",
+    department: "Customer Support",
+    location: "Constantine",
+    type: "Full-time",
+    experience: "1-3 years",
+    description: "Provide excellent support to retail partners, handling inquiries and resolving issues professionally.",
+    salary: "Competitive",
+    status: "Published",
+  },
+  {
+    id: 5,
+    title: "Marketing Executive",
+    slug: "marketing-executive",
+    department: "Marketing",
+    location: "Algiers",
+    type: "Full-time",
+    experience: "2-4 years",
+    description: "Develop and execute marketing strategies to promote Ooredoo products and strengthen brand presence.",
+    salary: "Competitive",
+    status: "Published",
+  },
+  {
+    id: 6,
+    title: "Administrative Assistant",
+    slug: "administrative-assistant",
+    department: "Administration",
+    location: "Blida",
+    type: "Full-time",
+    experience: "1-2 years",
+    description: "Provide administrative support including document management, scheduling, and office coordination.",
+    salary: "Competitive",
+    status: "Published",
+  },
+];
+
+function validateJobBody(body: Record<string, unknown>, isEdit = false): string[] {
+  const errors: string[] = [];
+
+  if (!isEdit) {
+    if (!body.title || typeof body.title !== "string" || body.title.trim() === "") {
+      errors.push("Title is required");
+    }
+  }
+
+  if (body.department !== undefined) {
+    if (typeof body.department !== "string" || body.department.trim() === "") {
+      errors.push("Department must be a non-empty string");
+    }
+  }
+
+  if (body.location !== undefined) {
+    if (typeof body.location !== "string" || body.location.trim() === "") {
+      errors.push("Location must be a non-empty string");
+    }
+  }
+
+  if (body.status !== undefined) {
+    if (!["Published", "Draft"].includes(body.status as string)) {
+      errors.push("Status must be 'Published' or 'Draft'");
+    }
+  }
+
+  if (body.type !== undefined) {
+    if (typeof body.type !== "string" || body.type.trim() === "") {
+      errors.push("Type must be a non-empty string");
+    }
+  }
+
+  return errors;
+}
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const queryString = searchParams.toString();
+
+  try {
+    const url = queryString ? `${BACKEND_API_URL}/jobs?${queryString}` : `${BACKEND_API_URL}/jobs`;
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return NextResponse.json(data);
+    }
+  } catch {}
+
+  const status = searchParams.get("status");
+  if (status) {
+    return NextResponse.json(defaultJobsData.filter((j) => j.status === status));
+  }
+  return NextResponse.json(defaultJobsData);
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const errors = validateJobBody(body, false);
+    if (errors.length > 0) {
+      return NextResponse.json({ error: "Validation failed", errors }, { status: 400 });
+    }
+
+    const res = await fetch(`${BACKEND_API_URL}/jobs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return NextResponse.json(data, { status: 201 });
+    }
+
+    const errBody = await res.json().catch(() => null);
+    return NextResponse.json(
+      { error: errBody?.message || errBody?.error || "Failed to create job on backend" },
+      { status: res.status }
+    );
+  } catch {
+    return NextResponse.json({ error: "Failed to create job" }, { status: 500 });
+  }
+}

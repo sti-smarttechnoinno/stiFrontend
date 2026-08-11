@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, MapPin, Users, Award, TrendingUp, Briefcase } from "lucide-react";
 import Link from "next/link";
@@ -7,17 +8,92 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "../../[locale]/use-translations";
 
-const stats = [
-  { icon: MapPin, label: "58 Provinces Covered" },
-  { icon: Users, label: "Professional Team" },
-  { icon: Award, label: "Official Ooredoo Distributor" },
-  { icon: TrendingUp, label: "Growing Team" },
-];
-
 export default function CareerHero() {
   const t = useTranslations();
   const pathname = usePathname();
-  const currentLocale = pathname.split("/")[1] || "en";
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const [provincesCount, setProvincesCount] = useState("58");
+
+  useEffect(() => {
+    async function loadPrefs() {
+      try {
+        const res = await fetch("/api/preferences");
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.statistics?.provincesServed) {
+            setProvincesCount(data.statistics.provincesServed);
+          }
+        }
+      } catch {}
+    }
+    loadPrefs();
+  }, []);
+
+  const staticT = {
+    en: {
+      home: "Home",
+      careers: "Careers",
+      badge: "We're Hiring • Build Your Future",
+      titleStart: "Build Your Career ",
+      titleHighlight: "with STI",
+      subtitle: "Join SARL Smart Technologie Innovation (STI), an Official Ooredoo Distributor, and become part of a growing company delivering official Ooredoo mobile recharge credit and prepaid SIM card distribution across Algeria.",
+      viewPositions: "View Open Positions",
+      submitCv: "Submit Your CV",
+      provinces: `${provincesCount} Provinces Covered`,
+      team: "Professional Team",
+      distributor: "Official Ooredoo Distributor",
+      growing: "Growing Team",
+    },
+    ar: {
+      home: "الرئيسية",
+      careers: "الوظائف",
+      badge: "نحن نلتحق بكفاءات • ابنِ مستقبلك معنا",
+      titleStart: "ابنِ مسارك المهني ",
+      titleHighlight: "مع STI",
+      subtitle: "انضم إلى شركة STI، الموزع الرسمي المعتمد لأوريدو الجزائر، وكن جزءاً من فريق متنامٍ يوزع رصيد الشحن الهاتفي وشرائح أوريدو عبر كامل التراب الوطني.",
+      viewPositions: "عرض الوظائف الشاغرة",
+      submitCv: "إرسال السيرة الذاتية",
+      provinces: `تغطية ${provincesCount} ولاية`,
+      team: "فريق عمل احترافي",
+      distributor: "موزع أوريدو الرسمي",
+      growing: "فريق في نمو دائم",
+    },
+    fr: {
+      home: "Accueil",
+      careers: "Carrières",
+      badge: "Nous Recrutons • Construisez Votre Avenir",
+      titleStart: "Construisez Votre Carrière ",
+      titleHighlight: "avec STI",
+      subtitle: "Rejoignez SARL Smart Technologie Innovation (STI), Distributeur Officiel Ooredoo, et intégrez une entreprise en forte croissance qui distribue le crédit de recharge et les cartes SIM Ooredoo à travers l'Algérie.",
+      viewPositions: "Voir les Postes Ouverts",
+      submitCv: "Envoyer Votre CV",
+      provinces: `${provincesCount} Wilayas Couvertes`,
+      team: "Équipe Professionnelle",
+      distributor: "Distributeur Officiel Ooredoo",
+      growing: "Équipe en Croissance",
+    },
+  }[currentLocale] || {
+    home: "Home",
+    careers: "Careers",
+    badge: "We're Hiring • Build Your Future",
+    titleStart: "Build Your Career ",
+    titleHighlight: "with STI",
+    subtitle: "Join SARL Smart Technologie Innovation (STI), an Official Ooredoo Distributor, and become part of a growing company delivering official Ooredoo mobile recharge credit and prepaid SIM card distribution across Algeria.",
+    viewPositions: "View Open Positions",
+    submitCv: "Submit Your CV",
+    provinces: `${provincesCount} Provinces Covered`,
+    team: "Professional Team",
+    distributor: "Official Ooredoo Distributor",
+    growing: "Growing Team",
+  };
+
+  const stats = [
+    { icon: MapPin, label: staticT.provinces },
+    { icon: Users, label: staticT.team },
+    { icon: Award, label: staticT.distributor },
+    { icon: TrendingUp, label: staticT.growing },
+  ];
 
   return (
     <section className="relative flex items-center bg-white pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
@@ -42,13 +118,13 @@ export default function CareerHero() {
           <ol className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
             <li>
               <Link href={`/${currentLocale}`} className="transition-colors hover:text-red-primary">
-                {t.nav?.home || "Home"}
+                {t.nav?.home || staticT.home}
               </Link>
             </li>
             <li>
               <ChevronRight size={12} className="rtl:rotate-180" />
             </li>
-            <li className="text-gray-700">Careers</li>
+            <li className="text-gray-700">{staticT.careers}</li>
           </ol>
         </motion.nav>
 
@@ -61,7 +137,7 @@ export default function CareerHero() {
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <span className="mb-4 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-                We're Hiring • Build Your Future
+                {staticT.badge}
               </span>
             </motion.div>
 
@@ -72,7 +148,7 @@ export default function CareerHero() {
               className="mb-6 text-4xl font-extrabold leading-[1.1] tracking-tight text-gray-900 lg:text-5xl xl:text-6xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              Build Your Career <span className="text-red-primary">with STI</span>
+              {staticT.titleStart}<span className="text-red-primary">{staticT.titleHighlight}</span>
             </motion.h1>
 
             <motion.p
@@ -81,7 +157,7 @@ export default function CareerHero() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="max-w-xl text-lg leading-relaxed text-gray-500 mb-8"
             >
-              Join SARL Smart Technologie Innovation (STI), an Official Ooredoo Distributor, and become part of a growing company delivering official Ooredoo mobile recharge credit and prepaid SIM card distribution across Algeria.
+              {staticT.subtitle}
             </motion.p>
 
             {/* CTA Buttons */}
@@ -96,14 +172,14 @@ export default function CareerHero() {
                 className="group inline-flex items-center gap-2.5 rounded-full bg-red-primary px-8 py-3.5 text-sm font-semibold text-white transition-all duration-250 hover:shadow-xl hover:shadow-red-primary/25 hover:scale-[1.03]"
               >
                 <Briefcase size={16} />
-                View Open Positions
+                {staticT.viewPositions}
                 <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
               </a>
               <a
                 href="#apply"
                 className="inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-8 py-3.5 text-sm font-semibold text-gray-700 transition-all duration-250 hover:border-gray-300 hover:shadow-lg hover:scale-[1.03]"
               >
-                Submit Your CV
+                {staticT.submitCv}
               </a>
             </motion.div>
 

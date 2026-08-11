@@ -42,7 +42,38 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
   );
 }
 
+import { usePathname } from "next/navigation";
+
 export default function ProductFAQ({ product }: { product: Product }) {
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const langTrans = product.translations?.[currentLocale] || product.translations?.en;
+  const name = langTrans?.name || product.name;
+  const faqs = langTrans?.faqs?.length ? langTrans.faqs : product.faqs;
+
+  const staticT = {
+    en: {
+      badge: "FAQ",
+      title: "Frequently Asked Questions",
+      subtitle: `Find answers to common questions about ${name}`,
+    },
+    ar: {
+      badge: "الأسئلة الشائعة",
+      title: "الأسئلة الشائعة حول المنتج",
+      subtitle: `إليك إجابات على الأسئلة الشائعة حول ${name}`,
+    },
+    fr: {
+      badge: "FAQ",
+      title: "Foire Aux Questions",
+      subtitle: `Trouvez les réponses aux questions fréquentes sur ${name}`,
+    },
+  }[currentLocale] || {
+    badge: "FAQ",
+    title: "Frequently Asked Questions",
+    subtitle: `Find answers to common questions about ${name}`,
+  };
+
   return (
     <section className="py-20 sm:py-28 lg:py-36 bg-white">
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
@@ -54,18 +85,18 @@ export default function ProductFAQ({ product }: { product: Product }) {
           className="mb-12 sm:mb-16 text-center"
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            FAQ
+            {staticT.badge}
           </span>
           <h2 className="mb-3 sm:mb-4 text-2xl sm:text-3xl font-extrabold text-gray-900 lg:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
-            Frequently Asked Questions
+            {staticT.title}
           </h2>
           <p className="mx-auto max-w-xl text-sm sm:text-base text-gray-500">
-            Find answers to common questions about {product.name}
+            {staticT.subtitle}
           </p>
         </motion.div>
 
         <div className="mx-auto max-w-3xl">
-          {product.faqs.map((faq, i) => (
+          {faqs.map((faq: { question: string; answer: string }, i: number) => (
             <FaqItem key={i} question={faq.question} answer={faq.answer} index={i} />
           ))}
         </div>

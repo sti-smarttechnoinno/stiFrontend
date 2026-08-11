@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslations } from "../../../[locale]/use-translations";
 
 interface Props {
   faqs: { question: string; answer: string }[];
@@ -46,6 +47,8 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
 }
 
 export default function FAQAccordion({ faqs }: Props) {
+  const t = useTranslations();
+
   return (
     <section className="py-20 sm:py-28 lg:py-36 bg-white">
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
@@ -57,13 +60,13 @@ export default function FAQAccordion({ faqs }: Props) {
           className="mb-12 sm:mb-16 text-center"
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            FAQ
+            {(t as any).solutionDetail?.faq_badge || "FAQ"}
           </span>
           <h2 className="mb-3 sm:mb-4 text-2xl sm:text-3xl font-extrabold text-gray-900 lg:text-4xl" style={{ fontFamily: "var(--font-manrope)" }}>
-            Frequently Asked Questions
+            {(t as any).solutionDetail?.faq_title || "Frequently Asked Questions"}
           </h2>
           <p className="mx-auto max-w-xl text-sm sm:text-base text-gray-500">
-            Find answers to common questions about this solution.
+            {(t as any).solutionDetail?.faq_subtitle || "Find answers to common questions about this solution."}
           </p>
         </motion.div>
 

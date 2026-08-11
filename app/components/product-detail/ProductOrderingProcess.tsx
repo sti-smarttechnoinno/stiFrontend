@@ -41,17 +41,61 @@ function StepCard({ num, icon, title, description, index }: { num: string; icon:
   );
 }
 
-export default function ProductOrderingProcess() {
-  const { ref, visible } = useScrollReveal();
-  const t = useTranslations();
+import { usePathname } from "next/navigation";
 
-  const steps = [
+const stepsData = {
+  en: [
     { num: "01", title: "Order Request", description: "Submit your order request through our streamlined process." },
     { num: "02", title: "Confirmation", description: "Our team confirms and validates your order details." },
     { num: "03", title: "Preparation", description: "Products are carefully prepared and quality verified." },
     { num: "04", title: "Collection", description: "Collect your order or receive prompt delivery." },
     { num: "05", title: "Partner Support", description: "Continuous assistance and support after purchase." },
-  ];
+  ],
+  ar: [
+    { num: "01", title: "تقديم الطلب", description: "أرسل طلب التزود بالمنتجات عبر نموذج الطلب السريع." },
+    { num: "02", title: "التأكيد والمراجعة", description: "يقوم فريقنا بمراجعة وتأكيد تفاصيل الطلبية." },
+    { num: "03", title: "التجهيز والمطابقة", description: "تجهيز المنتجات والتحقق الدقيق من جودتها." },
+    { num: "04", title: "الاستلام والتوصيل", description: "استلم طلبيتك أو استفد من خدمة التوصيل السريع." },
+    { num: "05", title: "الدعم والتأطير", description: "متابعة ودعم مستمر لشركائنا بعد عملية الشراء." },
+  ],
+  fr: [
+    { num: "01", title: "Demande de Commande", description: "Soumettez votre demande via notre processus simplifié." },
+    { num: "02", title: "Confirmation", description: "Notre équipe valide les détails de votre commande." },
+    { num: "03", title: "Préparation", description: "Les produits sont préparés et vérifiés avec soin." },
+    { num: "04", title: "Réception & Livraison", description: "Récupérez votre commande ou bénéficiez d'une livraison rapide." },
+    { num: "05", title: "Support Partenaire", description: "Assistance et accompagnement continu après l'achat." },
+  ],
+};
+
+export default function ProductOrderingProcess() {
+  const { ref, visible } = useScrollReveal();
+  const t = useTranslations();
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const staticT = {
+    en: {
+      badge: "Process",
+      title: "How It Works",
+      subtitle: "Simple steps from order to delivery",
+    },
+    ar: {
+      badge: "مراحل الطلب",
+      title: "كيفية الطلب والتزود",
+      subtitle: "خطوات بسيطة وسلسة من الطلب إلى الاستلام",
+    },
+    fr: {
+      badge: "Procédure",
+      title: "Comment Ça Marche",
+      subtitle: "Étapes simples de la commande à la livraison",
+    },
+  }[currentLocale] || {
+    badge: "Process",
+    title: "How It Works",
+    subtitle: "Simple steps from order to delivery",
+  };
+
+  const steps = stepsData[currentLocale] || stepsData.en;
 
   return (
     <section className="py-28 lg:py-36 bg-white">
@@ -63,13 +107,13 @@ export default function ProductOrderingProcess() {
           }`}
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            Process
+            {staticT.badge}
           </span>
           <h2 className="mb-4 text-3xl font-extrabold text-gray-900 lg:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
-            How It Works
+            {staticT.title}
           </h2>
           <p className="mx-auto max-w-xl text-gray-500">
-            Simple steps from order to delivery
+            {staticT.subtitle}
           </p>
         </div>
 

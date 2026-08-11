@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme inline {
@@ -15,6 +16,9 @@
   --color-gray-700: #374151;
   --color-gray-800: #1F2937;
   --color-gray-900: #111827;
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-manrope: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-ibm-plex-arabic: 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
   --font-sans: var(--font-inter);
   --font-display: var(--font-manrope);
   --font-arabic: var(--font-ibm-plex-arabic);
@@ -193,7 +197,6 @@ body {
 html[lang="ar"],
 html[dir="rtl"] {
   direction: rtl;
-  text-align: right;
   --font-sans: var(--font-ibm-plex-arabic), system-ui, -apple-system, sans-serif !important;
   --font-display: var(--font-ibm-plex-arabic), system-ui, -apple-system, sans-serif !important;
   --font-manrope: var(--font-ibm-plex-arabic), system-ui, -apple-system, sans-serif !important;
@@ -216,6 +219,11 @@ html[lang="ar"] *,
 [dir="rtl"] .nav-link::after {
   left: auto;
   right: 0;
+}
+
+[dir="rtl"] .text-center,
+:lang(ar) .text-center {
+  text-align: center;
 }
 
 [dir="rtl"] .text-right {

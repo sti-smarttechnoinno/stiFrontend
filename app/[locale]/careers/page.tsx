@@ -10,6 +10,8 @@ import ApplicationForm from "../../components/careers/ApplicationForm";
 import CareerFAQ from "../../components/careers/CareerFAQ";
 import FinalCTA from "../../components/FinalCTA";
 
+const BACKEND_API_URL = process.env.BACKEND_API_URL || "http://127.0.0.1:8000/api";
+
 export const metadata: Metadata = {
   title: "Careers | Join STI Official Ooredoo Distributor Algeria",
   description:
@@ -48,6 +50,47 @@ export const metadata: Metadata = {
   },
 };
 
+interface JobFromApi {
+  id: number | string;
+  title: string;
+  slug: string;
+  department: string;
+  location: string;
+  type: string;
+  experience: string;
+  description: string;
+  salary: string;
+  status: string;
+}
+
+async function fetchJobs(): Promise<JobFromApi[]> {
+  try {
+    const res = await fetch(`${BACKEND_API_URL}/jobs?status=Published`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+    }
+  } catch {}
+
+  try {
+    const res = await fetch("http://localhost:3000/api/jobs?status=Published", {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        return data.filter((j: JobFromApi) => j.status === "Published");
+      }
+    }
+  } catch {}
+
+  return [];
+}
+
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -63,73 +106,31 @@ const organizationSchema = {
   },
 };
 
-const jobPostingSchemas = [
-  {
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: "Sales Representative",
-    description: "Drive sales growth by building relationships with retailers and business partners across your assigned territory.",
-    datePosted: "2026-05-20",
-    validThrough: "2026-06-30",
-    employmentType: "FULL_TIME",
-    hiringOrganization: {
-      "@type": "Organization",
-      name: "SARL Smart Technologie Innovation",
-    },
-    jobLocation: {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Algiers",
-        addressCountry: "DZ",
-      },
-    },
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: "Distribution Coordinator",
-    description: "Coordinate product distribution operations ensuring timely delivery to partners across multiple provinces.",
-    datePosted: "2026-05-20",
-    validThrough: "2026-06-30",
-    employmentType: "FULL_TIME",
-    hiringOrganization: {
-      "@type": "Organization",
-      name: "SARL Smart Technologie Innovation",
-    },
-    jobLocation: {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Oran",
-        addressCountry: "DZ",
-      },
-    },
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: "Warehouse Assistant",
-    description: "Support warehouse operations including inventory management, order processing, and product organization.",
-    datePosted: "2026-05-20",
-    validThrough: "2026-06-30",
-    employmentType: "FULL_TIME",
-    hiringOrganization: {
-      "@type": "Organization",
-      name: "SARL Smart Technologie Innovation",
-    },
-    jobLocation: {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Algiers",
-        addressCountry: "DZ",
-      },
-    },
-  },
-];
+export default async function CareersPage() {
+  const jobs = await fetchJobs();
 
-export default function CareersPage() {
+  const jobPostingSchemas = jobs.map((job) => ({
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title,
+    description: job.description,
+    datePosted: "2026-05-20",
+    validThrough: "2026-12-31",
+    employmentType: job.type === "Full-time" ? "FULL_TIME" : job.type === "Part-time" ? "PART_TIME" : "CONTRACT",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: "SARL Smart Technologie Innovation",
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: job.location,
+        addressCountry: "DZ",
+      },
+    },
+  }));
+
   return (
     <>
       <script

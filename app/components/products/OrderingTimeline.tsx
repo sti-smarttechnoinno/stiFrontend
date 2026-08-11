@@ -1,6 +1,7 @@
 "use client";
 
 import { ClipboardList, FileText, CheckCircle, Package } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useScrollReveal } from "../../hooks";
 import { useTranslations } from "../../[locale]/use-translations";
 
@@ -43,12 +44,29 @@ function StepCard({ num, icon, title, description, index }: { num: string; icon:
 export default function OrderingTimeline() {
   const { ref, visible } = useScrollReveal();
   const t = useTranslations();
-  const defaultSteps = [
-    { num: "01", title: "Choose Products", description: "Browse available Ooredoo product categories." },
-    { num: "02", title: "Request Quote", description: "Submit your request with desired quantities." },
-    { num: "03", title: "Order Confirmation", description: "Our team verifies and prepares your quote." },
-    { num: "04", title: "Receive Products", description: "Receive products with rapid delivery." },
-  ];
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const localizedSteps = {
+    en: [
+      { num: "01", title: "Choose Products", description: "Browse available Ooredoo product categories." },
+      { num: "02", title: "Request Quote", description: "Submit your request with desired quantities." },
+      { num: "03", title: "Order Confirmation", description: "Our team verifies and prepares your quote." },
+      { num: "04", title: "Receive Products", description: "Receive products with rapid delivery." },
+    ],
+    ar: [
+      { num: "01", title: "اختر المنتجات", description: "تصفح فئات منتجات أوريدو المتاحة لعملك." },
+      { num: "02", title: "طلب عرض سعر", description: "أرسل طلبك مع تحديد الكميات والأنواع المطلوبة." },
+      { num: "03", title: "تأكيد الطلبية", description: "يقوم فريقنا بمراجعة وتأكيد طلبك بسرعة." },
+      { num: "04", title: "استلام المنتجات", description: "استلم طلبك مع خدمة توصيل وتزويد سريعة." },
+    ],
+    fr: [
+      { num: "01", title: "Choisir les Produits", description: "Explorez les catégories de produits Ooredoo disponibles." },
+      { num: "02", title: "Demander un Devis", description: "Soumettez votre demande avec les quantités souhaitées." },
+      { num: "03", title: "Confirmation de Commande", description: "Notre équipe vérifie et prépare votre devis." },
+      { num: "04", title: "Recevoir les Produits", description: "Recevez vos produits avec une livraison rapide." },
+    ],
+  };
 
   const ordT = t.productsPage?.ordering || {
     badge: "How To Order",
@@ -56,7 +74,7 @@ export default function OrderingTimeline() {
     subtitle: "Four easy steps to start ordering official Ooredoo products for your business.",
   };
 
-  const stepsList = defaultSteps;
+  const stepsList = localizedSteps[currentLocale] || localizedSteps.en;
 
   return (
     <section className="py-28 lg:py-36 bg-white">

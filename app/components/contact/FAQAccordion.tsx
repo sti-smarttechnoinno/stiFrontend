@@ -58,10 +58,21 @@ function FaqItem({
   );
 }
 
+import { usePathname } from "next/navigation";
+
 export default function FAQAccordion() {
   const { ref, visible } = useScrollReveal();
   const t = useTranslations();
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const faqBadge = currentLocale === "ar" ? "الدعم والأسئلة الشائعة" : currentLocale === "fr" ? "Support & FAQ" : "Support & FAQ";
+  const faqSubtitle = currentLocale === "ar"
+    ? "إليك إجابات على الأسئلة الأكثر شيوعاً حول خدمات توزيع منتجات أوريدو والدعم الفني."
+    : currentLocale === "fr"
+    ? "Trouvez des réponses aux questions fréquentes sur nos services de distribution Ooredoo."
+    : "Find answers to common questions about our Ooredoo product distribution and business support.";
 
   const faqs = t.contact.faq.items;
 
@@ -76,7 +87,7 @@ export default function FAQAccordion() {
           }`}
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            Support & FAQ
+            {faqBadge}
           </span>
           <h2
             className="mb-4 text-3xl font-extrabold text-gray-900 lg:text-4xl"
@@ -85,7 +96,7 @@ export default function FAQAccordion() {
             {t.contact.faq.title || "Frequently Asked Questions"}
           </h2>
           <p className="mx-auto max-w-2xl text-gray-500">
-            Find answers to common questions about our Ooredoo product distribution and business support.
+            {faqSubtitle}
           </p>
         </motion.div>
 

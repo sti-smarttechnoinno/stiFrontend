@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 import { Upload, Send, FileText, CheckCircle, User, Mail, Phone, MapPin, Briefcase, GraduationCap, Globe, DollarSign, Calendar } from "lucide-react";
 
 const positions = [
@@ -14,6 +15,150 @@ const positions = [
 ];
 
 export default function ApplicationForm() {
+  const pathname = usePathname();
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+
+  const staticT = {
+    en: {
+      badge: "Apply Now",
+      title: "Submit Your Application",
+      subtitle: "Fill out the form below to apply for an open position at SARL STI.",
+      submittedTitle: "Application Submitted!",
+      submittedDesc: "Your application has been submitted successfully. Our team will review your application and contact you soon.",
+      personalInfo: "Personal Information",
+      firstName: "First Name *",
+      lastName: "Last Name *",
+      email: "Email *",
+      phone: "Phone Number *",
+      city: "City / Province *",
+      nationality: "Nationality",
+      professionalInfo: "Professional Information",
+      position: "Target Position *",
+      selectPosition: "Select a position",
+      experience: "Years of Experience *",
+      selectExperience: "Select experience level",
+      education: "Education Level *",
+      selectEducation: "Select education level",
+      linkedin: "LinkedIn Profile",
+      portfolio: "Portfolio / Website Link",
+      salary: "Expected Salary (DZD / Month)",
+      availability: "Notice Period / Availability *",
+      documents: "Documents",
+      uploadCv: "Upload CV (PDF, DOCX) *",
+      uploadCover: "Upload Cover Letter (Optional)",
+      uploadCert: "Upload Certificates (Optional)",
+      chooseFile: "Choose File",
+      messageHeader: "Additional Information",
+      messageLabel: "Cover Note / Additional Comments",
+      agreeLabel: "I confirm that all provided information is accurate and agree to STI storing my application for recruitment purposes.",
+      submitBtn: "Submit Application",
+      submittingBtn: "Submitting Application...",
+    },
+    ar: {
+      badge: "قدّم الآن",
+      title: "إرسال طلب التوظيف",
+      subtitle: "يرجى ملء النموذج أدناه للتقديم على إحدى الوظائف الشاغرة لدى شركة STI.",
+      submittedTitle: "تم إرسال الطلب بنجاح!",
+      submittedDesc: "تم استلام طلبك بنجاح. سيقوم فريق الموارد البشرية بمراجعة ملفك والتواصل معك في أقرب وقت.",
+      personalInfo: "المعلومات الشخصية",
+      firstName: "الاسم الأول *",
+      lastName: "اللقب *",
+      email: "البريد الإلكتروني *",
+      phone: "رقم الهاتف *",
+      city: "المدينة / الولاية *",
+      nationality: "الجنسية",
+      professionalInfo: "المعلومات المهنية",
+      position: "الوظيفة المستهدفة *",
+      selectPosition: "اختر الوظيفة",
+      experience: "سنوات الخبرة *",
+      selectExperience: "اختر مستوى الخبرة",
+      education: "المستوى العلمي *",
+      selectEducation: "اختر المستوى العلمي",
+      linkedin: "رابط حساب لينكد إن",
+      portfolio: "رابط معرض الأعمال / الموقع",
+      salary: "الراتب المتوقع (دج / شهرياً)",
+      availability: "الفترة المتاحة للالتحاق بالعمل *",
+      documents: "الوثائق والملفات",
+      uploadCv: "رفع السيرة الذاتية (PDF, DOCX) *",
+      uploadCover: "رفع رسالة التغطية (اختياري)",
+      uploadCert: "رفع الشهادات (اختياري)",
+      chooseFile: "اختر ملفاً",
+      messageHeader: "معلومات إضافية",
+      messageLabel: "ملاحظات إضافية أو رسالة توضيحية",
+      agreeLabel: "أؤكد أن جميع المعلومات المقدمة صحيحة وأوافق على الاحتفاظ بملفي لأغراض التوظيف لدى STI.",
+      submitBtn: "إرسال طلب التوظيف",
+      submittingBtn: "جاري إرسال الطلب...",
+    },
+    fr: {
+      badge: "Postuler Maintenant",
+      title: "Soumettre Votre Candidature",
+      subtitle: "Remplissez le formulaire ci-dessous pour postuler à un poste chez SARL STI.",
+      submittedTitle: "Candidature Envoyée !",
+      submittedDesc: "Votre candidature a été envoyée avec succès. Notre équipe RH examinera votre dossier et vous recontactera.",
+      personalInfo: "Informations Personnelles",
+      firstName: "Prénom *",
+      lastName: "Nom *",
+      email: "Email *",
+      phone: "Numéro de Téléphone *",
+      city: "Ville / Wilaya *",
+      nationality: "Nationalité",
+      professionalInfo: "Informations Professionnelles",
+      position: "Poste Visé *",
+      selectPosition: "Sélectionnez un poste",
+      experience: "Années d'Expérience *",
+      selectExperience: "Sélectionnez le niveau d'expérience",
+      education: "Niveau d'Études *",
+      selectEducation: "Sélectionnez le niveau d'études",
+      linkedin: "Profil LinkedIn",
+      portfolio: "Lien Portfolio / Site Web",
+      salary: "Prétentions Salariales (DZD / Mois)",
+      availability: "Préavis / Disponibilité *",
+      documents: "Documents",
+      uploadCv: "Télécharger CV (PDF, DOCX) *",
+      uploadCover: "Télécharger Lettre de Motivation (Optionnel)",
+      uploadCert: "Télécharger Certificats (Optionnel)",
+      chooseFile: "Choisir un fichier",
+      messageHeader: "Informations Complémentaires",
+      messageLabel: "Remarques ou Message Complémentaire",
+      agreeLabel: "Je confirme que les informations fournies sont exactes et j'accepte le traitement de mes données pour le recrutement.",
+      submitBtn: "Soumettre la Candidature",
+      submittingBtn: "Envoi en cours...",
+    },
+  }[currentLocale] || {
+    badge: "Apply Now",
+    title: "Submit Your Application",
+    subtitle: "Fill out the form below to apply for an open position at SARL STI.",
+    submittedTitle: "Application Submitted!",
+    submittedDesc: "Your application has been submitted successfully. Our team will review your application and contact you soon.",
+    personalInfo: "Personal Information",
+    firstName: "First Name *",
+    lastName: "Last Name *",
+    email: "Email *",
+    phone: "Phone Number *",
+    city: "City / Province *",
+    nationality: "Nationality",
+    professionalInfo: "Professional Information",
+    position: "Target Position *",
+    selectPosition: "Select a position",
+    experience: "Years of Experience *",
+    selectExperience: "Select experience level",
+    education: "Education Level *",
+    selectEducation: "Select education level",
+    linkedin: "LinkedIn Profile",
+    portfolio: "Portfolio / Website Link",
+    salary: "Expected Salary (DZD / Month)",
+    availability: "Notice Period / Availability *",
+    documents: "Documents",
+    uploadCv: "Upload CV (PDF, DOCX) *",
+    uploadCover: "Upload Cover Letter (Optional)",
+    uploadCert: "Upload Certificates (Optional)",
+    chooseFile: "Choose File",
+    messageHeader: "Additional Information",
+    messageLabel: "Cover Note / Additional Comments",
+    agreeLabel: "I confirm that all provided information is accurate and agree to STI storing my application for recruitment purposes.",
+    submitBtn: "Submit Application",
+    submittingBtn: "Submitting Application...",
+  };
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -63,10 +208,10 @@ export default function ApplicationForm() {
               className="text-2xl font-extrabold text-gray-900 mb-3"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              Application Submitted!
+              {staticT.submittedTitle}
             </h3>
             <p className="text-gray-500">
-              Your application has been submitted successfully. Our team will review your application and contact you soon.
+              {staticT.submittedDesc}
             </p>
           </motion.div>
         </div>
@@ -86,16 +231,16 @@ export default function ApplicationForm() {
           className="text-center mb-12"
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            Apply Now
+            {staticT.badge}
           </span>
           <h2
             className="mb-4 text-3xl font-extrabold text-gray-900 lg:text-4xl"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Submit Your Application
+            {staticT.title}
           </h2>
           <p className="mx-auto max-w-2xl text-gray-500">
-            Fill out the form below to apply for an open position at SARL STI.
+            {staticT.subtitle}
           </p>
         </motion.div>
 
@@ -116,66 +261,66 @@ export default function ApplicationForm() {
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   <User size={20} className="text-red-primary" />
-                  Personal Information
+                  {staticT.personalInfo}
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">First Name *</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.firstName}</label>
                     <input
                       type="text"
                       required
                       value={formData.firstName}
                       onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name *</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.lastName}</label>
                     <input
                       type="text"
                       required
                       value={formData.lastName}
                       onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.email}</label>
                     <input
                       type="email"
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Phone *</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.phone}</label>
                     <input
                       type="tel"
                       required
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">City *</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.city}</label>
                     <input
                       type="text"
                       required
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Nationality</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.nationality}</label>
                     <input
                       type="text"
                       value={formData.nationality}
                       onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                 </div>
@@ -187,83 +332,79 @@ export default function ApplicationForm() {
                   className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  <Briefcase size={20} className="text-[red-primary]" />
-                  Professional Information
+                  <Briefcase size={20} className="text-red-primary" />
+                  {staticT.professionalInfo}
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Position Applying For *</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.position}</label>
                     <select
                       required
                       value={formData.position}
                       onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     >
-                      <option value="">Select position</option>
+                      <option value="">{staticT.selectPosition}</option>
                       {positions.map((p) => (
                         <option key={p} value={p}>{p}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Experience *</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.experience}</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g., 3 years"
                       value={formData.experience}
                       onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Education</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.education}</label>
                     <input
                       type="text"
-                      placeholder="e.g., Bachelor's Degree"
                       value={formData.education}
                       onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">LinkedIn Profile</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.linkedin}</label>
                     <input
                       type="url"
                       placeholder="https://linkedin.com/in/..."
                       value={formData.linkedin}
                       onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Portfolio</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.portfolio}</label>
                     <input
                       type="url"
                       placeholder="https://..."
                       value={formData.portfolio}
                       onChange={(e) => setFormData({ ...formData, portfolio: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Expected Salary</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.salary}</label>
                     <input
                       type="text"
-                      placeholder="e.g., 80,000 DA"
                       value={formData.salary}
                       onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Availability</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.availability}</label>
                     <input
                       type="text"
-                      placeholder="e.g., Immediate"
                       value={formData.availability}
                       onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[red-primary]/20 focus:border-[red-primary]"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>
                 </div>
@@ -275,17 +416,17 @@ export default function ApplicationForm() {
                   className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  <FileText size={20} className="text-[red-primary]" />
-                  Documents
+                  <FileText size={20} className="text-red-primary" />
+                  {staticT.documents}
                 </h3>
                 <div className="grid sm:grid-cols-3 gap-6">
                   {/* CV Upload */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Upload CV *</label>
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[red-primary]/50 hover:bg-[red-primary]/5 transition-all duration-300">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.uploadCv}</label>
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-red-primary/50 hover:bg-red-primary/5 transition-all duration-300">
                       <Upload size={24} className="text-gray-400 mb-2" />
                       <span className="text-xs text-gray-500 text-center px-2">
-                        {cvName || "Drop CV here"}
+                        {cvName || staticT.chooseFile}
                       </span>
                       <span className="text-[10px] text-gray-400 mt-1">PDF, DOC, DOCX</span>
                       <input
@@ -299,11 +440,11 @@ export default function ApplicationForm() {
 
                   {/* Cover Letter */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Cover Letter (Optional)</label>
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[red-primary]/50 hover:bg-[red-primary]/5 transition-all duration-300">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.uploadCover}</label>
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-red-primary/50 hover:bg-red-primary/5 transition-all duration-300">
                       <Upload size={24} className="text-gray-400 mb-2" />
                       <span className="text-xs text-gray-500 text-center px-2">
-                        {coverName || "Drop file here"}
+                        {coverName || staticT.chooseFile}
                       </span>
                       <span className="text-[10px] text-gray-400 mt-1">PDF, DOC, DOCX</span>
                       <input
@@ -317,11 +458,11 @@ export default function ApplicationForm() {
 
                   {/* Certificates */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Certificates (Optional)</label>
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[red-primary]/50 hover:bg-[red-primary]/5 transition-all duration-300">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.uploadCert}</label>
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-red-primary/50 hover:bg-red-primary/5 transition-all duration-300">
                       <Upload size={24} className="text-gray-400 mb-2" />
                       <span className="text-xs text-gray-500 text-center px-2">
-                        {certName || "Drop files here"}
+                        {certName || staticT.chooseFile}
                       </span>
                       <span className="text-[10px] text-gray-400 mt-1">PDF, DOC, DOCX</span>
                       <input
@@ -337,13 +478,13 @@ export default function ApplicationForm() {
 
               {/* Message */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Tell us about yourself...</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.messageHeader}</label>
                 <textarea
                   rows={4}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary resize-none"
-                  placeholder="Share anything else you'd like us to know..."
+                  placeholder={staticT.messageLabel}
                 />
               </div>
 
@@ -357,7 +498,7 @@ export default function ApplicationForm() {
                   className="w-5 h-5 rounded border-gray-300 text-red-primary focus:ring-red-primary/20 mt-0.5"
                 />
                 <span className="text-sm text-gray-500">
-                  I agree to the processing of my personal information for recruitment purposes.
+                  {staticT.agreeLabel}
                 </span>
               </label>
 
@@ -372,12 +513,12 @@ export default function ApplicationForm() {
                 {submitting ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Sending Application...</span>
+                    <span>{staticT.submittingBtn}</span>
                   </>
                 ) : (
                   <>
                     <Send size={18} />
-                    <span>Send Application</span>
+                    <span>{staticT.submitBtn}</span>
                   </>
                 )}
               </motion.button>

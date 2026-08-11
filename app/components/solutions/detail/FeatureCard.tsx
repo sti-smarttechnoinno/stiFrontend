@@ -7,6 +7,7 @@ import {
   RefreshCw, Smartphone, CheckCircle, Star, Award, Globe,
   Phone, Mail, MessageSquare
 } from "lucide-react";
+import { useTranslations } from "../../../[locale]/use-translations";
 
 const iconMap: Record<string, React.ReactNode> = {
   CreditCard: <CreditCard size={28} />,
@@ -53,6 +54,8 @@ const item = {
 };
 
 export function FeaturesSection({ features }: { features: FeatureProps[] }) {
+  const t = useTranslations();
+
   return (
     <section className="py-20 sm:py-28 lg:py-36 bg-gray-50">
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
@@ -64,29 +67,31 @@ export function FeaturesSection({ features }: { features: FeatureProps[] }) {
           className="mb-12 sm:mb-16 text-center"
         >
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            Key Features
+            {(t as any).solutionDetail?.key_features_badge || "Key Features"}
           </span>
           <h2
             className="mb-3 sm:mb-4 text-2xl sm:text-3xl font-extrabold text-gray-900 lg:text-4xl"
             style={{ fontFamily: "var(--font-manrope)" }}
           >
-            Key Features
+            {(t as any).solutionDetail?.key_features_title || "Key Features"}
           </h2>
           <p className="mx-auto max-w-xl text-sm sm:text-base text-gray-500">
-            Everything you need for successful telecom distribution
+            {(t as any).solutionDetail?.key_features_subtitle || "Everything you need for successful telecom distribution"}
           </p>
         </motion.div>
         <motion.div
           variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
+          initial="show"
+          animate="show"
           className="grid gap-5 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
         >
-          {features.map((f) => (
+          {features.map((f, i) => (
             <motion.article
-              key={f.title}
+              key={`${f.title}-${i}`}
               variants={item}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
               className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)] transition-all duration-500 hover:shadow-[0_12px_48px_rgba(200,16,46,0.08)] hover:-translate-y-1"
             >
               {/* Red accent line */}
