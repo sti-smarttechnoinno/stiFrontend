@@ -357,6 +357,8 @@ export async function GET() {
         const mapped = data.map((p: any) => ({
           ...p,
           productType: p.productType || p.product_type || "SIM Card",
+          product_type: p.product_type || p.productType || "SIM Card",
+          image: p.image || "/assets/sim-card.png",
         }));
         memoryProducts = mapped;
         return NextResponse.json(mapped);
@@ -376,16 +378,17 @@ export async function POST(req: Request) {
     }
 
     const newId = memoryProducts.length > 0 ? Math.max(...memoryProducts.map((p) => Number(p.id) || 0)) + 1 : 1;
-    const newProduct: ApiProductItem = {
+    const newProduct: any = {
       id: newId,
       sku: body.sku || `PROD-${newId}`,
       slug: body.slug || `product-${newId}`,
       category: body.category || "SIM Cards",
       brand: body.brand || "Ooredoo",
-      productType: body.productType || "SIM Card",
+      productType: body.productType || body.product_type || "SIM Card",
+      product_type: body.product_type || body.productType || "SIM Card",
       value: body.value || "Available",
       status: body.status || "Published",
-      image: body.image || "",
+      image: body.image || "/assets/sim-card.png",
       translations: body.translations || { en: { name: body.slug, shortDescription: "", description: "", features: [], specifications: [], faqs: [] }, ar: { name: body.slug, shortDescription: "", description: "", features: [], specifications: [], faqs: [] }, fr: { name: body.slug, shortDescription: "", description: "", features: [], specifications: [], faqs: [] } },
     };
 
@@ -409,6 +412,8 @@ export async function POST(req: Request) {
           const mapped = {
             ...data,
             productType: data.productType || data.product_type || "SIM Card",
+            product_type: data.product_type || data.productType || "SIM Card",
+            image: data.image || body.image || "/assets/sim-card.png",
           };
           memoryProducts[memoryProducts.length - 1] = mapped;
           return NextResponse.json(mapped);

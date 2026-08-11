@@ -26,6 +26,8 @@ export async function GET(request: NextRequest, { params }: Params) {
         return NextResponse.json({
           ...data,
           productType: data.productType || data.product_type || "SIM Card",
+          product_type: data.product_type || data.productType || "SIM Card",
+          image: data.image || "/assets/sim-card.png",
         });
       }
     }
@@ -34,7 +36,12 @@ export async function GET(request: NextRequest, { params }: Params) {
   const products = getMemoryProducts();
   const localMatch = products.find((p) => String(p.id) === String(id) || p.slug === id);
   if (localMatch) {
-    return NextResponse.json(localMatch);
+    return NextResponse.json({
+      ...localMatch,
+      productType: localMatch.productType || localMatch.product_type || "SIM Card",
+      product_type: localMatch.product_type || localMatch.productType || "SIM Card",
+      image: localMatch.image || "/assets/sim-card.png",
+    });
   }
 
   return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -67,13 +74,20 @@ export async function PUT(request: NextRequest, { params }: Params) {
           return NextResponse.json({
             ...data,
             productType: data.productType || data.product_type || "SIM Card",
+            product_type: data.product_type || data.productType || "SIM Card",
+            image: data.image || body.image || "/assets/sim-card.png",
           });
         }
       }
     } catch {}
 
     if (updatedLocal) {
-      return NextResponse.json(updatedLocal);
+      return NextResponse.json({
+        ...updatedLocal,
+        productType: updatedLocal.productType || updatedLocal.product_type || "SIM Card",
+        product_type: updatedLocal.product_type || updatedLocal.productType || "SIM Card",
+        image: updatedLocal.image || "/assets/sim-card.png",
+      });
     }
 
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
