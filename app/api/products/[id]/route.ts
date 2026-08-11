@@ -34,7 +34,7 @@ export async function GET(request: NextRequest, { params }: Params) {
   } catch {}
 
   const products = getMemoryProducts();
-  const localMatch = products.find((p) => String(p.id) === String(id) || p.slug === id);
+  const localMatch: any = products.find((p) => String(p.id) === String(id) || p.slug === id);
   if (localMatch) {
     return NextResponse.json({
       ...localMatch,
@@ -51,7 +51,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
     const body = await request.json();
-    const updatedLocal = updateMemoryProduct(id, body);
+    const updatedLocal: any = updateMemoryProduct(id, body);
 
     try {
       const controller = new AbortController();

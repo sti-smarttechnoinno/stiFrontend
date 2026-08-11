@@ -7,6 +7,7 @@ export interface ApiProductItem {
   category: string;
   brand: string;
   productType: string;
+  product_type?: string;
   value: string;
   status: string;
   image?: string;
