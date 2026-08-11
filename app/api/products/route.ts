@@ -305,12 +305,41 @@ export const defaultProductsData: ApiProductItem[] = [
 
 let memoryProducts: ApiProductItem[] | null = null;
 
+export function getMemoryProducts(): ApiProductItem[] {
+  if (!memoryProducts) {
+    memoryProducts = [...defaultProductsData];
+  }
+  return memoryProducts;
+}
+
+export function updateMemoryProduct(id: string | number, fields: any): ApiProductItem | null {
+  const list = getMemoryProducts();
+  const index = list.findIndex((p) => String(p.id) === String(id) || p.slug === id);
+  if (index !== -1) {
+    list[index] = {
+      ...list[index],
+      ...fields,
+      productType: fields.productType || fields.product_type || list[index].productType || "SIM Card",
+    };
+    return list[index];
+  }
+  return null;
+}
+
+export function deleteMemoryProduct(id: string | number): boolean {
+  const list = getMemoryProducts();
+  const index = list.findIndex((p) => String(p.id) === String(id) || p.slug === id);
+  if (index !== -1) {
+    list.splice(index, 1);
+    return true;
+  }
+  return false;
+}
+
 const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 
 export async function GET() {
-  if (memoryProducts && memoryProducts.length > 0) {
-    return NextResponse.json(memoryProducts);
-  }
+  const currentMemory = getMemoryProducts();
 
   try {
     const controller = new AbortController();

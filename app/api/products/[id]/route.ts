@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { defaultProductsData } from "../route";
+import { getMemoryProducts, updateMemoryProduct, deleteMemoryProduct } from "../route";
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL;
+const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -11,20 +11,28 @@ interface Params {
 export async function GET(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+
     const res = await fetch(`${BACKEND_API_URL}/products/${id}`, {
       cache: "no-store",
+      signal: controller.signal,
     });
+    clearTimeout(timer);
 
     if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json({
-        ...data,
-        productType: data.productType || data.product_type || "SIM Card",
-      });
+      const data = await res.json().catch(() => null);
+      if (data && (data.id || data.slug)) {
+        return NextResponse.json({
+          ...data,
+          productType: data.productType || data.product_type || "SIM Card",
+        });
+      }
     }
   } catch {}
 
-  const localMatch = defaultProductsData.find((p) => String(p.id) === String(id));
+  const products = getMemoryProducts();
+  const localMatch = products.find((p) => String(p.id) === String(id) || p.slug === id);
   if (localMatch) {
     return NextResponse.json(localMatch);
   }
@@ -36,35 +44,66 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
     const body = await request.json();
-    const res = await fetch(`${BACKEND_API_URL}/products/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    const updatedLocal = updateMemoryProduct(id, body);
 
-    if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json({
-        ...data,
-        productType: data.productType || data.product_type || "SIM Card",
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2000);
+
+      const res = await fetch(`${BACKEND_API_URL}/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
       });
-    }
-  } catch {}
+      clearTimeout(timer);
 
-  return NextResponse.json({ error: "Failed to update product in backend" }, { status: 500 });
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data) {
+          if (updatedLocal) {
+            updateMemoryProduct(id, data);
+          }
+          return NextResponse.json({
+            ...data,
+            productType: data.productType || data.product_type || "SIM Card",
+          });
+        }
+      }
+    } catch {}
+
+    if (updatedLocal) {
+      return NextResponse.json(updatedLocal);
+    }
+
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
+  } catch (err: any) {
+    return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const res = await fetch(`${BACKEND_API_URL}/products/${id}`, {
-      method: "DELETE",
-    });
+    deleteMemoryProduct(id);
 
-    if (res.ok) {
-      return NextResponse.json({ success: true, message: "Deleted" });
-    }
-  } catch {}
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2000);
 
-  return NextResponse.json({ error: "Failed to delete product in backend" }, { status: 500 });
+      const res = await fetch(`${BACKEND_API_URL}/products/${id}`, {
+        method: "DELETE",
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      if (res.ok) {
+        return NextResponse.json({ success: true, message: "Deleted" });
+      }
+    } catch {}
+
+    return NextResponse.json({ success: true, message: "Deleted" });
+  } catch {
+    return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
+  }
 }
