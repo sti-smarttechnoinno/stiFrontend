@@ -65,24 +65,18 @@ interface JobFromApi {
 
 async function fetchJobs(): Promise<JobFromApi[]> {
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+
     const res = await fetch(`${BACKEND_API_URL}/jobs?status=Published`, {
       cache: "no-store",
+      signal: controller.signal,
     });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        return data;
-      }
-    }
-  } catch {}
+    clearTimeout(timer);
 
-  try {
-    const res = await fetch("http://localhost:3000/api/jobs?status=Published", {
-      cache: "no-store",
-    });
     if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
+      const data = await res.json().catch(() => null);
+      if (Array.isArray(data) && data.length > 0) {
         return data.filter((j: JobFromApi) => j.status === "Published");
       }
     }

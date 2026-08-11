@@ -131,16 +131,38 @@ function validateJobBody(body: Record<string, unknown>, isEdit = false): string[
 
 let memoryJobs: ApiJobItem[] | null = null;
 
+export function getMemoryJobs(): ApiJobItem[] {
+  if (!memoryJobs) {
+    memoryJobs = [...defaultJobsData];
+  }
+  return memoryJobs;
+}
+
+export function updateMemoryJob(id: string | number, fields: Partial<ApiJobItem>): ApiJobItem | null {
+  const list = getMemoryJobs();
+  const index = list.findIndex((j) => String(j.id) === String(id) || j.slug === id);
+  if (index !== -1) {
+    list[index] = { ...list[index], ...fields };
+    return list[index];
+  }
+  return null;
+}
+
+export function deleteMemoryJob(id: string | number): boolean {
+  const list = getMemoryJobs();
+  const index = list.findIndex((j) => String(j.id) === String(id) || j.slug === id);
+  if (index !== -1) {
+    list.splice(index, 1);
+    return true;
+  }
+  return false;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const statusFilter = searchParams.get("status");
 
-  if (memoryJobs && memoryJobs.length > 0) {
-    if (statusFilter) {
-      return NextResponse.json(memoryJobs.filter((j) => j.status === statusFilter));
-    }
-    return NextResponse.json(memoryJobs);
-  }
+  const currentMemory = getMemoryJobs();
 
   try {
     const controller = new AbortController();
