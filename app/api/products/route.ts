@@ -399,16 +399,10 @@ export async function POST(req: Request) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 2000);
 
-      // Truncate large base64 image before sending to backend DB to prevent PHP 500 error
-      const backendBody = { ...body };
-      if (backendBody.image && typeof backendBody.image === "string" && backendBody.image.length > 5000) {
-        backendBody.image = "/assets/sim-card.png";
-      }
-
       const res = await fetch(`${BACKEND_API_URL}/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(backendBody),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
       clearTimeout(timer);
@@ -420,7 +414,7 @@ export async function POST(req: Request) {
             ...data,
             productType: data.productType || data.product_type || "SIM Card",
             product_type: data.product_type || data.productType || "SIM Card",
-            image: body.image || data.image || "/assets/sim-card.png",
+            image: data.image || body.image || "/assets/sim-card.png",
           };
           memoryProducts[memoryProducts.length - 1] = mapped;
           return NextResponse.json(mapped);
