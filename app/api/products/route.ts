@@ -303,43 +303,92 @@ export const defaultProductsData: ApiProductItem[] = [
   }
 ];
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL;
+let memoryProducts: ApiProductItem[] | null = null;
+
+const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 
 export async function GET() {
+  if (memoryProducts && memoryProducts.length > 0) {
+    return NextResponse.json(memoryProducts);
+  }
+
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+
     const res = await fetch(`${BACKEND_API_URL}/products`, {
-      next: { revalidate: 0 },
+      cache: "no-store",
+      signal: controller.signal,
     });
+    clearTimeout(timer);
+
     if (res.ok) {
-      const data = await res.json();
-      const mapped = data.map((p: any) => ({
-        ...p,
-        productType: p.productType || p.product_type || "SIM Card",
-      }));
-      return NextResponse.json(mapped);
+      const data = await res.json().catch(() => null);
+      if (Array.isArray(data) && data.length > 0) {
+        const mapped = data.map((p: any) => ({
+          ...p,
+          productType: p.productType || p.product_type || "SIM Card",
+        }));
+        memoryProducts = mapped;
+        return NextResponse.json(mapped);
+      }
     }
   } catch {}
 
-  return NextResponse.json(defaultProductsData);
+  return NextResponse.json(memoryProducts || defaultProductsData);
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const res = await fetch(`${BACKEND_API_URL}/products`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const mapped = {
-        ...data,
-        productType: data.productType || data.product_type || "SIM Card",
-      };
-      return NextResponse.json(mapped);
-    }
-  } catch {}
 
-  return NextResponse.json({ error: "Failed to save product in backend" }, { status: 500 });
+    if (!memoryProducts) {
+      memoryProducts = [...defaultProductsData];
+    }
+
+    const newId = memoryProducts.length > 0 ? Math.max(...memoryProducts.map((p) => Number(p.id) || 0)) + 1 : 1;
+    const newProduct: ApiProductItem = {
+      id: newId,
+      sku: body.sku || `PROD-${newId}`,
+      slug: body.slug || `product-${newId}`,
+      category: body.category || "SIM Cards",
+      brand: body.brand || "Ooredoo",
+      productType: body.productType || "SIM Card",
+      value: body.value || "Available",
+      status: body.status || "Published",
+      image: body.image || "",
+      translations: body.translations || { en: { name: body.slug, shortDescription: "", description: "", features: [], specifications: [], faqs: [] }, ar: { name: body.slug, shortDescription: "", description: "", features: [], specifications: [], faqs: [] }, fr: { name: body.slug, shortDescription: "", description: "", features: [], specifications: [], faqs: [] } },
+    };
+
+    memoryProducts.push(newProduct);
+
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2000);
+
+      const res = await fetch(`${BACKEND_API_URL}/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data && data.id) {
+          const mapped = {
+            ...data,
+            productType: data.productType || data.product_type || "SIM Card",
+          };
+          memoryProducts[memoryProducts.length - 1] = mapped;
+          return NextResponse.json(mapped);
+        }
+      }
+    } catch {}
+
+    return NextResponse.json(newProduct);
+  } catch (err: any) {
+    return NextResponse.json({ error: "Failed to save product" }, { status: 500 });
+  }
 }

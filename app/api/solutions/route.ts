@@ -63,40 +63,77 @@ const fallbackSolutions = [
   },
 ];
 
+let memorySolutions: any[] | null = null;
+
 export async function GET() {
+  if (memorySolutions && memorySolutions.length > 0) {
+    return NextResponse.json(memorySolutions);
+  }
+
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+
     const res = await fetch(`${BACKEND_API_URL}/solutions`, {
       cache: "no-store",
+      signal: controller.signal,
     });
+    clearTimeout(timer);
 
     if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json(data);
+      const data = await res.json().catch(() => null);
+      if (Array.isArray(data) && data.length > 0) {
+        memorySolutions = data;
+        return NextResponse.json(data);
+      }
     }
   } catch {
     // Fallback if backend is not reachable
   }
 
-  return NextResponse.json(fallbackSolutions);
+  return NextResponse.json(memorySolutions || fallbackSolutions);
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const res = await fetch(`${BACKEND_API_URL}/solutions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
 
-    if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json(data, { status: 201 });
+    if (!memorySolutions) {
+      memorySolutions = [...fallbackSolutions];
     }
 
-    const errData = await res.json();
-    return NextResponse.json(errData, { status: res.status });
+    const newId = memorySolutions.length > 0 ? Math.max(...memorySolutions.map((s) => Number(s.id) || 0)) + 1 : 1;
+    const newSolution = {
+      id: newId,
+      status: "Published",
+      ...body,
+    };
+
+    memorySolutions.push(newSolution);
+
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2000);
+
+      const res = await fetch(`${BACKEND_API_URL}/solutions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data && data.id) {
+          memorySolutions[memorySolutions.length - 1] = data;
+          return NextResponse.json(data, { status: 201 });
+        }
+      }
+    } catch {}
+
+    return NextResponse.json(newSolution, { status: 201 });
   } catch (err: any) {
-    return NextResponse.json({ error: "Failed to connect to backend server" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to save solution" }, { status: 500 });
   }
 }

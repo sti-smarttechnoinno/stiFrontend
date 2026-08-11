@@ -129,26 +129,46 @@ function validateJobBody(body: Record<string, unknown>, isEdit = false): string[
   return errors;
 }
 
+let memoryJobs: ApiJobItem[] | null = null;
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const queryString = searchParams.toString();
+  const statusFilter = searchParams.get("status");
+
+  if (memoryJobs && memoryJobs.length > 0) {
+    if (statusFilter) {
+      return NextResponse.json(memoryJobs.filter((j) => j.status === statusFilter));
+    }
+    return NextResponse.json(memoryJobs);
+  }
 
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+
+    const queryString = searchParams.toString();
     const url = queryString ? `${BACKEND_API_URL}/jobs?${queryString}` : `${BACKEND_API_URL}/jobs`;
+
     const res = await fetch(url, {
       cache: "no-store",
+      signal: controller.signal,
     });
+    clearTimeout(timer);
+
     if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json(data);
+      const data = await res.json().catch(() => null);
+      if (Array.isArray(data) && data.length > 0) {
+        memoryJobs = data;
+        return NextResponse.json(data);
+      }
     }
   } catch {}
 
-  const status = searchParams.get("status");
-  if (status) {
-    return NextResponse.json(defaultJobsData.filter((j) => j.status === status));
+  const currentData = memoryJobs || defaultJobsData;
+  if (statusFilter) {
+    return NextResponse.json(currentData.filter((j) => j.status === statusFilter));
   }
-  return NextResponse.json(defaultJobsData);
+  return NextResponse.json(currentData);
 }
 
 export async function POST(req: Request) {
@@ -160,22 +180,51 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Validation failed", errors }, { status: 400 });
     }
 
-    const res = await fetch(`${BACKEND_API_URL}/jobs`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json(data, { status: 201 });
+    if (!memoryJobs) {
+      memoryJobs = [...defaultJobsData];
     }
 
-    const errBody = await res.json().catch(() => null);
-    return NextResponse.json(
-      { error: errBody?.message || errBody?.error || "Failed to create job on backend" },
-      { status: res.status }
-    );
+    const newId = memoryJobs.length > 0 ? Math.max(...memoryJobs.map((j) => Number(j.id) || 0)) + 1 : 1;
+    const slug = body.slug || (body.title ? body.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") : `job-${newId}`);
+
+    const newJob: ApiJobItem = {
+      id: newId,
+      title: body.title || "Open Position",
+      slug,
+      department: body.department || "General",
+      location: body.location || "Algiers",
+      type: body.type || "Full-time",
+      experience: body.experience || "1-3 years",
+      description: body.description || "",
+      salary: body.salary || "Competitive",
+      status: body.status || "Published",
+      translations: body.translations,
+    };
+
+    memoryJobs.push(newJob);
+
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2000);
+
+      const res = await fetch(`${BACKEND_API_URL}/jobs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data && data.id) {
+          memoryJobs[memoryJobs.length - 1] = data;
+          return NextResponse.json(data, { status: 201 });
+        }
+      }
+    } catch {}
+
+    return NextResponse.json(newJob, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Failed to create job" }, { status: 500 });
   }

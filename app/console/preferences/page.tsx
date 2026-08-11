@@ -62,10 +62,6 @@ export default function PreferencesPage() {
 
   const [businessInfo, setBusinessInfo] = useState({
     companyName: { en: "", ar: "", fr: "" },
-    rcNumber: "",
-    nifNumber: "",
-    nisNumber: "",
-    articleNumber: "",
   });
 
   const [socialMedia, setSocialMedia] = useState({

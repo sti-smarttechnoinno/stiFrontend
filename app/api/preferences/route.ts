@@ -28,10 +28,6 @@ export interface CompanyPreferences {
       ar: string;
       fr: string;
     };
-    rcNumber: string;
-    nifNumber: string;
-    nisNumber: string;
-    articleNumber: string;
   };
 
   // Social Media
@@ -65,14 +61,16 @@ export interface CompanyPreferences {
 
 const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 
+let memoryPreferences: CompanyPreferences | null = null;
+
 const defaultPreferences: CompanyPreferences = {
-  phone: "0550 123 456",
-  whatsapp: "0550 123 456",
-  email: "contact@sti.dz",
+  phone: "0550 02 35 36",
+  whatsapp: "0550 02 35 36",
+  email: "administration@sti.dz",
   address: {
-    en: "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria",
-    ar: "المنطقة الصناعية رقم 24، باب الزوار، الجزائر العاصمة",
-    fr: "Lot 24, Zone Industrielle, Bab Ezzouar, Alger, Algérie",
+    en: "Sétif, Algeria",
+    ar: "سطيف",
+    fr: "Sétif, Algérie",
   },
   gmapsEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3236.4678129532675!2d5.4263334!3d36.1878916!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f315007983d29b%3A0xb969c549a0ef2f09!2sSARL%20Smart%20Technologie%20Innovation%20-%20STI!5e0!3m2!1sen!2sdz!4v1700000000000!5m2!1sen!2sdz",
   emergencyContact: "",
@@ -82,25 +80,21 @@ const defaultPreferences: CompanyPreferences = {
       ar: "ذ.م.م سمارت تكنولوجي إينوفيشين",
       fr: "SARL Smart Technologie Innovation",
     },
-    rcNumber: "26/00-1234567B26",
-    nifNumber: "001616091234567",
-    nisNumber: "001616090012345",
-    articleNumber: "16220123456",
   },
   socialMedia: {
     facebook: "https://facebook.com/sti.algeria",
     linkedin: "https://linkedin.com/company/sti-algeria",
-    twitter: "https://twitter.com/sti_algeria",
-    youtube: "https://youtube.com/@sti_algeria",
+    twitter: "",
+    youtube: "",
     instagram: "",
   },
   businessHours: {
-    saturday: { open: "08:00", close: "17:00", isClosed: false },
-    sunday: { open: "08:00", close: "17:00", isClosed: false },
-    monday: { open: "08:00", close: "17:00", isClosed: false },
-    tuesday: { open: "08:00", close: "17:00", isClosed: false },
-    wednesday: { open: "08:00", close: "17:00", isClosed: false },
-    thursday: { open: "08:00", close: "17:00", isClosed: false },
+    saturday: { open: "08:00", close: "17:00", isClosed: true },
+    sunday: { open: "08:30", close: "17:00", isClosed: false },
+    monday: { open: "08:30", close: "17:00", isClosed: false },
+    tuesday: { open: "08:30", close: "17:00", isClosed: false },
+    wednesday: { open: "08:30", close: "17:00", isClosed: false },
+    thursday: { open: "08:30", close: "17:00", isClosed: false },
     friday: { open: "00:00", close: "00:00", isClosed: true },
   },
   statistics: {
@@ -112,10 +106,8 @@ const defaultPreferences: CompanyPreferences = {
 };
 
 export async function GET() {
-  const isLocalHost = !process.env.BACKEND_API_URL || process.env.BACKEND_API_URL.includes("127.0.0.1") || process.env.BACKEND_API_URL.includes("localhost");
-
-  if (process.env.NODE_ENV === "production" && isLocalHost) {
-    return NextResponse.json(defaultPreferences);
+  if (memoryPreferences) {
+    return NextResponse.json(memoryPreferences);
   }
 
   try {
@@ -130,7 +122,10 @@ export async function GET() {
 
     if (res.ok) {
       const data = await res.json().catch(() => null);
-      if (data) return NextResponse.json(data);
+      if (data && data.phone) {
+        memoryPreferences = data;
+        return NextResponse.json(data);
+      }
     }
   } catch (err) {
     console.error("Backend fetch error for preferences:", err);
@@ -142,32 +137,37 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const isLocalHost = !process.env.BACKEND_API_URL || process.env.BACKEND_API_URL.includes("127.0.0.1") || process.env.BACKEND_API_URL.includes("localhost");
+    const incomingPrefs = body.preferences || body;
 
-    if (process.env.NODE_ENV === "production" && isLocalHost) {
-      return NextResponse.json({ success: true, preferences: body });
-    }
+    memoryPreferences = {
+      ...defaultPreferences,
+      ...memoryPreferences,
+      ...incomingPrefs,
+    };
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2000);
 
-    const res = await fetch(`${BACKEND_API_URL}/preferences`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
+      const res = await fetch(`${BACKEND_API_URL}/preferences`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(incomingPrefs),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
 
-    if (res.ok) {
-      const data = await res.json().catch(() => null);
-      if (data) return NextResponse.json(data);
-    }
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data && data.preferences) {
+          memoryPreferences = data.preferences;
+        }
+      }
+    } catch {}
 
-    return NextResponse.json({ success: true, preferences: body });
+    return NextResponse.json({ success: true, preferences: memoryPreferences });
   } catch (err) {
-    const fallbackBody = await request.json().catch(() => null);
-    return NextResponse.json({ success: true, preferences: fallbackBody || defaultPreferences });
+    return NextResponse.json({ success: true, preferences: memoryPreferences || defaultPreferences });
   }
 }
 
