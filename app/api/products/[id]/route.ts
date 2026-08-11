@@ -23,6 +23,7 @@ export async function GET(request: NextRequest, { params }: Params) {
     if (res.ok) {
       const data = await res.json().catch(() => null);
       if (data && (data.id || data.slug)) {
+        updateMemoryProduct(id, data);
         return NextResponse.json({
           ...data,
           productType: data.productType || data.product_type || "SIM Card",
@@ -71,12 +72,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
           if (updatedLocal) {
             updateMemoryProduct(id, data);
           }
-          return NextResponse.json({
+          const result = {
             ...data,
             productType: data.productType || data.product_type || "SIM Card",
             product_type: data.product_type || data.productType || "SIM Card",
-            image: data.image || body.image || "/assets/sim-card.png",
-          });
+            image: data.image || "/assets/sim-card.png",
+          };
+          updateMemoryProduct(id, result);
+          return NextResponse.json(result);
         }
       }
     } catch {}

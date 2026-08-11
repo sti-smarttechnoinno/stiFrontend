@@ -321,6 +321,7 @@ export function updateMemoryProduct(id: string | number, fields: any): ApiProduc
       ...list[index],
       ...fields,
       productType: fields.productType || fields.product_type || list[index].productType || "SIM Card",
+      image: fields.image !== undefined ? fields.image : list[index].image,
     };
     return list[index];
   }
