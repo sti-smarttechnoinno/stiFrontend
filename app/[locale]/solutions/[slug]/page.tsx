@@ -6,11 +6,15 @@ import SolutionLayout from "../../../components/solutions/detail/SolutionLayout"
 import { solutions, getSolutionBySlug, getRelatedSolutions } from "./data";
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
+const LOCALES = ["en", "fr", "ar"];
+
 export function generateStaticParams() {
-  return solutions.map((s) => ({ slug: s.slug }));
+  return LOCALES.flatMap((locale) =>
+    solutions.map((s) => ({ locale, slug: s.slug }))
+  );
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

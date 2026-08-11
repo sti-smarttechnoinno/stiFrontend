@@ -14,10 +14,25 @@ import { getProductBySlug, getRelatedProducts, getAllProductSlugs } from "../../
 import type { Product } from "../../../data/products";
 
 const BACKEND_API_URL = process.env.BACKEND_API_URL || "http://127.0.0.1:8000/api";
+const LOCALES = ["en", "fr", "ar"];
 
 async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
+  const isLocalHostUrl = !process.env.BACKEND_API_URL || process.env.BACKEND_API_URL.includes("127.0.0.1") || process.env.BACKEND_API_URL.includes("localhost");
+
+  if (process.env.NODE_ENV === "production" && isLocalHostUrl) {
+    return getProductBySlug(slug);
+  }
+
   try {
-    const res = await fetch(`${BACKEND_API_URL}/products/${slug}`, { cache: "no-store" });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 1500);
+
+    const res = await fetch(`${BACKEND_API_URL}/products/${slug}`, {
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+
     if (res.ok) {
       const data = await res.json();
       if (data && data.slug) {
@@ -26,7 +41,7 @@ async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
           id: String(data.id),
           sku: data.sku || "",
           slug: data.slug,
-          name: enTrans.name || data.slug,
+          name: enTrans.name || data.name || data.slug,
           category: data.category || "Recharge Credit",
           categoryId: "recharge-credit",
           value: data.value || "Available",
@@ -44,7 +59,7 @@ async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
           faqs: Array.isArray(enTrans.faqs) ? enTrans.faqs : [],
           image: data.image || "",
           translations: data.translations,
-          relatedSlugs: [],
+          relatedSlugs: ["ooredoo-prepaid-sim-card", "recharge-credit", "recharge-credit-delivery-ticket"].filter((s) => s !== data.slug),
         };
       }
     }
@@ -54,12 +69,18 @@ async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
 }
 
 interface PageParams {
+  locale: string;
   slug: string;
 }
 
 export async function generateStaticParams() {
   const slugs = getAllProductSlugs();
-  return slugs.map((slug) => ({ slug }));
+  return LOCALES.flatMap((locale) =>
+    slugs.map((slug) => ({
+      locale,
+      slug,
+    }))
+  );
 }
 
 export async function generateMetadata({

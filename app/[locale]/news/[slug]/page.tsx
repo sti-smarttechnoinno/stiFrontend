@@ -8,10 +8,15 @@ import ArticlePageClient from "./ArticlePageClient";
 
 type Params = Promise<{ locale: string; slug: string }>;
 
+const LOCALES = ["en", "fr", "ar"];
+
 export async function generateStaticParams() {
-  return newsArticles.map((article) => ({
-    slug: article.slug,
-  }));
+  return LOCALES.flatMap((locale) =>
+    newsArticles.map((article) => ({
+      locale,
+      slug: article.slug,
+    }))
+  );
 }
 
 export async function generateMetadata({
