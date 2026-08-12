@@ -107,6 +107,23 @@ const defaultPreferences: CompanyPreferences = {
   },
 };
 
+function cleanMerge(target: any, source: any): any {
+  if (!source || typeof source !== "object") return target;
+  const result = Array.isArray(target) ? [...target] : { ...target };
+
+  for (const key of Object.keys(source)) {
+    const val = source[key];
+    if (val !== null && val !== undefined && val !== "") {
+      if (typeof val === "object" && !Array.isArray(val)) {
+        result[key] = cleanMerge(result[key] || {}, val);
+      } else {
+        result[key] = val;
+      }
+    }
+  }
+  return result;
+}
+
 function readDiskCache(): CompanyPreferences | null {
   try {
     if (fs.existsSync(CACHE_FILE)) {
@@ -129,6 +146,8 @@ function writeDiskCache(data: CompanyPreferences): void {
 }
 
 export async function GET() {
+  let backendData: CompanyPreferences | null = null;
+
   // 1. Try backend fetch with 10s timeout
   try {
     const controller = new AbortController();
@@ -143,7 +162,8 @@ export async function GET() {
     if (res.ok) {
       const data = await res.json().catch(() => null);
       if (data && typeof data === "object") {
-        const merged = { ...defaultPreferences, ...data };
+        const merged = cleanMerge(defaultPreferences, data);
+        backendData = merged;
         memoryPreferences = merged;
         writeDiskCache(merged);
         return NextResponse.json(merged);
@@ -166,7 +186,7 @@ export async function GET() {
   }
 
   // 4. Default fallback
-  return NextResponse.json(defaultPreferences);
+  return NextResponse.json(backendData || defaultPreferences);
 }
 
 export async function POST(request: NextRequest) {
@@ -174,11 +194,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const incomingPrefs = body.preferences || body;
 
-    const updated = {
-      ...defaultPreferences,
-      ...(memoryPreferences || readDiskCache() || {}),
-      ...incomingPrefs,
-    };
+    const current = memoryPreferences || readDiskCache() || defaultPreferences;
+    const updated = cleanMerge(current, incomingPrefs);
 
     memoryPreferences = updated;
     writeDiskCache(updated);
@@ -198,7 +215,7 @@ export async function POST(request: NextRequest) {
       if (res.ok) {
         const data = await res.json().catch(() => null);
         if (data && data.preferences) {
-          const merged = { ...defaultPreferences, ...data.preferences };
+          const merged = cleanMerge(updated, data.preferences);
           memoryPreferences = merged;
           writeDiskCache(merged);
         }

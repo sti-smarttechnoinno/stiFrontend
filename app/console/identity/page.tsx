@@ -52,11 +52,11 @@ export default function CompanyPage() {
     fetch("/api/preferences")
       .then((res) => res.json())
       .then((data) => {
-        if (data.statistics) {
-          setWilayas(data.statistics.provincesServed || "");
-          setPartners(data.statistics.businessPartners || "");
-          setResponseTime(data.statistics.averageResponse || "");
-          setProductsCount(data.statistics.officialProducts || "");
+        if (data && data.statistics) {
+          if (data.statistics.provincesServed) setWilayas(data.statistics.provincesServed);
+          if (data.statistics.businessPartners) setPartners(data.statistics.businessPartners);
+          if (data.statistics.averageResponse) setResponseTime(data.statistics.averageResponse);
+          if (data.statistics.officialProducts) setProductsCount(data.statistics.officialProducts);
         }
       })
       .catch(() => {});
