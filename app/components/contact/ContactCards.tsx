@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { useTranslations } from "../../[locale]/use-translations";
-import { useScrollReveal } from "../../hooks";
 import type { CompanyPreferences } from "../../api/preferences/route";
 
 import { formatBusinessHours, formatClosedDays } from "../../utils/formatHours";
@@ -30,13 +29,11 @@ function Card({
   icon: React.ReactNode;
   index: number;
 }) {
-  const { ref, visible } = useScrollReveal(0.2);
-
   return (
     <motion.article
-      ref={ref}
       initial={{ opacity: 0, y: 20 }}
-      animate={visible ? { opacity: 1, y: 0 } : {}}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
       className="group relative overflow-hidden rounded-3xl border border-gray-100 bg-white p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)] transition-all duration-500 hover:shadow-[0_12px_48px_rgba(200,16,46,0.08)] hover:-translate-y-1 flex flex-col h-full"
     >
@@ -105,30 +102,6 @@ export default function ContactCards() {
 
   const quickConnectBadge = currentLocale === "ar" ? "تواصل سريع" : currentLocale === "fr" ? "Contact Rapide" : "Quick Connect";
 
-  if (loading) {
-    return (
-      <section className="py-20 sm:py-28 lg:py-36 bg-gray-50">
-        <div className="mx-auto max-w-[1320px] px-6 lg:px-8">
-          <div className="mb-16 text-center animate-pulse">
-            <div className="h-3 w-28 bg-gray-200 rounded-full mx-auto mb-3" />
-            <div className="h-8 w-64 bg-gray-200 rounded-2xl mx-auto mb-4" />
-            <div className="h-4 w-80 bg-gray-200 rounded-full mx-auto" />
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xs animate-pulse space-y-4">
-                <div className="h-14 w-14 rounded-2xl bg-red-primary/10" />
-                <div className="h-3 w-20 bg-gray-200 rounded-full" />
-                <div className="h-5 w-36 bg-gray-200 rounded-xl" />
-                <div className="h-3 w-48 bg-gray-100 rounded-full" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="py-20 sm:py-28 lg:py-36 bg-gray-50">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-8">
@@ -141,11 +114,24 @@ export default function ContactCards() {
           </h2>
           <p className="text-gray-500 max-w-xl mx-auto text-sm">{t.contact.cards.section_subtitle}</p>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((item, i) => (
-            <Card key={item.title} {...item} icon={icons[i]} index={i} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xs animate-pulse space-y-4">
+                <div className="h-14 w-14 rounded-2xl bg-red-primary/10" />
+                <div className="h-3 w-20 bg-gray-200 rounded-full" />
+                <div className="h-5 w-36 bg-gray-200 rounded-xl" />
+                <div className="h-3 w-48 bg-gray-100 rounded-full" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {items.map((item, i) => (
+              <Card key={item.title} {...item} icon={icons[i]} index={i} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
