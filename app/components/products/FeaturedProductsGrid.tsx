@@ -19,12 +19,23 @@ function getProductIcon(category: string, type: string) {
   return CreditCard;
 }
 
+interface DisplayProduct {
+  id: string;
+  slug: string;
+  name: string;
+  shortDescription: string;
+  category: string;
+  productType: string;
+  value: string;
+  image?: string;
+}
+
 export default function FeaturedProductsGrid() {
   const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
 
-  const [displayProducts, setDisplayProducts] = useState(() => {
+  const [displayProducts, setDisplayProducts] = useState<DisplayProduct[]>(() => {
     return initialStaticProducts.map((p) => ({
       id: p.id,
       slug: p.slug,
@@ -33,6 +44,7 @@ export default function FeaturedProductsGrid() {
       category: p.category,
       productType: p.productType,
       value: p.value,
+      image: (p as any).image,
     }));
   });
 
