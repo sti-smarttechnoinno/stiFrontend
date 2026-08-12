@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Eye, Mail, Phone, X, Check, FileText, User, Briefcase, GraduationCap, MapPin, ExternalLink } from "lucide-react";
+import { Search, Eye, Download, Mail, Phone, X, FileText, MapPin, ExternalLink } from "lucide-react";
+
+export interface FileAttachment {
+  name: string;
+  url: string;
+}
 
 export interface ApplicationSubmission {
   id: number | string;
@@ -19,9 +24,9 @@ export interface ApplicationSubmission {
   salary?: string;
   availability?: string;
   message?: string;
-  cv_file?: string;
-  cover_file?: string;
-  cert_file?: string;
+  cv_file?: FileAttachment | string | null;
+  cover_file?: FileAttachment | string | null;
+  cert_file?: FileAttachment | string | null;
   submitted?: string;
   created_at?: string;
   status: string;
@@ -93,6 +98,91 @@ export default function ApplicationsPage() {
     return matchesSearch && matchesStatus;
   });
 
+  const renderAttachmentCard = (label: string, fileData: any) => {
+    if (!fileData) return null;
+
+    let name = "";
+    let url = "";
+
+    if (typeof fileData === "object" && fileData !== null) {
+      name = fileData.name || label;
+      url = fileData.url || "";
+    } else if (typeof fileData === "string") {
+      if (fileData.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(fileData);
+          name = parsed.name || label;
+          url = parsed.url || "";
+        } catch {
+          name = fileData;
+        }
+      } else {
+        name = fileData;
+        if (fileData.startsWith("data:")) {
+          url = fileData;
+        }
+      }
+    }
+
+    const handleDownload = () => {
+      if (!url) return;
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name || `${label}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+
+    const handleView = () => {
+      if (!url) return;
+      const win = window.open();
+      if (win) {
+        if (url.startsWith("data:")) {
+          win.document.write(
+            `<html><head><title>${name}</title></head><body style="margin:0;"><iframe src="${url}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100vh;" allowfullscreen></iframe></body></html>`
+          );
+        } else {
+          win.location.href = url;
+        }
+      }
+    };
+
+    return (
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-200/80">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-red-50 text-red-primary flex items-center justify-center shrink-0">
+            <FileText size={16} />
+          </div>
+          <div className="min-w-0">
+            <span className="text-xs font-bold text-gray-900 block">{label}</span>
+            <span className="text-xs text-gray-500 truncate block max-w-[220px]">{name}</span>
+          </div>
+        </div>
+        {url ? (
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleView}
+              className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+            >
+              <Eye size={13} />
+              <span>View</span>
+            </button>
+            <button
+              onClick={handleDownload}
+              className="px-3 py-1.5 rounded-xl bg-[#D71920] text-white hover:bg-[#D71920]/90 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+            >
+              <Download size={13} />
+              <span>Download</span>
+            </button>
+          </div>
+        ) : (
+          <span className="text-[11px] text-gray-400 font-medium italic">Filename only ({name})</span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -102,7 +192,7 @@ export default function ApplicationsPage() {
         </div>
         <button
           onClick={fetchSubmissions}
-          className="self-start sm:self-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-colors"
+          className="self-start sm:self-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-colors cursor-pointer"
         >
           Refresh Submissions
         </button>
@@ -123,7 +213,7 @@ export default function ApplicationsPage() {
           <select
             value={selectedStatus || ""}
             onChange={(e) => setSelectedStatus(e.target.value || null)}
-            className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#D71920]/20"
+            className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#D71920]/20 cursor-pointer"
           >
             <option value="">All Statuses ({submissions.length})</option>
             {Object.keys(statusColors).map((status) => (
@@ -202,7 +292,7 @@ export default function ApplicationsPage() {
                       <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => setActiveModalApp(app)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold transition-colors cursor-pointer"
                         >
                           <Eye size={14} />
                           <span>View Details</span>
@@ -223,7 +313,7 @@ export default function ApplicationsPage() {
           <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
             <button
               onClick={() => setActiveModalApp(null)}
-              className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+              className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
             >
               <X size={20} />
             </button>
@@ -276,29 +366,17 @@ export default function ApplicationsPage() {
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Attached Documents</h4>
-              <div className="flex flex-wrap gap-3">
+              <div className="space-y-2">
                 {activeModalApp.cv_file ? (
-                  <div className="inline-flex items-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-xl text-xs font-semibold border border-red-100">
-                    <FileText size={14} />
-                    <span>CV: {activeModalApp.cv_file}</span>
-                  </div>
+                  renderAttachmentCard("Curriculum Vitae (CV)", activeModalApp.cv_file)
                 ) : (
-                  <span className="text-xs text-gray-400">No CV file attached</span>
+                  <span className="text-xs text-gray-400 block italic">No CV file attached</span>
                 )}
-                {activeModalApp.cover_file && (
-                  <div className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold border border-gray-200">
-                    <FileText size={14} />
-                    <span>Cover: {activeModalApp.cover_file}</span>
-                  </div>
-                )}
-                {activeModalApp.cert_file && (
-                  <div className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold border border-gray-200">
-                    <FileText size={14} />
-                    <span>Cert: {activeModalApp.cert_file}</span>
-                  </div>
-                )}
+
+                {activeModalApp.cover_file && renderAttachmentCard("Cover Letter", activeModalApp.cover_file)}
+                {activeModalApp.cert_file && renderAttachmentCard("Certificates", activeModalApp.cert_file)}
               </div>
             </div>
 
@@ -311,7 +389,7 @@ export default function ApplicationsPage() {
                     handleStatusChange(activeModalApp.id, e.target.value);
                     setActiveModalApp({ ...activeModalApp, status: e.target.value });
                   }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${statusColors[activeModalApp.status] || statusColors.New}`}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${statusColors[activeModalApp.status] || statusColors.New} cursor-pointer`}
                 >
                   {Object.keys(statusColors).map((st) => (
                     <option key={st} value={st}>{st}</option>
@@ -320,7 +398,7 @@ export default function ApplicationsPage() {
               </div>
               <button
                 onClick={() => setActiveModalApp(null)}
-                className="px-5 py-2 bg-gray-900 text-white rounded-xl text-xs font-semibold hover:bg-gray-800 transition-colors"
+                className="px-5 py-2 bg-gray-900 text-white rounded-xl text-xs font-semibold hover:bg-gray-800 transition-colors cursor-pointer"
               >
                 Close
               </button>

@@ -180,10 +180,29 @@ export default function ApplicationForm() {
   const [cvName, setCvName] = useState<string | null>(null);
   const [coverName, setCoverName] = useState<string | null>(null);
   const [certName, setCertName] = useState<string | null>(null);
+
+  const [cvFileObj, setCvFileObj] = useState<{ name: string; url: string } | null>(null);
+  const [coverFileObj, setCoverFileObj] = useState<{ name: string; url: string } | null>(null);
+  const [certFileObj, setCertFileObj] = useState<{ name: string; url: string } | null>(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [hpWebsite, setHpWebsite] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleFileUpload = (
+    file: File | undefined,
+    setName: (name: string | null) => void,
+    setObj: (obj: { name: string; url: string } | null) => void
+  ) => {
+    if (!file) return;
+    setName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setObj({ name: file.name, url: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,9 +213,9 @@ export default function ApplicationForm() {
       const payload = {
         ...formData,
         candidate_name: `${formData.firstName} ${formData.lastName}`.trim(),
-        cv_file: cvName,
-        cover_file: coverName,
-        cert_file: certName,
+        cv_file: cvFileObj || cvName,
+        cover_file: coverFileObj || coverName,
+        cert_file: certFileObj || certName,
         hp_website: hpWebsite,
       };
 
@@ -478,7 +497,7 @@ export default function ApplicationForm() {
                         type="file"
                         accept=".pdf,.doc,.docx"
                         className="sr-only"
-                        onChange={(e) => setCvName(e.target.files?.[0]?.name || null)}
+                        onChange={(e) => handleFileUpload(e.target.files?.[0], setCvName, setCvFileObj)}
                       />
                     </label>
                   </div>
@@ -496,7 +515,7 @@ export default function ApplicationForm() {
                         type="file"
                         accept=".pdf,.doc,.docx"
                         className="sr-only"
-                        onChange={(e) => setCoverName(e.target.files?.[0]?.name || null)}
+                        onChange={(e) => handleFileUpload(e.target.files?.[0], setCoverName, setCoverFileObj)}
                       />
                     </label>
                   </div>
@@ -514,7 +533,7 @@ export default function ApplicationForm() {
                         type="file"
                         accept=".pdf,.doc,.docx"
                         className="sr-only"
-                        onChange={(e) => setCertName(e.target.files?.[0]?.name || null)}
+                        onChange={(e) => handleFileUpload(e.target.files?.[0], setCertName, setCertFileObj)}
                       />
                     </label>
                   </div>

@@ -4,6 +4,11 @@ import fs from "fs";
 import path from "path";
 import { fetchFromBackend } from "../backend-helper";
 
+export interface FileAttachment {
+  name: string;
+  url: string; // base64 data URL
+}
+
 export interface SubmissionItem {
   id: number | string;
   candidate_name: string;
@@ -20,9 +25,9 @@ export interface SubmissionItem {
   salary?: string;
   availability?: string;
   message?: string;
-  cv_file?: string;
-  cover_file?: string;
-  cert_file?: string;
+  cv_file?: FileAttachment | string | null;
+  cover_file?: FileAttachment | string | null;
+  cert_file?: FileAttachment | string | null;
   status: string; // New, Reviewing, Shortlisted, Interview, Accepted, Rejected
   created_at?: string;
   submitted?: string;
@@ -75,12 +80,23 @@ function writeDiskCache(data: SubmissionItem[]): void {
 }
 
 export async function GET() {
+  const disk = readDiskCache();
+
   try {
     const res = await fetchFromBackend("/submissions", { cache: "no-store" }, 10000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data)) {
-        const normalized = data.map((item: any) => ({
+        // Merge backend data with local disk cache so newly posted local submissions are never lost
+        const combined = [...data, ...disk, ...(memorySubmissions || [])];
+        const uniqueMap = new Map();
+        for (const item of combined) {
+          const idKey = String(item.id);
+          if (!uniqueMap.has(idKey)) {
+            uniqueMap.set(idKey, item);
+          }
+        }
+        const normalized = Array.from(uniqueMap.values()).map((item: any) => ({
           ...item,
           candidate: item.candidate_name || item.candidate || "Unknown Candidate",
           candidate_name: item.candidate_name || item.candidate || "Unknown Candidate",
@@ -96,7 +112,7 @@ export async function GET() {
   }
 
   if (!memorySubmissions || memorySubmissions.length === 0) {
-    memorySubmissions = readDiskCache();
+    memorySubmissions = disk;
   }
 
   return NextResponse.json(memorySubmissions);
@@ -118,7 +134,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // 2. Anti-Spam Honeypot Check
-    // If the hidden honeypot field (hp_website) is filled out, silently discard to trick bots
     if (body.hp_website && String(body.hp_website).trim() !== "") {
       console.warn(`[Anti-Spam] Honeypot triggered by IP ${ip}`);
       return NextResponse.json({ success: true, message: "Application received." });
@@ -178,7 +193,13 @@ export async function POST(req: NextRequest) {
       await fetchFromBackend("/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(submissionData),
+        body: JSON.stringify({
+          ...submissionData,
+          // Format attachment objects as JSON strings or names for DB storage if DB text column is limited
+          cv_file: typeof submissionData.cv_file === "object" ? JSON.stringify(submissionData.cv_file) : submissionData.cv_file,
+          cover_file: typeof submissionData.cover_file === "object" ? JSON.stringify(submissionData.cover_file) : submissionData.cover_file,
+          cert_file: typeof submissionData.cert_file === "object" ? JSON.stringify(submissionData.cert_file) : submissionData.cert_file,
+        }),
       }, 10000);
     } catch (err) {
       console.error("Failed to post submission to backend DB:", err);
@@ -191,44 +212,105 @@ export async function POST(req: NextRequest) {
         const toEmail = process.env.RESEND_TO_EMAIL || "administration@sti.dz";
         const fromEmail = process.env.RESEND_FROM_EMAIL || "STI Recruitment <onboarding@resend.dev>";
 
+        // Build attachments array for Resend
+        const emailAttachments: Array<{ filename: string; content: string }> = [];
+
+        const extractResendAttachment = (fileObj: any, defaultName: string) => {
+          if (!fileObj) return null;
+          if (typeof fileObj === "object" && fileObj.url && fileObj.url.startsWith("data:")) {
+            const parts = fileObj.url.split(",");
+            if (parts.length > 1) {
+              return { filename: fileObj.name || defaultName, content: parts[1] };
+            }
+          }
+          if (typeof fileObj === "string" && fileObj.startsWith("data:")) {
+            const parts = fileObj.split(",");
+            if (parts.length > 1) {
+              return { filename: defaultName, content: parts[1] };
+            }
+          }
+          return null;
+        };
+
+        const cvAtt = extractResendAttachment(submissionData.cv_file, `CV_${candidateName.replace(/\s+/g, "_")}.pdf`);
+        if (cvAtt) emailAttachments.push(cvAtt);
+
+        const coverAtt = extractResendAttachment(submissionData.cover_file, `Cover_${candidateName.replace(/\s+/g, "_")}.pdf`);
+        if (coverAtt) emailAttachments.push(coverAtt);
+
+        const certAtt = extractResendAttachment(submissionData.cert_file, `Certificates_${candidateName.replace(/\s+/g, "_")}.pdf`);
+        if (certAtt) emailAttachments.push(certAtt);
+
+        const getFileName = (fileObj: any) => {
+          if (!fileObj) return "None";
+          if (typeof fileObj === "object" && fileObj.name) return fileObj.name;
+          if (typeof fileObj === "string") return fileObj.startsWith("data:") ? "Uploaded Document" : fileObj;
+          return "Uploaded Document";
+        };
+
         const emailHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 16px; padding: 24px; background-color: #ffffff;">
-            <div style="background-color: #D71920; padding: 16px; border-radius: 12px; text-align: center; color: #ffffff; margin-bottom: 24px;">
-              <h2 style="margin: 0; font-size: 20px; font-weight: bold;">New Job Application Received</h2>
-              <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">SARL Smart Technologie Innovation - Recruitment Portal</p>
+          <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 16px; padding: 24px; background-color: #ffffff;">
+            <div style="background-color: #D71920; padding: 20px; border-radius: 12px; text-align: center; color: #ffffff; margin-bottom: 24px;">
+              <h2 style="margin: 0; font-size: 22px; font-weight: bold;">New Job Application Received</h2>
+              <p style="margin: 6px 0 0 0; font-size: 14px; opacity: 0.95;">SARL Smart Technologie Innovation - Recruitment Portal</p>
             </div>
 
             <div style="margin-bottom: 20px;">
-              <h3 style="color: #111827; font-size: 16px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 12px;">Candidate Profile</h3>
+              <h3 style="color: #111827; font-size: 16px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 12px;">Candidate Personal & Contact Details</h3>
               <p><strong>Candidate Name:</strong> ${candidateName}</p>
-              <p><strong>Target Position:</strong> <span style="color: #D71920; font-weight: bold;">${position}</span></p>
+              <p><strong>Target Position:</strong> <span style="color: #D71920; font-weight: bold; font-size: 15px;">${position}</span></p>
               <p><strong>Email Address:</strong> <a href="mailto:${email}">${email}</a></p>
               <p><strong>Phone Number:</strong> <a href="tel:${phone}">${phone}</a></p>
               <p><strong>City / Wilaya:</strong> ${submissionData.city || "N/A"}</p>
-              <p><strong>Experience:</strong> ${submissionData.experience || "N/A"}</p>
-              <p><strong>Education:</strong> ${submissionData.education || "N/A"}</p>
+              <p><strong>Nationality:</strong> ${submissionData.nationality || "N/A"}</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+              <h3 style="color: #111827; font-size: 16px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 12px;">Professional Background & Preferences</h3>
+              <p><strong>Years of Experience:</strong> ${submissionData.experience || "N/A"}</p>
+              <p><strong>Education Level:</strong> ${submissionData.education || "N/A"}</p>
+              <p><strong>Expected Salary:</strong> ${submissionData.salary || "N/A"}</p>
+              <p><strong>Notice Period / Availability:</strong> ${submissionData.availability || "N/A"}</p>
             </div>
 
             ${submissionData.linkedin || submissionData.portfolio ? `
             <div style="margin-bottom: 20px;">
-              <h3 style="color: #111827; font-size: 16px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 12px;">Links & Portfolios</h3>
-              ${submissionData.linkedin ? `<p><strong>LinkedIn:</strong> <a href="${submissionData.linkedin}">${submissionData.linkedin}</a></p>` : ""}
-              ${submissionData.portfolio ? `<p><strong>Portfolio:</strong> <a href="${submissionData.portfolio}">${submissionData.portfolio}</a></p>` : ""}
+              <h3 style="color: #111827; font-size: 16px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 12px;">Online Profiles & Links</h3>
+              ${submissionData.linkedin ? `<p><strong>LinkedIn Profile:</strong> <a href="${submissionData.linkedin}">${submissionData.linkedin}</a></p>` : ""}
+              ${submissionData.portfolio ? `<p><strong>Portfolio / Website:</strong> <a href="${submissionData.portfolio}">${submissionData.portfolio}</a></p>` : ""}
             </div>` : ""}
 
             ${submissionData.message ? `
             <div style="margin-bottom: 20px;">
-              <h3 style="color: #111827; font-size: 16px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 12px;">Cover Note / Message</h3>
-              <div style="background-color: #f9fafb; padding: 12px; border-radius: 8px; font-style: italic; color: #4b5563;">
+              <h3 style="color: #111827; font-size: 16px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 12px;">Cover Note / Additional Comments</h3>
+              <div style="background-color: #f9fafb; padding: 14px; border-radius: 10px; font-style: italic; color: #374151; border: 1px solid #f3f4f6;">
                 "${submissionData.message}"
               </div>
             </div>` : ""}
 
+            <div style="margin-bottom: 20px;">
+              <h3 style="color: #111827; font-size: 16px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px; margin-bottom: 12px;">Uploaded Attachments</h3>
+              <p><strong>Curriculum Vitae (CV):</strong> ${getFileName(submissionData.cv_file)}</p>
+              <p><strong>Cover Letter:</strong> ${getFileName(submissionData.cover_file)}</p>
+              <p><strong>Certificates:</strong> ${getFileName(submissionData.cert_file)}</p>
+            </div>
+
             <div style="text-align: center; margin-top: 28px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af;">
-              <p>Review this candidate in your STI Admin Console under Applications / Submissions.</p>
+              <p>Review and manage this application inside your STI Admin Console under Applications / Submissions.</p>
             </div>
           </div>
         `;
+
+        const emailPayload: any = {
+          from: fromEmail,
+          to: [toEmail],
+          subject: `New Job Application: ${candidateName} - ${position}`,
+          html: emailHtml,
+        };
+
+        if (emailAttachments.length > 0) {
+          emailPayload.attachments = emailAttachments;
+        }
 
         await fetch("https://api.resend.com/emails", {
           method: "POST",
@@ -236,12 +318,7 @@ export async function POST(req: NextRequest) {
             "Authorization": `Bearer ${resendApiKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            from: fromEmail,
-            to: [toEmail],
-            subject: `New Job Application: ${candidateName} - ${position}`,
-            html: emailHtml,
-          }),
+          body: JSON.stringify(emailPayload),
         });
       } catch (emailErr) {
         console.error("Failed to send notification email via Resend:", emailErr);
