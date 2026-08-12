@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
+import { fetchFromBackend } from "../backend-helper";
 
 export interface TeamMemberTranslation {
   name: string;
@@ -22,8 +23,6 @@ export interface TeamMember {
     fr?: TeamMemberTranslation;
   };
 }
-
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 
 const defaultTeamMembers: TeamMember[] = [];
 
@@ -53,23 +52,12 @@ function writeDiskCache(data: TeamMember[]): void {
 }
 
 export async function GET() {
-  let backendMembers: TeamMember[] | null = null;
-
-  // 1. Try to fetch from backend Laravel API with a generous 10s timeout for cPanel shared hosting
+  // 1. Try to fetch from backend Laravel API using fetchFromBackend (auto HTTP/HTTPS/localhost fallback)
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-
-    const res = await fetch(`${BACKEND_API_URL}/team`, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (res.ok) {
+    const res = await fetchFromBackend("/team", { cache: "no-store" }, 10000);
+    if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data) && data.length > 0) {
-        backendMembers = data;
         memoryTeamMembers = data;
         writeDiskCache(data);
         return NextResponse.json(data);
@@ -79,7 +67,7 @@ export async function GET() {
     console.error("Backend fetch error for team:", err);
   }
 
-  // 2. If backend fetch fails or returns empty array while local cache has saved team members, return local cache
+  // 2. If memory cache has saved team members, return memory cache
   if (memoryTeamMembers && memoryTeamMembers.length > 0) {
     return NextResponse.json(memoryTeamMembers);
   }
@@ -91,8 +79,8 @@ export async function GET() {
     return NextResponse.json(diskData);
   }
 
-  // 4. Fallback if backend returned empty array or no cache exists
-  return NextResponse.json(backendMembers || defaultTeamMembers);
+  // 4. Default fallback
+  return NextResponse.json(defaultTeamMembers);
 }
 
 export async function POST(request: NextRequest) {
@@ -104,18 +92,13 @@ export async function POST(request: NextRequest) {
     writeDiskCache(membersList);
 
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 10000);
-
-      const res = await fetch(`${BACKEND_API_URL}/team`, {
+      const res = await fetchFromBackend("/team", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
+      }, 10000);
 
-      if (res.ok) {
+      if (res && res.ok) {
         const data = await res.json().catch(() => null);
         if (Array.isArray(data) && data.length > 0) {
           memoryTeamMembers = data;

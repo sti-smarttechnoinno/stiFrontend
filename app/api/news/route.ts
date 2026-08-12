@@ -71,24 +71,12 @@ export const defaultNewsData: ApiNewsItem[] = newsArticles.map((art, idx) => ({
 
 let memoryNews: ApiNewsItem[] | null = null;
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
+import { fetchFromBackend } from "../backend-helper";
 
 export async function GET() {
-  if (memoryNews && memoryNews.length > 0) {
-    return NextResponse.json(memoryNews);
-  }
-
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
-
-    const res = await fetch(`${BACKEND_API_URL}/news`, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (res.ok) {
+    const res = await fetchFromBackend("/news", { cache: "no-store" }, 10000);
+    if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data) && data.length > 0) {
         memoryNews = data;
@@ -97,7 +85,11 @@ export async function GET() {
     }
   } catch {}
 
-  return NextResponse.json(memoryNews || defaultNewsData);
+  if (memoryNews && memoryNews.length > 0) {
+    return NextResponse.json(memoryNews);
+  }
+
+  return NextResponse.json(defaultNewsData);
 }
 
 export async function POST(req: Request) {
@@ -130,18 +122,13 @@ export async function POST(req: Request) {
     memoryNews.push(newArticle);
 
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2000);
-
-      const res = await fetch(`${BACKEND_API_URL}/news`, {
+      const res = await fetchFromBackend("/news", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
+      }, 10000);
 
-      if (res.ok) {
+      if (res && res.ok) {
         const data = await res.json().catch(() => null);
         if (data && data.id) {
           memoryNews[memoryNews.length - 1] = data;

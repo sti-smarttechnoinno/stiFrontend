@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
+import { fetchFromBackend } from "../backend-helper";
 
 export interface DayHours {
   open: string;
@@ -58,8 +59,6 @@ export interface CompanyPreferences {
     averageResponse: string;
   };
 }
-
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 
 let memoryPreferences: CompanyPreferences | null = null;
 
@@ -146,24 +145,13 @@ function writeDiskCache(data: CompanyPreferences): void {
 }
 
 export async function GET() {
-  let backendData: CompanyPreferences | null = null;
-
-  // 1. Try backend fetch with 10s timeout
+  // 1. Try backend fetch using fetchFromBackend (auto HTTP/HTTPS/localhost fallback)
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-
-    const res = await fetch(`${BACKEND_API_URL}/preferences`, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (res.ok) {
+    const res = await fetchFromBackend("/preferences", { cache: "no-store" }, 10000);
+    if (res && res.ok) {
       const data = await res.json().catch(() => null);
-      if (data && typeof data === "object") {
+      if (data && typeof data === "object" && Object.keys(data).length > 0) {
         const merged = cleanMerge(defaultPreferences, data);
-        backendData = merged;
         memoryPreferences = merged;
         writeDiskCache(merged);
         return NextResponse.json(merged);
@@ -186,7 +174,7 @@ export async function GET() {
   }
 
   // 4. Default fallback
-  return NextResponse.json(backendData || defaultPreferences);
+  return NextResponse.json(defaultPreferences);
 }
 
 export async function POST(request: NextRequest) {
@@ -201,23 +189,21 @@ export async function POST(request: NextRequest) {
     writeDiskCache(updated);
 
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 10000);
-
-      const res = await fetch(`${BACKEND_API_URL}/preferences`, {
+      const res = await fetchFromBackend("/preferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(incomingPrefs),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
+      }, 10000);
 
-      if (res.ok) {
+      if (res && res.ok) {
         const data = await res.json().catch(() => null);
-        if (data && data.preferences) {
-          const merged = cleanMerge(updated, data.preferences);
-          memoryPreferences = merged;
-          writeDiskCache(merged);
+        if (data) {
+          const prefData = data.preferences || data;
+          if (prefData && typeof prefData === "object") {
+            const merged = cleanMerge(updated, prefData);
+            memoryPreferences = merged;
+            writeDiskCache(merged);
+          }
         }
       }
     } catch (err) {

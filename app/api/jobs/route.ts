@@ -158,6 +158,8 @@ export function deleteMemoryJob(id: string | number): boolean {
   return false;
 }
 
+import { fetchFromBackend } from "../backend-helper";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const statusFilter = searchParams.get("status");
@@ -165,19 +167,12 @@ export async function GET(request: NextRequest) {
   const currentMemory = getMemoryJobs();
 
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
-
     const queryString = searchParams.toString();
-    const url = queryString ? `${BACKEND_API_URL}/jobs?${queryString}` : `${BACKEND_API_URL}/jobs`;
+    const endpoint = queryString ? `/jobs?${queryString}` : "/jobs";
 
-    const res = await fetch(url, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
+    const res = await fetchFromBackend(endpoint, { cache: "no-store" }, 10000);
 
-    if (res.ok) {
+    if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data) && data.length > 0) {
         memoryJobs = data;

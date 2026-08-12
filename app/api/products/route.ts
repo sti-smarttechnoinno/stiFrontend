@@ -80,22 +80,14 @@ export function deleteMemoryProduct(id: string | number): boolean {
   return false;
 }
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
+import { fetchFromBackend } from "../backend-helper";
 
 export async function GET() {
   const currentMemory = getMemoryProducts();
 
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
-
-    const res = await fetch(`${BACKEND_API_URL}/products`, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (res.ok) {
+    const res = await fetchFromBackend("/products", { cache: "no-store" }, 10000);
+    if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data) && data.length > 0) {
         const mapped = data.map((p: any) => ({
@@ -124,19 +116,13 @@ export async function POST(req: Request) {
     const newId = memoryProducts.length > 0 ? Math.max(...memoryProducts.map((p) => Number(p.id) || 0)) + 1 : 1;
 
     try {
-      const controller = new AbortController();
-      // Longer timeout for image uploads (base64 images can be large)
-      const timer = setTimeout(() => controller.abort(), 15000);
-
-      const res = await fetch(`${BACKEND_API_URL}/products`, {
+      const res = await fetchFromBackend("/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
+      }, 15000);
 
-      if (res.ok) {
+      if (res && res.ok) {
         const data = await res.json().catch(() => null);
         if (data && data.id) {
           const mapped = {

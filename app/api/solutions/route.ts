@@ -65,33 +65,25 @@ const fallbackSolutions = [
 
 let memorySolutions: any[] | null = null;
 
+import { fetchFromBackend } from "../backend-helper";
+
 export async function GET() {
-  if (memorySolutions && memorySolutions.length > 0) {
-    return NextResponse.json(memorySolutions);
-  }
-
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
-
-    const res = await fetch(`${BACKEND_API_URL}/solutions`, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (res.ok) {
+    const res = await fetchFromBackend("/solutions", { cache: "no-store" }, 10000);
+    if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data) && data.length > 0) {
         memorySolutions = data;
         return NextResponse.json(data);
       }
     }
-  } catch {
-    // Fallback if backend is not reachable
+  } catch {}
+
+  if (memorySolutions && memorySolutions.length > 0) {
+    return NextResponse.json(memorySolutions);
   }
 
-  return NextResponse.json(memorySolutions || fallbackSolutions);
+  return NextResponse.json(fallbackSolutions);
 }
 
 export async function POST(request: NextRequest) {
@@ -112,18 +104,13 @@ export async function POST(request: NextRequest) {
     memorySolutions.push(newSolution);
 
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2000);
-
-      const res = await fetch(`${BACKEND_API_URL}/solutions`, {
+      const res = await fetchFromBackend("/solutions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
+      }, 10000);
 
-      if (res.ok) {
+      if (res && res.ok) {
         const data = await res.json().catch(() => null);
         if (data && data.id) {
           memorySolutions[memorySolutions.length - 1] = data;

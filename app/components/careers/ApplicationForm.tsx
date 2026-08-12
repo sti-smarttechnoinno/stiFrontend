@@ -182,14 +182,42 @@ export default function ApplicationForm() {
   const [certName, setCertName] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [hpWebsite, setHpWebsite] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    setTimeout(() => {
+    setErrorMessage(null);
+
+    try {
+      const payload = {
+        ...formData,
+        candidate_name: `${formData.firstName} ${formData.lastName}`.trim(),
+        cv_file: cvName,
+        cover_file: coverName,
+        cert_file: certName,
+        hp_website: hpWebsite,
+      };
+
+      const res = await fetch("/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setErrorMessage(result.error || "Failed to submit application.");
+      }
+    } catch {
+      setErrorMessage("Network error. Please try submitting again.");
+    } finally {
       setSubmitting(false);
-      setSubmitted(true);
-    }, 1000);
+    }
   };
 
   if (submitted) {
@@ -254,6 +282,23 @@ export default function ApplicationForm() {
         >
           <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_20px_rgba(0,0,0,0.04)] p-8 sm:p-12">
             <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Anti-Spam Honeypot (Hidden) */}
+              <div className="hidden" aria-hidden="true">
+                <input
+                  type="text"
+                  name="hp_website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={hpWebsite}
+                  onChange={(e) => setHpWebsite(e.target.value)}
+                />
+              </div>
+
+              {errorMessage && (
+                <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl flex items-center gap-2">
+                  <span className="font-medium">{errorMessage}</span>
+                </div>
+              )}
               {/* Personal Information */}
               <div>
                 <h3
