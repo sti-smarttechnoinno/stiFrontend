@@ -25,6 +25,7 @@ export default function BusinessHoursCard() {
   const { ref, visible } = useScrollReveal(0.1);
 
   const [prefs, setPrefs] = useState<CompanyPreferences | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadPrefs() {
@@ -34,7 +35,9 @@ export default function BusinessHoursCard() {
           const data = await res.json();
           setPrefs(data);
         }
-      } catch {}
+      } catch {} finally {
+        setLoading(false);
+      }
     }
     loadPrefs();
   }, []);
@@ -50,6 +53,25 @@ export default function BusinessHoursCard() {
   };
 
   const closedText = currentLocale === "ar" ? "مغلق" : currentLocale === "fr" ? "Fermé" : "Closed";
+
+  if (loading) {
+    return (
+      <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xs h-full animate-pulse space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-red-primary/10 shrink-0" />
+          <div className="h-6 w-40 bg-gray-200 rounded-xl" />
+        </div>
+        <div className="space-y-4 pt-2">
+          {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+            <div key={n} className="flex items-center justify-between py-2 border-b border-gray-50">
+              <div className="h-4 w-20 bg-gray-200 rounded-md" />
+              <div className="h-4 w-32 bg-gray-100 rounded-md" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div

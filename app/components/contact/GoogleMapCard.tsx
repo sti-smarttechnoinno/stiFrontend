@@ -13,6 +13,7 @@ export default function GoogleMapCard() {
   const { ref, visible } = useScrollReveal(0.1);
 
   const [prefs, setPrefs] = useState<CompanyPreferences | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadPrefs() {
@@ -22,7 +23,9 @@ export default function GoogleMapCard() {
           const data = await res.json();
           setPrefs(data);
         }
-      } catch {}
+      } catch {} finally {
+        setLoading(false);
+      }
     }
     loadPrefs();
   }, []);
@@ -34,6 +37,19 @@ export default function GoogleMapCard() {
   const addressText = prefs?.address?.[currentLocale] || prefs?.address?.en || "Official Ooredoo Distributor Headquarters, Sétif, Algeria";
 
   const openMapsLabel = currentLocale === "ar" ? "افتح في خرائط جوجل" : currentLocale === "fr" ? "Ouvrir dans Google Maps" : "Open in Google Maps";
+
+  if (loading) {
+    return (
+      <div className="relative rounded-3xl border border-gray-100 overflow-hidden shadow-xs bg-gray-100 h-[460px] mb-20 sm:mb-28 lg:mb-36 animate-pulse flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-red-primary/20 flex items-center justify-center text-red-primary animate-bounce">
+            <MapPin size={24} />
+          </div>
+          <span className="text-xs font-semibold text-gray-400">Loading Location Map...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div

@@ -402,17 +402,14 @@ export default function ApplicationForm() {
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.position}</label>
-                    <select
+                    <input
+                      type="text"
                       required
+                      placeholder={staticT.selectPosition}
                       value={formData.position}
                       onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
-                    >
-                      <option value="">{staticT.selectPosition}</option>
-                      {positions.map((p) => (
-                        <option key={p} value={p}>{p}</option>
-                      ))}
-                    </select>
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.experience}</label>
@@ -459,15 +456,6 @@ export default function ApplicationForm() {
                       type="text"
                       value={formData.salary}
                       onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">{staticT.availability}</label>
-                    <input
-                      type="text"
-                      value={formData.availability}
-                      onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-primary/20 focus:border-red-primary"
                     />
                   </div>

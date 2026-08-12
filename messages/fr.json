@@ -367,17 +367,17 @@
       "section_title": "Comment Pouvons-Nous Vous Aider ?",
       "section_subtitle": "Choisissez le meilleur moyen de joindre notre équipe. Nous sommes là pour répondre à vos questions.",
       "phone_title": "Appelez-Nous",
-      "phone_value": "+213 XXX XX XX XX",
-      "phone_desc": "Lun–Jeu : 08h30–17h30",
+      "phone_value": "+213 552 02 35 36",
+      "phone_desc": "Dim–Jeu : 08h30–17h00",
       "email_title": "Écrivez-Nous",
-      "email_value": "contact@sti.dz",
+      "email_value": "servicevente@sti.dz",
       "email_desc": "Réponse sous 24 heures",
       "address_title": "Rendez-Nous Visite",
       "address_value": "Sétif, Algérie",
       "address_desc": "Siège Social",
       "hours_title": "Horaires d'Ouverture",
-      "hours_value": "Sam - Jeu 08h00 - 17h00",
-      "hours_desc": "Vendredi : Fermé"
+      "hours_value": "Dim – Jeu 08h00 - 17h00",
+      "hours_desc": "Vendredi, Samedi : Fermé"
     },
     "form": {
       "title": "Envoyez-Nous un Message",

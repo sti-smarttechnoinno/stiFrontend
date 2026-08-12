@@ -40,6 +40,7 @@ export default function BusinessInfoCard() {
   const { ref, visible } = useScrollReveal(0.1);
 
   const [prefs, setPrefs] = useState<CompanyPreferences | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadPrefs() {
@@ -49,7 +50,9 @@ export default function BusinessInfoCard() {
           const data = await res.json();
           setPrefs(data);
         }
-      } catch {}
+      } catch {} finally {
+        setLoading(false);
+      }
     }
     loadPrefs();
   }, []);
@@ -58,14 +61,12 @@ export default function BusinessInfoCard() {
   const emailValue = prefs?.email || "contact@sti.dz";
   const addressValue = prefs?.address?.[currentLocale] || prefs?.address?.en || "Lot 24, Zone Industrielle, Bab Ezzouar, Alger";
 
-  // Localized working hours range text dynamically fetched from api/preferences
   const workingHoursText = formatBusinessHours(
     prefs?.businessHours,
     currentLocale,
     "Sat - Thu 08:00 - 17:00"
   );
 
-  // Filter out any social link that is not set
   const socialsList = [
     { icon: <LinkedinIcon />, href: prefs?.socialMedia?.linkedin, label: "LinkedIn" },
     { icon: <FacebookIcon />, href: prefs?.socialMedia?.facebook, label: "Facebook" },
@@ -112,6 +113,26 @@ export default function BusinessInfoCard() {
     hours: "Customer Service Hours",
     socials: "Follow Our Updates",
   };
+
+  if (loading) {
+    return (
+      <div className="rounded-3xl border border-gray-100 bg-white p-8 lg:p-10 shadow-xs h-full animate-pulse space-y-6">
+        <div className="h-6 w-48 bg-gray-200 rounded-xl" />
+        <div className="h-3 w-64 bg-gray-100 rounded-full" />
+        <div className="space-y-6 pt-4">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <div key={n} className="flex items-start gap-3">
+              <div className="h-10 w-10 rounded-xl bg-red-primary/10 shrink-0" />
+              <div className="space-y-2 flex-1">
+                <div className="h-4 w-40 bg-gray-200 rounded-lg" />
+                <div className="h-2.5 w-24 bg-gray-100 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div

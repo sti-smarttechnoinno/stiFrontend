@@ -341,17 +341,17 @@
       "section_title": "How Can We Help You?",
       "section_subtitle": "Choose the best way to reach our team. We're here to help with any questions or inquiries.",
       "phone_title": "Call Us",
-      "phone_value": "+213 XXX XX XX XX",
-      "phone_desc": "Mon–Thu: 08:30–17:30",
+      "phone_value": "+213 552 02 35 36",
+      "phone_desc": "Sun–Thu: 08:30–17:00",
       "email_title": "Email Us",
-      "email_value": "contact@sti.dz",
+      "email_value": "servicevente@sti.dz",
       "email_desc": "We reply within 24 hours",
       "address_title": "Visit Us",
       "address_value": "Sétif, Algeria",
       "address_desc": "Headquarters Office",
       "hours_title": "Business Hours",
-      "hours_value": "Sat - Thu 08:00 - 17:00",
-      "hours_desc": "Friday: Closed"
+      "hours_value": "Sun - Thu 08:30 - 17:00",
+      "hours_desc": "Friday, Saturday: Closed"
     },
     "form": {
       "title": "Send Us a Message",
