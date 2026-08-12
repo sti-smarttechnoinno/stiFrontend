@@ -53,6 +53,8 @@ function writeDiskCache(data: TeamMember[]): void {
 }
 
 export async function GET() {
+  let backendMembers: TeamMember[] | null = null;
+
   // 1. Try to fetch from backend Laravel API with a generous 10s timeout for cPanel shared hosting
   try {
     const controller = new AbortController();
@@ -66,7 +68,8 @@ export async function GET() {
 
     if (res.ok) {
       const data = await res.json().catch(() => null);
-      if (Array.isArray(data)) {
+      if (Array.isArray(data) && data.length > 0) {
+        backendMembers = data;
         memoryTeamMembers = data;
         writeDiskCache(data);
         return NextResponse.json(data);
@@ -76,20 +79,20 @@ export async function GET() {
     console.error("Backend fetch error for team:", err);
   }
 
-  // 2. If backend fetch fails, check memory cache
-  if (memoryTeamMembers) {
+  // 2. If backend fetch fails or returns empty array while local cache has saved team members, return local cache
+  if (memoryTeamMembers && memoryTeamMembers.length > 0) {
     return NextResponse.json(memoryTeamMembers);
   }
 
   // 3. Check disk cache
   const diskData = readDiskCache();
-  if (diskData) {
+  if (diskData && diskData.length > 0) {
     memoryTeamMembers = diskData;
     return NextResponse.json(diskData);
   }
 
-  // 4. Default fallback
-  return NextResponse.json(defaultTeamMembers);
+  // 4. Fallback if backend returned empty array or no cache exists
+  return NextResponse.json(backendMembers || defaultTeamMembers);
 }
 
 export async function POST(request: NextRequest) {
@@ -114,10 +117,10 @@ export async function POST(request: NextRequest) {
 
       if (res.ok) {
         const data = await res.json().catch(() => null);
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           memoryTeamMembers = data;
           writeDiskCache(data);
-        } else if (data && Array.isArray(data.members)) {
+        } else if (data && Array.isArray(data.members) && data.members.length > 0) {
           memoryTeamMembers = data.members;
           writeDiskCache(data.members);
         }

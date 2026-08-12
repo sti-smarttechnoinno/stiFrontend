@@ -30,10 +30,10 @@ export default function CompanyPage() {
   const [formLinkedin, setFormLinkedin] = useState("");
 
   // Statistics
-  const [wilayas, setWilayas] = useState("58");
-  const [partners, setPartners] = useState("1000+");
-  const [responseTime, setResponseTime] = useState("24h");
-  const [productsCount, setProductsCount] = useState("100%");
+  const [wilayas, setWilayas] = useState("");
+  const [partners, setPartners] = useState("");
+  const [responseTime, setResponseTime] = useState("");
+  const [productsCount, setProductsCount] = useState("");
 
   useEffect(() => {
     // 1. Fetch team members from /api/team
@@ -53,10 +53,10 @@ export default function CompanyPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.statistics) {
-          setWilayas(data.statistics.provincesServed || "58");
-          setPartners(data.statistics.businessPartners || "1000+");
-          setResponseTime(data.statistics.averageResponse || "24h");
-          setProductsCount(data.statistics.officialProducts || "100%");
+          setWilayas(data.statistics.provincesServed || "");
+          setPartners(data.statistics.businessPartners || "");
+          setResponseTime(data.statistics.averageResponse || "");
+          setProductsCount(data.statistics.officialProducts || "");
         }
       })
       .catch(() => {});
@@ -164,37 +164,44 @@ export default function CompanyPage() {
 
       if (teamRes.ok) {
         const teamData = await teamRes.json();
-        if (Array.isArray(teamData)) {
+        if (Array.isArray(teamData) && teamData.length > 0) {
           setMembers(teamData);
-        } else if (teamData.members && Array.isArray(teamData.members)) {
+        } else if (teamData && teamData.members && Array.isArray(teamData.members) && teamData.members.length > 0) {
           setMembers(teamData.members);
         }
       }
 
-      // 2. Fetch current preferences, merge, and save updated stats
-      const prefRes = await fetch("/api/preferences");
-      if (prefRes.ok) {
-        const currentPrefs = await prefRes.json();
-        const updatedPrefs = {
-          ...currentPrefs,
-          statistics: {
-            provincesServed: wilayas,
-            businessPartners: partners,
-            averageResponse: responseTime,
-            officialProducts: productsCount,
-          },
-        };
+      // 2. Fetch current preferences, merge, and POST updated statistics
+      let currentPrefs = {};
+      try {
+        const prefRes = await fetch("/api/preferences");
+        if (prefRes.ok) {
+          currentPrefs = await prefRes.json();
+        }
+      } catch {}
 
-        await fetch("/api/preferences", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedPrefs),
-        });
-      }
+      const statisticsPayload = {
+        provincesServed: wilayas,
+        businessPartners: partners,
+        averageResponse: responseTime,
+        officialProducts: productsCount,
+      };
+
+      const updatedPrefs = {
+        ...currentPrefs,
+        statistics: statisticsPayload,
+      };
+
+      await fetch("/api/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedPrefs),
+      });
 
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
-    } catch {
+    } catch (err) {
+      console.error("Error saving company data:", err);
       alert("Error saving company data.");
     } finally {
       setIsSaving(false);
