@@ -63,27 +63,29 @@ const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_B
 
 let memoryPreferences: CompanyPreferences | null = null;
 
+const CACHE_FILE = path.join(process.cwd(), ".data", "preferences_cache.json");
+
 const defaultPreferences: CompanyPreferences = {
-  phone: "0550 02 35 36",
-  whatsapp: "0550 02 35 36",
-  email: "administration@sti.dz",
+  phone: "",
+  whatsapp: "",
+  email: "",
   address: {
-    en: "Sétif, Algeria",
-    ar: "سطيف",
-    fr: "Sétif, Algérie",
+    en: "",
+    ar: "",
+    fr: "",
   },
-  gmapsEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3236.4678129532675!2d5.4263334!3d36.1878916!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f315007983d29b%3A0xb969c549a0ef2f09!2sSARL%20Smart%20Technologie%20Innovation%20-%20STI!5e0!3m2!1sen!2sdz!4v1700000000000!5m2!1sen!2sdz",
+  gmapsEmbed: "",
   emergencyContact: "",
   businessInfo: {
     companyName: {
-      en: "SARL Smart Technologie Innovation",
-      ar: "ذ.م.م سمارت تكنولوجي إينوفيشين",
-      fr: "SARL Smart Technologie Innovation",
+      en: "",
+      ar: "",
+      fr: "",
     },
   },
   socialMedia: {
-    facebook: "https://facebook.com/sti.algeria",
-    linkedin: "https://linkedin.com/company/sti-algeria",
+    facebook: "",
+    linkedin: "",
     twitter: "",
     youtube: "",
     instagram: "",
@@ -98,21 +100,39 @@ const defaultPreferences: CompanyPreferences = {
     friday: { open: "00:00", close: "00:00", isClosed: true },
   },
   statistics: {
-    provincesServed: "58",
-    officialProducts: "100%",
-    businessPartners: "1000+",
-    averageResponse: "24h",
+    provincesServed: "",
+    officialProducts: "",
+    businessPartners: "",
+    averageResponse: "",
   },
 };
 
-export async function GET() {
-  if (memoryPreferences) {
-    return NextResponse.json(memoryPreferences);
-  }
+function readDiskCache(): CompanyPreferences | null {
+  try {
+    if (fs.existsSync(CACHE_FILE)) {
+      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") return parsed;
+    }
+  } catch {}
+  return null;
+}
 
+function writeDiskCache(data: CompanyPreferences): void {
+  try {
+    const dir = path.dirname(CACHE_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
+  } catch {}
+}
+
+export async function GET() {
+  // 1. Try backend fetch with 10s timeout
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
+    const timer = setTimeout(() => controller.abort(), 10000);
 
     const res = await fetch(`${BACKEND_API_URL}/preferences`, {
       cache: "no-store",
@@ -122,15 +142,30 @@ export async function GET() {
 
     if (res.ok) {
       const data = await res.json().catch(() => null);
-      if (data && data.phone) {
-        memoryPreferences = data;
-        return NextResponse.json(data);
+      if (data && typeof data === "object") {
+        const merged = { ...defaultPreferences, ...data };
+        memoryPreferences = merged;
+        writeDiskCache(merged);
+        return NextResponse.json(merged);
       }
     }
   } catch (err) {
     console.error("Backend fetch error for preferences:", err);
   }
 
+  // 2. Check memory cache
+  if (memoryPreferences) {
+    return NextResponse.json(memoryPreferences);
+  }
+
+  // 3. Check disk cache
+  const diskData = readDiskCache();
+  if (diskData) {
+    memoryPreferences = diskData;
+    return NextResponse.json(diskData);
+  }
+
+  // 4. Default fallback
   return NextResponse.json(defaultPreferences);
 }
 
@@ -139,15 +174,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const incomingPrefs = body.preferences || body;
 
-    memoryPreferences = {
+    const updated = {
       ...defaultPreferences,
-      ...memoryPreferences,
+      ...(memoryPreferences || readDiskCache() || {}),
       ...incomingPrefs,
     };
 
+    memoryPreferences = updated;
+    writeDiskCache(updated);
+
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2000);
+      const timer = setTimeout(() => controller.abort(), 10000);
 
       const res = await fetch(`${BACKEND_API_URL}/preferences`, {
         method: "POST",
@@ -160,14 +198,18 @@ export async function POST(request: NextRequest) {
       if (res.ok) {
         const data = await res.json().catch(() => null);
         if (data && data.preferences) {
-          memoryPreferences = data.preferences;
+          const merged = { ...defaultPreferences, ...data.preferences };
+          memoryPreferences = merged;
+          writeDiskCache(merged);
         }
       }
-    } catch {}
+    } catch (err) {
+      console.error("Backend POST error for preferences:", err);
+    }
 
     return NextResponse.json({ success: true, preferences: memoryPreferences });
   } catch (err) {
-    return NextResponse.json({ success: true, preferences: memoryPreferences || defaultPreferences });
+    const fallback = memoryPreferences || readDiskCache() || defaultPreferences;
+    return NextResponse.json({ success: true, preferences: fallback });
   }
 }
-

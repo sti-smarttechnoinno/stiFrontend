@@ -25,67 +25,38 @@ export interface TeamMember {
 
 const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 
-const defaultTeamMembers: TeamMember[] = [
-  {
-    id: "1",
-    name: "Karim Benali",
-    position: "General Manager & Founder",
-    initials: "KB",
-    linkedin: "https://linkedin.com",
-    translations: {
-      en: { name: "Karim Benali", position: "General Manager & Founder" },
-      ar: { name: "كريم بن علي", position: "المدير العام والمؤسس" },
-      fr: { name: "Karim Benali", position: "Directeur Général & Fondateur" },
-    },
-  },
-  {
-    id: "2",
-    name: "Yassine Mansouri",
-    position: "Chief Commercial Officer",
-    initials: "YM",
-    linkedin: "https://linkedin.com",
-    translations: {
-      en: { name: "Yassine Mansouri", position: "Chief Commercial Officer" },
-      ar: { name: "ياسين منصوري", position: "المدير التجاري الرئيسي" },
-      fr: { name: "Yassine Mansouri", position: "Directeur Commercial" },
-    },
-  },
-  {
-    id: "3",
-    name: "Amel Bouzid",
-    position: "Director of Retail Partnerships",
-    initials: "AB",
-    linkedin: "",
-    translations: {
-      en: { name: "Amel Bouzid", position: "Director of Retail Partnerships" },
-      ar: { name: "أمل بوزيد", position: "مديرة شراكات التجزئة" },
-      fr: { name: "Amel Bouzid", position: "Directrice des Partenariats" },
-    },
-  },
-  {
-    id: "4",
-    name: "Sofiane Hadj",
-    position: "Head of Logistics & Supply",
-    initials: "SH",
-    linkedin: "",
-    translations: {
-      en: { name: "Sofiane Hadj", position: "Head of Logistics & Supply" },
-      ar: { name: "سفيان حاج", position: "رئيس اللوجستيات والتزويد" },
-      fr: { name: "Sofiane Hadj", position: "Chef Logistique & Approvisionnement" },
-    },
-  },
-];
+const defaultTeamMembers: TeamMember[] = [];
 
 let memoryTeamMembers: TeamMember[] | null = null;
 
-export async function GET() {
-  if (memoryTeamMembers) {
-    return NextResponse.json(memoryTeamMembers);
-  }
+const CACHE_FILE = path.join(process.cwd(), ".data", "team_cache.json");
 
+function readDiskCache(): TeamMember[] | null {
+  try {
+    if (fs.existsSync(CACHE_FILE)) {
+      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return null;
+}
+
+function writeDiskCache(data: TeamMember[]): void {
+  try {
+    const dir = path.dirname(CACHE_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
+  } catch {}
+}
+
+export async function GET() {
+  // 1. Try to fetch from backend Laravel API with a generous 10s timeout for cPanel shared hosting
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
+    const timer = setTimeout(() => controller.abort(), 10000);
 
     const res = await fetch(`${BACKEND_API_URL}/team`, {
       cache: "no-store",
@@ -95,8 +66,9 @@ export async function GET() {
 
     if (res.ok) {
       const data = await res.json().catch(() => null);
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         memoryTeamMembers = data;
+        writeDiskCache(data);
         return NextResponse.json(data);
       }
     }
@@ -104,6 +76,19 @@ export async function GET() {
     console.error("Backend fetch error for team:", err);
   }
 
+  // 2. If backend fetch fails, check memory cache
+  if (memoryTeamMembers) {
+    return NextResponse.json(memoryTeamMembers);
+  }
+
+  // 3. Check disk cache
+  const diskData = readDiskCache();
+  if (diskData) {
+    memoryTeamMembers = diskData;
+    return NextResponse.json(diskData);
+  }
+
+  // 4. Default fallback
   return NextResponse.json(defaultTeamMembers);
 }
 
@@ -113,10 +98,11 @@ export async function POST(request: NextRequest) {
     const membersList: TeamMember[] = Array.isArray(body) ? body : (body.members || []);
 
     memoryTeamMembers = membersList;
+    writeDiskCache(membersList);
 
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2000);
+      const timer = setTimeout(() => controller.abort(), 10000);
 
       const res = await fetch(`${BACKEND_API_URL}/team`, {
         method: "POST",
@@ -130,15 +116,19 @@ export async function POST(request: NextRequest) {
         const data = await res.json().catch(() => null);
         if (Array.isArray(data)) {
           memoryTeamMembers = data;
+          writeDiskCache(data);
         } else if (data && Array.isArray(data.members)) {
           memoryTeamMembers = data.members;
+          writeDiskCache(data.members);
         }
       }
-    } catch {}
+    } catch (err) {
+      console.error("Backend POST error for team:", err);
+    }
 
     return NextResponse.json(memoryTeamMembers);
   } catch (err) {
-    return NextResponse.json(memoryTeamMembers || defaultTeamMembers);
+    const fallback = memoryTeamMembers || readDiskCache() || defaultTeamMembers;
+    return NextResponse.json(fallback);
   }
 }
-
