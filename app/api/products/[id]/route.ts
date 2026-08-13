@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getMemoryProducts, updateMemoryProduct, deleteMemoryProduct } from "../route";
+import { getMemoryProducts, updateMemoryProduct, deleteMemoryProduct } from "../products-store";
+import { fetchFromBackend } from "../../backend-helper";
 
 // Vercel serverless config: allow 30s execution and 10MB body for image uploads
 export const maxDuration = 30;
 export const dynamic = "force-dynamic";
-
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -15,16 +14,8 @@ interface Params {
 export async function GET(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
-
-    const res = await fetch(`${BACKEND_API_URL}/products/${id}`, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (res.ok) {
+    const res = await fetchFromBackend(`/products/${id}`, { cache: "no-store" }, 10000);
+    if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (data && (data.id || data.slug)) {
         updateMemoryProduct(id, data);
@@ -58,19 +49,13 @@ export async function PUT(request: NextRequest, { params }: Params) {
     const body = await request.json();
 
     try {
-      const controller = new AbortController();
-      // Longer timeout for image uploads (base64 images can be large)
-      const timer = setTimeout(() => controller.abort(), 15000);
-
-      const res = await fetch(`${BACKEND_API_URL}/products/${id}`, {
+      const res = await fetchFromBackend(`/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
+      }, 15000);
 
-      if (res.ok) {
+      if (res && res.ok) {
         const data = await res.json().catch(() => null);
         if (data) {
           const result = {
@@ -85,7 +70,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
       }
     } catch {}
 
-    // Fallback: update memory locally but strip base64 from image to avoid huge memory usage
     const localBody = {
       ...body,
       image: body.image && body.image.startsWith("data:") ? "/assets/sim-card.png" : body.image,
@@ -112,18 +96,9 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     deleteMemoryProduct(id);
 
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2000);
-
-      const res = await fetch(`${BACKEND_API_URL}/products/${id}`, {
+      await fetchFromBackend(`/products/${id}`, {
         method: "DELETE",
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-
-      if (res.ok) {
-        return NextResponse.json({ success: true, message: "Deleted" });
-      }
+      }, 10000);
     } catch {}
 
     return NextResponse.json({ success: true, message: "Deleted" });

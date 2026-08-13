@@ -1,90 +1,19 @@
 import { NextResponse } from "next/server";
+import {
+  ApiProductItem,
+  defaultProductsData,
+  getMemoryProducts,
+  setMemoryProducts,
+} from "./products-store";
+import { fetchFromBackend } from "../backend-helper";
 
 // Vercel serverless config: allow 30s execution and 10MB body for image uploads
 export const maxDuration = 30;
 export const dynamic = "force-dynamic";
 
-export interface ApiProductItem {
-  id: number | string;
-  sku: string;
-  slug: string;
-  category: string;
-  brand: string;
-  productType: string;
-  product_type?: string;
-  value: string;
-  status: string;
-  image?: string;
-  updated_at?: string;
-  translations: {
-    en: {
-      name: string;
-      shortDescription: string;
-      description: string;
-      features: string[];
-      specifications: { label: string; value: string }[];
-      faqs: { question: string; answer: string }[];
-    };
-    ar: {
-      name: string;
-      shortDescription: string;
-      description: string;
-      features: string[];
-      specifications: { label: string; value: string }[];
-      faqs: { question: string; answer: string }[];
-    };
-    fr: {
-      name: string;
-      shortDescription: string;
-      description: string;
-      features: string[];
-      specifications: { label: string; value: string }[];
-      faqs: { question: string; answer: string }[];
-    };
-  };
-}
-
-export const defaultProductsData: ApiProductItem[] = [];
-
-let memoryProducts: ApiProductItem[] | null = null;
-
-export function getMemoryProducts(): ApiProductItem[] {
-  if (!memoryProducts) {
-    memoryProducts = [...defaultProductsData];
-  }
-  return memoryProducts;
-}
-
-export function updateMemoryProduct(id: string | number, fields: any): ApiProductItem | null {
-  const list = getMemoryProducts();
-  const index = list.findIndex((p) => String(p.id) === String(id) || p.slug === id);
-  if (index !== -1) {
-    list[index] = {
-      ...list[index],
-      ...fields,
-      productType: fields.productType || fields.product_type || list[index].productType || "SIM Card",
-      image: fields.image !== undefined ? fields.image : list[index].image,
-    };
-    return list[index];
-  }
-  return null;
-}
-
-export function deleteMemoryProduct(id: string | number): boolean {
-  const list = getMemoryProducts();
-  const index = list.findIndex((p) => String(p.id) === String(id) || p.slug === id);
-  if (index !== -1) {
-    list.splice(index, 1);
-    return true;
-  }
-  return false;
-}
-
-import { fetchFromBackend } from "../backend-helper";
+export type { ApiProductItem };
 
 export async function GET() {
-  const currentMemory = getMemoryProducts();
-
   try {
     const res = await fetchFromBackend("/products", { cache: "no-store" }, 10000);
     if (res && res.ok) {
@@ -96,22 +25,20 @@ export async function GET() {
           product_type: p.product_type || p.productType || "SIM Card",
           image: p.image || "/assets/sim-card.png",
         }));
-        memoryProducts = mapped;
+        setMemoryProducts(mapped);
         return NextResponse.json(mapped);
       }
     }
   } catch {}
 
-  return NextResponse.json(memoryProducts || defaultProductsData);
+  const currentMemory = getMemoryProducts();
+  return NextResponse.json(currentMemory.length > 0 ? currentMemory : defaultProductsData);
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
-    if (!memoryProducts) {
-      memoryProducts = [...defaultProductsData];
-    }
+    const memoryProducts = getMemoryProducts();
 
     const newId = memoryProducts.length > 0 ? Math.max(...memoryProducts.map((p) => Number(p.id) || 0)) + 1 : 1;
 
@@ -132,12 +59,12 @@ export async function POST(req: Request) {
             image: data.image || "/assets/sim-card.png",
           };
           memoryProducts.push(mapped);
+          setMemoryProducts(memoryProducts);
           return NextResponse.json(mapped);
         }
       }
     } catch {}
 
-    // Fallback: save to memory but strip base64 from image to avoid memory bloat
     const newProduct: any = {
       id: newId,
       sku: body.sku || `PROD-${newId}`,
@@ -153,6 +80,7 @@ export async function POST(req: Request) {
     };
 
     memoryProducts.push(newProduct);
+    setMemoryProducts(memoryProducts);
     return NextResponse.json(newProduct);
   } catch (err: any) {
     return NextResponse.json({ error: "Failed to save product" }, { status: 500 });

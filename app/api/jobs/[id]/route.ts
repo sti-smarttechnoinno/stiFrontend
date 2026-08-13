@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getMemoryJobs, updateMemoryJob, deleteMemoryJob } from "../route";
-
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
+import { getMemoryJobs, updateMemoryJob, deleteMemoryJob } from "../jobs-store";
+import { fetchFromBackend } from "../../backend-helper";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -41,16 +40,8 @@ function validateJobBody(body: Record<string, unknown>): string[] {
 export async function GET(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
-
-    const res = await fetch(`${BACKEND_API_URL}/jobs/${id}`, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (res.ok) {
+    const res = await fetchFromBackend(`/jobs/${id}`, { cache: "no-store" }, 10000);
+    if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (data && (data.id || data.slug)) {
         return NextResponse.json(data);
@@ -80,26 +71,18 @@ export async function PUT(request: NextRequest, { params }: Params) {
     const updatedLocal = updateMemoryJob(id, body);
 
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2000);
-
-      const res = await fetch(`${BACKEND_API_URL}/jobs/${id}`, {
+      const res = await fetchFromBackend(`/jobs/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
+      }, 10000);
 
-      const data = await res.json().catch(() => null);
-      if (res.ok && data) {
-        if (updatedLocal) {
+      if (res && res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data && data.id) {
           updateMemoryJob(id, data);
+          return NextResponse.json(data);
         }
-        return NextResponse.json(data);
       }
     } catch {}
 
@@ -119,18 +102,9 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     deleteMemoryJob(id);
 
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2000);
-
-      const res = await fetch(`${BACKEND_API_URL}/jobs/${id}`, {
+      await fetchFromBackend(`/jobs/${id}`, {
         method: "DELETE",
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-
-      if (res.ok) {
-        return NextResponse.json({ success: true, message: "Deleted" });
-      }
+      }, 10000);
     } catch {}
 
     return NextResponse.json({ success: true, message: "Deleted" });
