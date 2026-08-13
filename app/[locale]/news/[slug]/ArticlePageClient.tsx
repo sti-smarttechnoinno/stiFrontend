@@ -599,12 +599,10 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
               >
                 <div>
                   <div className="relative h-48 overflow-hidden bg-gray-100">
-                    <Image
-                      src={rel.heroImage}
+                    <img
+                      src={rel.heroImage || "/assets/hero.png"}
                       alt={rel.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold text-red-primary shadow-sm uppercase tracking-widest backdrop-blur-sm">
                       {rel.category}

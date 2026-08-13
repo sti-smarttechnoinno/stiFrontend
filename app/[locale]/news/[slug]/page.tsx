@@ -27,16 +27,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const article = await getArticleBySlugServer(slug, locale);
-  if (!article) return { title: "Article Not Found" };
+  if (!article || !article.seo) {
+    return {
+      title: article?.title || "Article | STI News",
+      description: article?.excerpt || "Smart Technologie Innovation News",
+    };
+  }
 
   return {
-    title: article.seo.title,
-    description: article.seo.description,
-    keywords: article.seo.keywords,
+    title: article.seo.title || article.title,
+    description: article.seo.description || article.excerpt,
+    keywords: article.seo.keywords || article.tags,
     openGraph: {
-      title: article.seo.title,
-      description: article.seo.description,
-      images: [article.heroImage],
+      title: article.seo.title || article.title,
+      description: article.seo.description || article.excerpt,
+      images: [article.heroImage || "/assets/hero.png"],
       type: "article",
       url: `https://sti-dz.com/news/${article.slug}`,
       publishedTime: article.publishedAt,
@@ -44,9 +49,9 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: article.seo.title,
-      description: article.seo.description,
-      images: [article.heroImage],
+      title: article.seo.title || article.title,
+      description: article.seo.description || article.excerpt,
+      images: [article.heroImage || "/assets/hero.png"],
     },
     robots: {
       index: true,
