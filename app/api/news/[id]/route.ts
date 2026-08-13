@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import type { ApiNewsItem } from "../route";
 import { fetchFromBackend } from "../../backend-helper";
+import { newsArticles } from "../../../data/news-articles";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -58,6 +59,11 @@ export async function GET(request: NextRequest, { params }: Params) {
 
   if (match) {
     return NextResponse.json(normalizeArticle(match));
+  }
+
+  const staticMatch = newsArticles.find((a) => String(a.id) === String(id) || a.slug === id);
+  if (staticMatch) {
+    return NextResponse.json(normalizeArticle(staticMatch));
   }
 
   return NextResponse.json({ error: "Article not found" }, { status: 404 });

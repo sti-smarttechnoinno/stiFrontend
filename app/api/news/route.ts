@@ -71,26 +71,43 @@ function normalizeArticle(item: any): ApiNewsItem {
 }
 
 export async function GET() {
+  const disk = readDiskCache();
+  let backendNews: ApiNewsItem[] = [];
+
   try {
     const res = await fetchFromBackend("/news", { cache: "no-store" }, 10000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data)) {
-        const mapped = data.map(normalizeArticle);
-        memoryNews = mapped;
-        writeDiskCache(mapped);
-        return NextResponse.json(mapped);
+        backendNews = data.map(normalizeArticle);
       }
     }
   } catch (err) {
     console.error("Backend fetch error for news:", err);
   }
 
-  if (memoryNews === null) {
-    memoryNews = readDiskCache();
-  }
+  const mergedMap = new Map<string, ApiNewsItem>();
 
-  return NextResponse.json(memoryNews);
+  disk.forEach((item) => {
+    const key = String(item.slug || item.id);
+    mergedMap.set(key, item);
+  });
+
+  backendNews.forEach((item) => {
+    const key = String(item.slug || item.id);
+    const existing = mergedMap.get(key);
+    if (existing) {
+      mergedMap.set(key, normalizeArticle({ ...existing, ...item }));
+    } else {
+      mergedMap.set(key, item);
+    }
+  });
+
+  const mergedList = Array.from(mergedMap.values());
+  memoryNews = mergedList;
+  writeDiskCache(mergedList);
+
+  return NextResponse.json(mergedList);
 }
 
 export async function POST(req: Request) {
