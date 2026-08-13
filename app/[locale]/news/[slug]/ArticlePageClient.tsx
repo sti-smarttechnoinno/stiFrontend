@@ -37,9 +37,9 @@ const FacebookIcon = () => (
   </svg>
 );
 
-function parseMarkdownContent(content: string) {
+function parseMarkdownContent(content: string = "") {
   const sections: { type: string; content: string; level?: number }[] = [];
-  const lines = content.split("\n");
+  const lines = (content || "").split("\n");
   let currentParagraph = "";
 
   for (const line of lines) {
@@ -81,7 +81,7 @@ function parseMarkdownContent(content: string) {
 }
 
 function slugify(text: string) {
-  return text
+  return (text || "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
@@ -90,15 +90,15 @@ function slugify(text: string) {
 export default function ArticlePageClient({ article }: { article: NewsArticle }) {
   const pathname = usePathname();
   const currentLocale = pathname.split("/")[1] || "en";
-  const { prev, next } = getAdjacentArticles(article.slug);
-  const related = getRelatedArticles(article.slug, 3);
+  const { prev, next } = getAdjacentArticles(article?.slug || "");
+  const related = getRelatedArticles(article?.slug || "", 3);
 
   const [copied, setCopied] = useState(false);
   const [activeToc, setActiveToc] = useState("");
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const sections = parseMarkdownContent(article.content);
+  const sections = parseMarkdownContent(article?.content || "");
   const h2Sections = sections.filter((s) => s.type === "h2");
 
   useEffect(() => {
@@ -134,7 +134,10 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
   };
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const shareText = encodeURIComponent(article.title);
+  const shareText = encodeURIComponent(article?.title || "");
+
+  const safeHeroImage = article?.heroImage && article.heroImage.trim() !== "" ? article.heroImage : "/assets/hero.png";
+  const safeTags = Array.isArray(article?.tags) ? article.tags : [];
 
   return (
     <article className="relative bg-white">
@@ -160,17 +163,17 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
               News
             </Link>
             <ChevronRight size={12} className="text-gray-300" />
-            <span className="text-gray-500">{article.category}</span>
+            <span className="text-gray-500">{article?.category || "Company News"}</span>
             <ChevronRight size={12} className="text-gray-300" />
             <span className="text-red-primary truncate max-w-[200px] sm:max-w-none">
-              {article.title}
+              {article?.title}
             </span>
           </nav>
 
           <div className="max-w-[900px]">
             {/* Category Tag */}
             <span className="mb-4 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-              {article.category}
+              {article?.category || "Company News"}
             </span>
 
             {/* Main Headline */}
@@ -178,12 +181,12 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
               className="mb-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.12] tracking-tight text-gray-900"
               style={{ fontFamily: "var(--font-manrope)" }}
             >
-              {article.title}
+              {article?.title}
             </h1>
 
             {/* Excerpt */}
             <p className="text-base sm:text-lg leading-relaxed text-gray-500 max-w-3xl mb-8">
-              {article.excerpt}
+              {article?.excerpt}
             </p>
 
             {/* Author Meta Row */}
@@ -191,17 +194,17 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
               <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-semibold text-gray-400">
                 <span className="inline-flex items-center gap-1.5">
                   <Calendar size={14} className="text-gray-300" />
-                  {article.publishedAt}
+                  {article?.publishedAt}
                 </span>
                 <span className="h-3 w-px bg-gray-200 hidden sm:inline" />
                 <span className="inline-flex items-center gap-1.5">
                   <User size={14} className="text-gray-300" />
-                  {article.author}
+                  {article?.author}
                 </span>
                 <span className="h-3 w-px bg-gray-200 hidden sm:inline" />
                 <span className="inline-flex items-center gap-1.5">
                   <Clock size={14} className="text-gray-300" />
-                  {article.readingTime}
+                  {article?.readingTime}
                 </span>
               </div>
 
@@ -251,13 +254,10 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
       {/* Featured Hero Banner Image */}
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8 mt-12 mb-16">
         <div className="relative h-[280px] sm:h-[400px] md:h-[500px] lg:h-[580px] w-full overflow-hidden rounded-3xl shadow-xl shadow-gray-100/50">
-          <Image
-            src={article.heroImage}
-            alt={article.title}
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 1320px) 100vw, 1320px"
+          <img
+            src={safeHeroImage}
+            alt={article?.title || "News"}
+            className="h-full w-full object-cover"
           />
         </div>
       </div>
@@ -510,7 +510,7 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
               <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
                 <h4 className="mb-3 text-xs font-extrabold uppercase tracking-wider text-gray-900">Tags</h4>
                 <div className="flex flex-wrap gap-1.5">
-                  {article.tags.map((tag) => (
+                  {safeTags.map((tag) => (
                     <span
                       key={tag}
                       className="rounded-lg border border-gray-100 bg-gray-50/50 px-2.5 py-1 text-[10px] font-bold text-gray-500 transition-all hover:border-red-primary hover:text-red-primary cursor-default"

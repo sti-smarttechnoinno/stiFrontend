@@ -23,7 +23,7 @@ export async function getArticleBySlugServer(slug: string, locale: string = "en"
   try {
     const res = await fetchFromBackend(`/news/${slug}`, { cache: "no-store" }, 5000);
     if (res && res.ok) {
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
       if (data && (data.id || data.slug)) {
         return convertApiItemToNewsArticle(data, locale);
       }
