@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 import FinalCTA from "../../../components/FinalCTA";
-import { getArticleBySlug, newsArticles } from "../../../data/news-articles";
+import { newsArticles } from "../../../data/news-articles";
+import { getArticleBySlugServer } from "../../../data/news-server";
 import ArticlePageClient from "./ArticlePageClient";
 
 type Params = Promise<{ locale: string; slug: string }>;
@@ -25,7 +26,7 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const article = await getArticleBySlug(slug, locale);
+  const article = await getArticleBySlugServer(slug, locale);
   if (!article) return { title: "Article Not Found" };
 
   return {
@@ -63,7 +64,7 @@ export default async function NewsArticlePage({
   params: Params;
 }) {
   const { locale, slug } = await params;
-  const article = await getArticleBySlug(slug, locale);
+  const article = await getArticleBySlugServer(slug, locale);
 
   if (!article) {
     notFound();
