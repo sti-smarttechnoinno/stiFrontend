@@ -1,4 +1,4 @@
-export async function fetchFromBackend(endpoint: string, options: RequestInit = {}, timeoutMs = 10000): Promise<Response | null> {
+export async function fetchFromBackend(endpoint: string, options: RequestInit = {}, timeoutMs = 8000): Promise<Response | null> {
   const urlsToTry: string[] = [];
 
   const envUrl = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL;
@@ -13,8 +13,10 @@ export async function fetchFromBackend(endpoint: string, options: RequestInit = 
     }
   }
 
-  urlsToTry.push("http://127.0.0.1:8000/api");
-  urlsToTry.push("http://localhost:8000/api");
+  if (!envUrl) {
+    urlsToTry.push("http://127.0.0.1:8000/api");
+    urlsToTry.push("http://localhost:8000/api");
+  }
 
   // Remove duplicates
   const uniqueUrls = Array.from(new Set(urlsToTry));

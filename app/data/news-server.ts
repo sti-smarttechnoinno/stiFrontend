@@ -24,7 +24,7 @@ export async function getArticleBySlugServer(slug: string, locale: string = "en"
   }
 
   try {
-    const res = await fetchFromBackend(`/news/${encodeURIComponent(decodedSlug)}`, { cache: "no-store" }, 5000);
+    const res = await fetchFromBackend(`/news/${encodeURIComponent(decodedSlug)}`, { cache: "no-store" }, 8000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (data && (data.id || data.slug)) {

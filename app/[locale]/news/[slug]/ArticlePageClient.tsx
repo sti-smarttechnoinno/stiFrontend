@@ -401,9 +401,9 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
                   <Image src="/assets/logo.png" alt="STI" width={48} height={48} className="object-contain" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900">{article.author}</h4>
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-red-primary">{article.authorRole}</p>
-                  <p className="text-xs leading-relaxed text-gray-500 font-medium">{article.authorBio}</p>
+                  <h4 className="text-sm font-bold text-gray-900">{article?.author}</h4>
+                  {article?.authorRole && <p className="mb-2 text-xs font-bold uppercase tracking-wider text-red-primary">{article.authorRole}</p>}
+                  {article?.authorBio && <p className="text-xs leading-relaxed text-gray-500 font-medium">{article.authorBio}</p>}
                 </div>
               </div>
             </div>
