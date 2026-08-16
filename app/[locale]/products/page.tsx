@@ -54,13 +54,48 @@ const organizationSchema = {
   sameAs: [],
 };
 
+const defaultMerchantReturnPolicy = {
+  "@type": "MerchantReturnPolicy",
+  applicableCountry: "DZ",
+  returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+  merchantReturnDays: 0,
+};
+
+const defaultShippingDetails = {
+  "@type": "OfferShippingDetails",
+  shippingRate: {
+    "@type": "MonetaryAmount",
+    value: "0.00",
+    currency: "DZD",
+  },
+  shippingDestination: {
+    "@type": "DefinedRegion",
+    addressCountry: "DZ",
+  },
+  deliveryTime: {
+    "@type": "ShippingDeliveryTime",
+    handlingTime: {
+      "@type": "QuantitativeValue",
+      minValue: 0,
+      maxValue: 1,
+      "unitCode": "DAY",
+    },
+    transitTime: {
+      "@type": "QuantitativeValue",
+      minValue: 1,
+      maxValue: 3,
+      "unitCode": "DAY",
+    },
+  },
+};
+
 const productSchema = {
   "@context": "https://schema.org",
   "@type": "ItemList",
   name: "Official Ooredoo Products",
   description:
     "Complete range of genuine Ooredoo mobile recharge credit and prepaid SIM cards.",
-  numberOfItems: 8,
+  numberOfItems: 4,
   itemListElement: [
     {
       "@type": "ListItem",
@@ -69,6 +104,7 @@ const productSchema = {
         "@type": "Product",
         name: "Ooredoo Recharge 200 DA",
         description: "Official mobile recharge credit for prepaid subscribers.",
+        image: ["https://sti-dz.com/assets/recharge-card.png"],
         brand: {
           "@type": "Brand",
           name: "Ooredoo",
@@ -77,7 +113,16 @@ const productSchema = {
           "@type": "Offer",
           price: "200",
           priceCurrency: "DZD",
+          priceValidUntil: "2026-12-31",
           availability: "https://schema.org/InStock",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "200",
+            priceCurrency: "DZD",
+            valueAddedTaxIncluded: true,
+          },
+          hasMerchantReturnPolicy: defaultMerchantReturnPolicy,
+          shippingDetails: defaultShippingDetails,
         },
       },
     },
@@ -88,6 +133,7 @@ const productSchema = {
         "@type": "Product",
         name: "Ooredoo Recharge 500 DA",
         description: "Official mobile recharge credit for prepaid subscribers.",
+        image: ["https://sti-dz.com/assets/recharge-card.png"],
         brand: {
           "@type": "Brand",
           name: "Ooredoo",
@@ -96,7 +142,16 @@ const productSchema = {
           "@type": "Offer",
           price: "500",
           priceCurrency: "DZD",
+          priceValidUntil: "2026-12-31",
           availability: "https://schema.org/InStock",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "500",
+            priceCurrency: "DZD",
+            valueAddedTaxIncluded: true,
+          },
+          hasMerchantReturnPolicy: defaultMerchantReturnPolicy,
+          shippingDetails: defaultShippingDetails,
         },
       },
     },
@@ -107,6 +162,7 @@ const productSchema = {
         "@type": "Product",
         name: "Ooredoo Recharge 1000 DA",
         description: "Official mobile recharge credit for prepaid subscribers.",
+        image: ["https://sti-dz.com/assets/recharge-card.png"],
         brand: {
           "@type": "Brand",
           name: "Ooredoo",
@@ -115,7 +171,16 @@ const productSchema = {
           "@type": "Offer",
           price: "1000",
           priceCurrency: "DZD",
+          priceValidUntil: "2026-12-31",
           availability: "https://schema.org/InStock",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "1000",
+            priceCurrency: "DZD",
+            valueAddedTaxIncluded: true,
+          },
+          hasMerchantReturnPolicy: defaultMerchantReturnPolicy,
+          shippingDetails: defaultShippingDetails,
         },
       },
     },
@@ -126,13 +191,25 @@ const productSchema = {
         "@type": "Product",
         name: "Ooredoo Prepaid SIM",
         description: "Official prepaid SIM card ready for activation and resale.",
+        image: ["https://sti-dz.com/assets/sim-card.png"],
         brand: {
           "@type": "Brand",
           name: "Ooredoo",
         },
         offers: {
           "@type": "Offer",
+          price: "0.00",
+          priceCurrency: "DZD",
+          priceValidUntil: "2026-12-31",
           availability: "https://schema.org/InStock",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "0.00",
+            priceCurrency: "DZD",
+            valueAddedTaxIncluded: true,
+          },
+          hasMerchantReturnPolicy: defaultMerchantReturnPolicy,
+          shippingDetails: defaultShippingDetails,
         },
       },
     },

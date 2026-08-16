@@ -144,6 +144,45 @@ export default async function ProductDetailPage({
       priceValidUntil: "2026-12-31",
       itemCondition: "https://schema.org/NewCondition",
       availability: "https://schema.org/InStock",
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: "0.00",
+        priceCurrency: "DZD",
+        valueAddedTaxIncluded: true,
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "DZ",
+        returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+        merchantReturnDays: 0,
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: "0.00",
+          currency: "DZD",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "DZ",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            "unitCode": "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 3,
+            "unitCode": "DAY",
+          },
+        },
+      },
       seller: {
         "@type": "Organization",
         name: "SARL Smart Technologie Innovation",
