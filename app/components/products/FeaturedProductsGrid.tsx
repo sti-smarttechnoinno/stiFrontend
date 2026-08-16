@@ -173,7 +173,7 @@ export default function FeaturedProductsGrid() {
                     <ArrowRight size={14} className="ml-1.5 rtl:mr-1.5 rtl:ml-0 rtl:rotate-180" />
                   </Link>
                   <Link
-                    href={`/${currentLocale}/contact`}
+                    href={`/${currentLocale}/quote`}
                     className="flex items-center justify-center w-full py-2.5 rounded-full border border-gray-200 text-xs font-semibold text-gray-700 transition-all duration-300 hover:border-gray-300 hover:bg-gray-50"
                   >
                     <span>{featT.cta_quote || "Request Quote"}</span>
