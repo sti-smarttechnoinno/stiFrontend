@@ -15,7 +15,7 @@ export default function ProductHero({ product }: { product: Product }) {
   const langTrans = product.translations?.[currentLocale] || product.translations?.en;
   const name = langTrans?.name || product.name;
   const description = langTrans?.description || product.description;
-  const features = langTrans?.features?.length ? langTrans.features : product.features;
+  const features = langTrans?.features?.length ? langTrans.features : (product.features ?? []);
 
   const staticT = {
     en: {

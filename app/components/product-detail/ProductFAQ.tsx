@@ -50,7 +50,7 @@ export default function ProductFAQ({ product }: { product: Product }) {
 
   const langTrans = product.translations?.[currentLocale] || product.translations?.en;
   const name = langTrans?.name || product.name;
-  const faqs = langTrans?.faqs?.length ? langTrans.faqs : product.faqs;
+  const faqs = langTrans?.faqs?.length ? langTrans.faqs : (product.faqs ?? []);
 
   const staticT = {
     en: {

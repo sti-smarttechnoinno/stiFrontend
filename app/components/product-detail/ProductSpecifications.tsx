@@ -35,7 +35,7 @@ export default function ProductSpecifications({ product }: { product: Product })
   };
 
   const langTrans = product.translations?.[currentLocale] || product.translations?.en;
-  const specifications = langTrans?.specifications?.length ? langTrans.specifications : product.specifications;
+  const specifications = langTrans?.specifications?.length ? langTrans.specifications : (product.specifications ?? []);
 
   return (
     <section className="py-20 sm:py-28 lg:py-36 bg-white">

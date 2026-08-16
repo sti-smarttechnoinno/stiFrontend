@@ -11,24 +11,17 @@ import RelatedProducts from "../../../components/product-detail/RelatedProducts"
 import ProductFAQ from "../../../components/product-detail/ProductFAQ";
 import FinalCTA from "../../../components/FinalCTA";
 import { getProductBySlug, getRelatedProducts, getAllProductSlugs } from "../../../data/products";
+import { fetchFromBackend } from "../../../api/backend-helper";
 import type { Product } from "../../../data/products";
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://127.0.0.1:8000/api";
 const LOCALES = ["en", "fr", "ar"];
 
 async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3000);
+    const res = await fetchFromBackend(`/products/${encodeURIComponent(slug)}`, { cache: "no-store" }, 8000);
 
-    const res = await fetch(`${BACKEND_API_URL}/products/${slug}`, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (res.ok) {
-      const data = await res.json();
+    if (res && res.ok) {
+      const data = await res.json().catch(() => null);
       if (data && (data.slug || data.id)) {
         const enTrans = data.translations?.en || {};
         return {
@@ -37,7 +30,7 @@ async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
           slug: data.slug,
           name: enTrans.name || data.name || data.slug,
           category: data.category || "Recharge Credit",
-          categoryId: "recharge-credit",
+          categoryId: data.category?.toLowerCase().replace(/\s+/g, "-") || "recharge-credit",
           value: data.value || "Available",
           description: enTrans.description || data.description || "",
           shortDescription: enTrans.shortDescription || data.shortDescription || "",
@@ -53,7 +46,7 @@ async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
           faqs: Array.isArray(enTrans.faqs) ? enTrans.faqs : [],
           image: data.image || "",
           translations: data.translations,
-          relatedSlugs: ["ooredoo-prepaid-sim-card", "recharge-credit", "recharge-credit-delivery-ticket"].filter((s) => s !== data.slug),
+          relatedSlugs: [],
         };
       }
     }

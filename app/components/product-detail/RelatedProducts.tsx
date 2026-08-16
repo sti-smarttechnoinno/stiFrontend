@@ -20,7 +20,7 @@ export default function RelatedProducts({ products: initialProducts, currentSlug
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
 
   const [displayProducts, setDisplayProducts] = useState<Array<{ slug: string; name: string; description: string }>>(() => {
-    return initialProducts.map((p) => ({
+    return (initialProducts ?? []).map((p) => ({
       slug: p.slug,
       name: p.name,
       description: p.shortDescription || p.description,
