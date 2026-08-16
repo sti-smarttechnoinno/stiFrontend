@@ -23,6 +23,9 @@ export interface JobLanguageContent {
   description: string;
   department: string;
   location: string;
+  streetAddress?: string;
+  addressRegion?: string;
+  postalCode?: string;
   experience: string;
   salary: string;
 }
@@ -76,6 +79,9 @@ export default function JobForm({
         description: initialValues?.translations?.en?.description || initialValues?.description || "",
         department: initialValues?.translations?.en?.department || initialValues?.department || "",
         location: initialValues?.translations?.en?.location || initialValues?.location || "",
+        streetAddress: initialValues?.translations?.en?.streetAddress || initialValues?.street_address || initialValues?.streetAddress || "Zone d'Activité Bir El Djir / Siège STI",
+        addressRegion: initialValues?.translations?.en?.addressRegion || initialValues?.address_region || initialValues?.addressRegion || "Oran",
+        postalCode: initialValues?.translations?.en?.postalCode || initialValues?.postal_code || initialValues?.postalCode || "31000",
         experience: initialValues?.translations?.en?.experience || initialValues?.experience || "2-4 years",
         salary: initialValues?.translations?.en?.salary || initialValues?.salary || "Competitive",
       },
@@ -84,6 +90,9 @@ export default function JobForm({
         description: initialValues?.translations?.ar?.description || "",
         department: initialValues?.translations?.ar?.department || "",
         location: initialValues?.translations?.ar?.location || "",
+        streetAddress: initialValues?.translations?.ar?.streetAddress || "",
+        addressRegion: initialValues?.translations?.ar?.addressRegion || "",
+        postalCode: initialValues?.translations?.ar?.postalCode || "",
         experience: initialValues?.translations?.ar?.experience || "2-4 سنوات",
         salary: initialValues?.translations?.ar?.salary || "راتب تنافسي",
       },
@@ -92,6 +101,9 @@ export default function JobForm({
         description: initialValues?.translations?.fr?.description || "",
         department: initialValues?.translations?.fr?.department || "",
         location: initialValues?.translations?.fr?.location || "",
+        streetAddress: initialValues?.translations?.fr?.streetAddress || "",
+        addressRegion: initialValues?.translations?.fr?.addressRegion || "",
+        postalCode: initialValues?.translations?.fr?.postalCode || "",
         experience: initialValues?.translations?.fr?.experience || "2-4 ans",
         salary: initialValues?.translations?.fr?.salary || "Compétitif",
       },
@@ -198,6 +210,12 @@ export default function JobForm({
           status: formData.status,
           department: formData.translations.en.department,
           location: formData.translations.en.location,
+          street_address: formData.translations.en.streetAddress || "",
+          streetAddress: formData.translations.en.streetAddress || "",
+          address_region: formData.translations.en.addressRegion || "",
+          addressRegion: formData.translations.en.addressRegion || "",
+          postal_code: formData.translations.en.postalCode || "",
+          postalCode: formData.translations.en.postalCode || "",
           experience: formData.translations.en.experience,
           salary: formData.translations.en.salary,
           translations: formData.translations,
@@ -486,6 +504,50 @@ export default function JobForm({
                 {fieldErrors[`location_${currentLang}`]}
               </p>
             )}
+          </div>
+
+          {/* Street Address */}
+          <div>
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+              <MapPin size={12} className="text-gray-400" /> Street Address ({currentLang.toUpperCase()}) (Search Console)
+            </label>
+            <input
+              type="text"
+              dir={isRTL ? "rtl" : "ltr"}
+              value={langContent.streetAddress || ""}
+              onChange={(e) => updateLangContent((prev) => ({ ...prev, streetAddress: e.target.value }))}
+              placeholder="e.g. Zone d'Activité Bir El Djir / Siège STI"
+              className="w-full h-11 px-4 rounded-xl border border-gray-200 text-xs font-medium text-gray-900 focus:border-red-primary focus:ring-2 focus:ring-red-primary/10 outline-none"
+            />
+          </div>
+
+          {/* Address Region / Wilaya */}
+          <div>
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+              <MapPin size={12} className="text-gray-400" /> Region / Wilaya ({currentLang.toUpperCase()}) (Search Console)
+            </label>
+            <input
+              type="text"
+              dir={isRTL ? "rtl" : "ltr"}
+              value={langContent.addressRegion || ""}
+              onChange={(e) => updateLangContent((prev) => ({ ...prev, addressRegion: e.target.value }))}
+              placeholder="e.g. Oran / Alger"
+              className="w-full h-11 px-4 rounded-xl border border-gray-200 text-xs font-medium text-gray-900 focus:border-red-primary focus:ring-2 focus:ring-red-primary/10 outline-none"
+            />
+          </div>
+
+          {/* Postal Code */}
+          <div>
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+              <MapPin size={12} className="text-gray-400" /> Postal Code ({currentLang.toUpperCase()}) (Search Console)
+            </label>
+            <input
+              type="text"
+              value={langContent.postalCode || ""}
+              onChange={(e) => updateLangContent((prev) => ({ ...prev, postalCode: e.target.value }))}
+              placeholder="e.g. 31000 or 16000"
+              className="w-full h-11 px-4 rounded-xl border border-gray-200 text-xs font-medium text-gray-900 focus:border-red-primary focus:ring-2 focus:ring-red-primary/10 outline-none"
+            />
           </div>
 
           {/* Type */}

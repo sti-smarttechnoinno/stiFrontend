@@ -56,11 +56,18 @@ interface JobFromApi {
   slug: string;
   department: string;
   location: string;
+  street_address?: string;
+  streetAddress?: string;
+  address_region?: string;
+  addressRegion?: string;
+  postal_code?: string;
+  postalCode?: string;
   type: string;
   experience: string;
   description: string;
   salary: string;
   status: string;
+  translations?: Record<string, any>;
 }
 
 async function fetchJobs(): Promise<JobFromApi[]> {
@@ -103,27 +110,63 @@ const organizationSchema = {
 export default async function CareersPage() {
   const jobs = await fetchJobs();
 
-  const jobPostingSchemas = jobs.map((job) => ({
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title,
-    description: job.description,
-    datePosted: "2026-05-20",
-    validThrough: "2026-12-31",
-    employmentType: job.type === "Full-time" ? "FULL_TIME" : job.type === "Part-time" ? "PART_TIME" : "CONTRACT",
-    hiringOrganization: {
-      "@type": "Organization",
-      name: "SARL Smart Technologie Innovation",
-    },
-    jobLocation: {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: job.location,
-        addressCountry: "DZ",
+  const jobPostingSchemas = jobs.map((job) => {
+    const locality = job.location && job.location.trim() ? job.location.trim() : "Oran";
+    const streetAddress =
+      job.street_address ||
+      job.streetAddress ||
+      (job.translations?.en?.streetAddress as string) ||
+      "Siège Social SARL Smart Technologie Innovation";
+    const addressRegion =
+      job.address_region ||
+      job.addressRegion ||
+      (job.translations?.en?.addressRegion as string) ||
+      locality;
+    const postalCode =
+      job.postal_code ||
+      job.postalCode ||
+      (job.translations?.en?.postalCode as string) ||
+      "31000";
+
+    const safeTitle = job.title && job.title.trim() ? job.title.trim() : "Offre d'emploi chez STI";
+    const safeDescription =
+      job.description && job.description.trim()
+        ? job.description.trim()
+        : `<p>Rejoignez l'équipe de SARL Smart Technologie Innovation (STI), distributeur officiel Ooredoo en Algérie. Poste basé à ${locality}.</p>`;
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      title: safeTitle,
+      description: safeDescription,
+      datePosted: "2026-05-20",
+      validThrough: "2026-12-31",
+      employmentType:
+        job.type === "Full-time" || job.type === "Temps plein"
+          ? "FULL_TIME"
+          : job.type === "Part-time" || job.type === "Temps partiel"
+          ? "PART_TIME"
+          : "CONTRACT",
+      directApply: true,
+      hiringOrganization: {
+        "@type": "Organization",
+        name: "SARL Smart Technologie Innovation",
+        sameAs: "https://sti-dz.com",
+        logo: "https://sti-dz.com/logo.png",
       },
-    },
-  }));
+      jobLocation: {
+        "@type": "Place",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress,
+          addressLocality: locality,
+          addressRegion,
+          postalCode,
+          addressCountry: "DZ",
+        },
+      },
+    };
+  });
 
   return (
     <>

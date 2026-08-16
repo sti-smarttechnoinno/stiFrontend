@@ -7,6 +7,12 @@ export interface ApiJobItem {
   slug: string;
   department: string;
   location: string;
+  street_address?: string;
+  streetAddress?: string;
+  address_region?: string;
+  addressRegion?: string;
+  postal_code?: string;
+  postalCode?: string;
   type: string;
   experience: string;
   description: string;
@@ -24,6 +30,9 @@ export const defaultJobsData: ApiJobItem[] = [
     slug: "sales-representative",
     department: "Sales",
     location: "Algiers",
+    streetAddress: "Siège Social STI Algérie, Hydra",
+    addressRegion: "Alger",
+    postalCode: "16000",
     type: "Full-time",
     experience: "2-4 years",
     description: "Drive sales growth by building relationships with retailers and business partners across your assigned territory.",
