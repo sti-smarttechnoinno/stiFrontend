@@ -18,6 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useTranslations } from "../[locale]/use-translations";
+import { usePreferences } from "../[locale]/preferences-context";
 import { formatBusinessHours } from "../utils/formatHours";
 
 const languages = ["en", "fr", "ar"];
@@ -41,34 +42,16 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations();
+  const { phone: ctxPhone, activeWorkingHours, workingHoursObj: ctxWorkingHoursObj } = usePreferences();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
-  const [phone, setPhone] = useState("");
-  const [workingHoursObj, setWorkingHoursObj] = useState<{ [key: string]: string }>({});
   const [dbSolutions, setDbSolutions] = useState<Array<{ icon: React.ReactNode; title: string; description: string; href: string }>>([]);
 
   const currentLocale = pathname.split("/")[1] || "en";
-
-  useEffect(() => {
-    fetch("/api/preferences")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.phone) setPhone(data.phone);
-        if (data.businessHours) {
-          const hoursText = formatBusinessHours(data.businessHours, currentLocale, t.nav.phone_hours);
-          setWorkingHoursObj((prev) => ({ ...prev, [currentLocale]: hoursText }));
-        } else if (data.workingHours) {
-          if (typeof data.workingHours === "object") {
-            setWorkingHoursObj(data.workingHours);
-          } else if (typeof data.workingHours === "string") {
-            setWorkingHoursObj((prev) => ({ ...prev, [currentLocale]: data.workingHours }));
-          }
-        }
-      })
-      .catch(() => {});
-  }, [currentLocale]);
+  const phone = ctxPhone;
+  const workingHoursObj = ctxWorkingHoursObj;
 
   useEffect(() => {
     async function loadSolutions() {
@@ -97,8 +80,6 @@ export default function Navbar() {
     }
     loadSolutions();
   }, [currentLocale]);
-
-  const activeWorkingHours = workingHoursObj[currentLocale] || workingHoursObj.en || "";
 
   const defaultSolutionChildren = [
     {

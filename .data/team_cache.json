@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Narimen Amine",
+    "position": "Managing Director",
+    "initials": "NA",
+    "image": null,
+    "linkedin": null,
+    "translations": {
+      "en": {
+        "name": "Narimen Amine",
+        "position": "Managing Director"
+      },
+      "ar": {
+        "name": "نريمان أمين",
+        "position": "المدير العام"
+      },
+      "fr": {
+        "name": "Narimen Amine",
+        "position": "Directrice Génerale"
+      }
+    },
+    "created_at": "2026-08-12T09:58:49.000000Z",
+    "updated_at": "2026-08-12T09:58:49.000000Z"
+  },
+  {
+    "id": 2,
+    "name": "Adjas Mahdi",
+    "position": "IT Manager",
+    "initials": "AM",
+    "image": null,
+    "linkedin": "https://www.linkedin.com/in/adjas-mehdi-1b4371312/",
+    "translations": {
+      "en": {
+        "name": "Adjas Mahdi",
+        "position": "IT Manager"
+      },
+      "ar": {
+        "name": "عجاس مهدي",
+        "position": "مسؤول الاعلام الي"
+      },
+      "fr": {
+        "name": "Adjas Mahdi",
+        "position": "Responsable IT"
+      }
+    },
+    "created_at": "2026-08-13T15:03:46.000000Z",
+    "updated_at": "2026-08-13T15:03:46.000000Z"
+  }
+]

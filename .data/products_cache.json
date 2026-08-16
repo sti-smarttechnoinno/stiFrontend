@@ -33,7 +33,7 @@
           },
           {
             "label": "Network",
-            "value": "4G / 4G+"
+            "value": "4G / 4G+ / 5G"
           },
           {
             "label": "SKU",
@@ -77,7 +77,7 @@
           },
           {
             "label": "الشبكة",
-            "value": "4G / 4G+"
+            "value": "4G / 4G+ / 5G"
           },
           {
             "label": "الرمز SKU",
@@ -121,7 +121,7 @@
           },
           {
             "label": "Réseau",
-            "value": "4G / 4G+"
+            "value": "4G / 4G+ / 5G"
           },
           {
             "label": "SKU",
@@ -145,7 +145,7 @@
       }
     },
     "created_at": "2026-08-10T14:56:51.000000Z",
-    "updated_at": "2026-08-11T15:36:03.000000Z",
+    "updated_at": "2026-08-16T08:07:48.000000Z",
     "productType": "SIM Card"
   },
   {

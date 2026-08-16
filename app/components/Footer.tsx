@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { useTranslations } from "../[locale]/use-translations";
-import { formatBusinessHours } from "../utils/formatHours";
+import { usePreferences } from "../[locale]/preferences-context";
 
 const LinkedinIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -38,41 +38,9 @@ export default function Footer() {
   const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = pathname.split("/")[1] || "en";
+  const { phone, email, socialMedia, locationObj, workingHoursObj, activeWorkingHours: ctxWorkingHours } = usePreferences();
 
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("contact@sti.dz");
-  const [socialMedia, setSocialMedia] = useState<{ linkedin?: string; facebook?: string; twitter?: string; youtube?: string }>({});
-  const [locationObj, setLocationObj] = useState<{ [key: string]: string }>({
-    en: "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria",
-    ar: "المنطقة الصناعية رقم 24، باب الزوار، الجزائر العاصمة",
-    fr: "Lot 24, Zone Industrielle, Bab Ezzouar, Alger, Algérie",
-  });
-  const [workingHoursObj, setWorkingHoursObj] = useState<{ [key: string]: string }>({});
-
-  useEffect(() => {
-    fetch("/api/preferences")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.phone) setPhone(data.phone);
-        if (data.email) setEmail(data.email);
-        if (data.socialMedia) setSocialMedia(data.socialMedia);
-        if (data.address && typeof data.address === "object") {
-          setLocationObj(data.address);
-        }
-        if (data.location && typeof data.location === "object") {
-          setLocationObj(data.location);
-        }
-        if (data.businessHours) {
-          const hoursText = formatBusinessHours(data.businessHours, currentLocale, t.nav.phone_hours);
-          setWorkingHoursObj((prev) => ({ ...prev, [currentLocale]: hoursText }));
-        } else if (data.workingHours && typeof data.workingHours === "object") {
-          setWorkingHoursObj(data.workingHours);
-        }
-      })
-      .catch(() => {});
-  }, [currentLocale]);
-
-  const activeWorkingHours = workingHoursObj[currentLocale] || workingHoursObj.en || t.nav.phone_hours;
+  const activeWorkingHours = ctxWorkingHours || workingHoursObj[currentLocale] || workingHoursObj.en || t.nav.phone_hours;
   const activeLocation = locationObj[currentLocale] || locationObj.en || "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria";
 
   const socials = [
