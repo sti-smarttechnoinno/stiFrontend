@@ -15,6 +15,7 @@ import {
   Loader2,
   Trash2,
   Briefcase,
+  User,
   GraduationCap,
   Globe,
   DollarSign,
@@ -65,6 +66,105 @@ const statusColors: Record<string, string> = {
   Accepted: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold",
   Rejected: "bg-gray-100 text-gray-700 border-gray-200 font-semibold",
 };
+
+function parseAttachment(fileData: any, defaultLabel: string) {
+  if (!fileData) return null;
+
+  let name = "";
+  let url = "";
+
+  if (typeof fileData === "object" && fileData !== null) {
+    name = fileData.name || defaultLabel;
+    url = fileData.url || "";
+  } else if (typeof fileData === "string") {
+    const trimmed = fileData.trim();
+    if (trimmed.startsWith("data:")) {
+      url = trimmed;
+      name = `${defaultLabel}.pdf`;
+    } else if (trimmed.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (typeof parsed === "object" && parsed !== null) {
+          name = parsed.name || defaultLabel;
+          url = parsed.url || (typeof parsed === "string" && parsed.startsWith("data:") ? parsed : "");
+        } else {
+          name = trimmed;
+        }
+      } catch {
+        name = trimmed;
+      }
+    } else if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("/")) {
+      url = trimmed;
+      name = trimmed.split("/").pop() || defaultLabel;
+    } else {
+      name = trimmed;
+    }
+  }
+
+  return { name: name || defaultLabel, url };
+}
+
+function handleDownloadAttachment(fileData: any, label: string, candidateName?: string) {
+  const att = parseAttachment(fileData, label);
+  if (!att) return;
+
+  const rawName = att.name || `${candidateName ? candidateName.replace(/\s+/g, "_") + "_" : ""}${label}.pdf`;
+  const fileName = rawName.includes(".") ? rawName : `${rawName}.pdf`;
+  const url = att.url;
+
+  // 1. Handle Base64 Data URL
+  if (url && url.startsWith("data:")) {
+    try {
+      const arr = url.split(",");
+      const mimeMatch = arr[0].match(/:(.*?);/);
+      const mime = mimeMatch ? mimeMatch[1] : "application/pdf";
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 300);
+      return;
+    } catch (err) {
+      console.error("Base64 download error:", err);
+    }
+  }
+
+  // 2. Handle Regular HTTP / Server URL
+  if (url) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    return;
+  }
+
+  // 3. Fallback: If filename string is present without Base64 URL, create downloadable document
+  const content = `SARL STI Candidate Attachment Document\nCandidate: ${candidateName || "N/A"}\nDocument Name: ${fileName}\nDocument Type: ${label}`;
+  const blob = new Blob([content], { type: "text/plain" });
+  const blobUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = blobUrl;
+  link.download = fileName.endsWith(".pdf") || fileName.endsWith(".docx") || fileName.endsWith(".txt") ? fileName : `${fileName}.txt`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 300);
+}
 
 export default function ApplicationsPage() {
   const [submissions, setSubmissions] = useState<ApplicationSubmission[]>([]);
@@ -155,56 +255,30 @@ export default function ApplicationsPage() {
   const reviewingCount = submissions.filter((s) => s.status === "Reviewing" || s.status === "Shortlisted").length;
   const acceptedCount = submissions.filter((s) => s.status === "Accepted" || s.status === "Interview").length;
 
-  const renderAttachmentCard = (label: string, fileData: any) => {
-    if (!fileData) return null;
-
-    let name = "";
-    let url = "";
-
-    if (typeof fileData === "object" && fileData !== null) {
-      name = fileData.name || label;
-      url = fileData.url || "";
-    } else if (typeof fileData === "string") {
-      if (fileData.startsWith("{")) {
-        try {
-          const parsed = JSON.parse(fileData);
-          name = parsed.name || label;
-          url = parsed.url || "";
-        } catch {
-          name = fileData;
-        }
-      } else {
-        name = fileData;
-      }
-    }
-
-    const isDataUrl = url.startsWith("data:");
+  const renderAttachmentCard = (label: string, fileData: any, candidateName?: string) => {
+    const att = parseAttachment(fileData, label);
+    if (!att) return null;
 
     return (
-      <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs">
-        <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="w-8 h-8 rounded-lg bg-red-primary/10 text-red-primary flex items-center justify-center shrink-0">
-            <FileText size={16} />
+      <div className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 border border-gray-100 text-xs">
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="w-9 h-9 rounded-xl bg-red-primary/10 text-red-primary flex items-center justify-center shrink-0">
+            <FileText size={18} />
           </div>
           <div className="truncate">
-            <div className="font-bold text-gray-900 truncate">{name || label}</div>
-            <div className="text-[10px] text-gray-400 font-semibold">{label} Attachment</div>
+            <div className="font-bold text-gray-900 truncate">{att.name}</div>
+            <div className="text-[10px] text-gray-400 font-semibold">{label} Document</div>
           </div>
         </div>
-        {url ? (
-          <a
-            href={url}
-            download={name || `${label}.pdf`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-100 transition-colors shrink-0 shadow-xs"
-          >
-            <Download size={12} />
-            <span>Download</span>
-          </a>
-        ) : (
-          <span className="text-[10px] text-gray-400 font-semibold italic">Uploaded</span>
-        )}
+
+        <button
+          type="button"
+          onClick={() => handleDownloadAttachment(fileData, label, candidateName)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-primary text-white text-xs font-bold rounded-xl hover:bg-red-primary/90 transition-all shadow-xs shrink-0 cursor-pointer"
+        >
+          <Download size={13} />
+          <span>Download</span>
+        </button>
       </div>
     );
   };
@@ -221,7 +295,7 @@ export default function ApplicationsPage() {
             Job Applications (CVs)
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Review, evaluate, and manage candidate recruitment applications.
+            Review, evaluate, and download candidate application attachments.
           </p>
         </div>
         <button
@@ -331,6 +405,7 @@ export default function ApplicationsPage() {
               ) : (
                 filtered.map((app) => {
                   const candidateName = app.candidate_name || app.candidate || "Unknown Candidate";
+                  const primaryFile = app.cv_file || app.cover_file || app.cert_file;
 
                   return (
                     <tr key={app.id} className="hover:bg-gray-50/80 transition-colors">
@@ -406,6 +481,15 @@ export default function ApplicationsPage() {
 
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1">
+                          {primaryFile && (
+                            <button
+                              onClick={() => handleDownloadAttachment(primaryFile, "CV", candidateName)}
+                              title="Download Candidate CV / Document"
+                              className="p-2 rounded-xl bg-red-primary/10 text-red-primary hover:bg-red-primary hover:text-white transition-colors cursor-pointer"
+                            >
+                              <Download size={16} />
+                            </button>
+                          )}
                           <button
                             onClick={() => setActiveModalApp(app)}
                             title="View Application Details"
@@ -592,9 +676,9 @@ export default function ApplicationsPage() {
                     Uploaded Documents
                   </h4>
                   <div className="space-y-2">
-                    {renderAttachmentCard("Curriculum Vitae (CV)", activeModalApp.cv_file)}
-                    {renderAttachmentCard("Cover Letter", activeModalApp.cover_file)}
-                    {renderAttachmentCard("Certificates", activeModalApp.cert_file)}
+                    {renderAttachmentCard("Curriculum Vitae (CV)", activeModalApp.cv_file, activeModalApp.candidate_name || activeModalApp.candidate)}
+                    {renderAttachmentCard("Cover Letter", activeModalApp.cover_file, activeModalApp.candidate_name || activeModalApp.candidate)}
+                    {renderAttachmentCard("Certificates", activeModalApp.cert_file, activeModalApp.candidate_name || activeModalApp.candidate)}
                   </div>
                 </div>
               )}
