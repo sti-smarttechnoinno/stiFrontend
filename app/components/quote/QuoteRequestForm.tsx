@@ -11,6 +11,7 @@ import {
   Package,
   UserCheck,
   Send,
+  Loader2,
 } from "lucide-react";
 import { useTranslations } from "../../[locale]/use-translations";
 
@@ -23,6 +24,9 @@ export default function QuoteRequestForm() {
   const t = useTranslations();
   const formT = t.quote.form;
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [hpWebsite, setHpWebsite] = useState("");
 
   const [formData, setFormData] = useState({
     businessName: "",
@@ -87,10 +91,33 @@ export default function QuoteRequestForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    console.log("Form submitted:", formData);
+    setSubmitting(true);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch("/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          hp_website: hpWebsite,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to submit quote request.");
+      }
+
+      setSubmitted(true);
+    } catch (err: any) {
+      setErrorMsg(err.message || "An unexpected error occurred. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const stats = [
@@ -134,6 +161,22 @@ export default function QuoteRequestForm() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Honeypot field for anti-spam */}
+                  <input
+                    type="text"
+                    name="hp_website"
+                    value={hpWebsite}
+                    onChange={(e) => setHpWebsite(e.target.value)}
+                    style={{ display: "none" }}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+
+                  {errorMsg && (
+                    <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                      {errorMsg}
+                    </div>
+                  )}
                   {/* Business Name */}
                   <div>
                     <label
@@ -353,12 +396,22 @@ export default function QuoteRequestForm() {
                   {/* Submit Button */}
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-red-primary text-white font-semibold rounded-full transition-all duration-300 hover:shadow-xl hover:shadow-red-primary/25"
+                    disabled={submitting}
+                    whileHover={{ scale: submitting ? 1 : 1.02 }}
+                    whileTap={{ scale: submitting ? 1 : 0.98 }}
+                    className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-red-primary text-white font-semibold rounded-full transition-all duration-300 hover:shadow-xl hover:shadow-red-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <Send size={18} />
-                    {formT.submit_button}
+                    {submitting ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send size={18} />
+                        {formT.submit_button}
+                      </>
+                    )}
                   </motion.button>
                 </form>
               )}
