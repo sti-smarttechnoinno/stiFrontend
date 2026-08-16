@@ -19,16 +19,12 @@ interface PreferencesContextType {
 const defaultPreferencesState: PreferencesContextType = {
   preferences: null,
   phone: "",
-  email: "contact@sti.dz",
+  email: "",
   socialMedia: {},
-  locationObj: {
-    en: "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria",
-    ar: "المنطقة الصناعية رقم 24، باب الزوار، الجزائر العاصمة",
-    fr: "Lot 24, Zone Industrielle, Bab Ezzouar, Alger, Algérie",
-  },
+  locationObj: {},
   workingHoursObj: {},
   activeWorkingHours: "",
-  activeLocation: "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria",
+  activeLocation: "",
   loading: true,
 };
 
@@ -46,13 +42,9 @@ export function PreferencesProvider({
   const [preferences, setPreferences] = useState<CompanyPreferences | null>(cachedPreferences);
   const [loading, setLoading] = useState(!cachedPreferences);
   const [phone, setPhone] = useState(cachedPreferences?.phone || "");
-  const [email, setEmail] = useState(cachedPreferences?.email || "contact@sti.dz");
+  const [email, setEmail] = useState(cachedPreferences?.email || "");
   const [socialMedia, setSocialMedia] = useState(cachedPreferences?.socialMedia || {});
-  const [locationObj, setLocationObj] = useState<Record<string, string>>({
-    en: "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria",
-    ar: "المنطقة الصناعية رقم 24، باب الزوار، الجزائر العاصمة",
-    fr: "Lot 24, Zone Industrielle, Bab Ezzouar, Alger, Algérie",
-  });
+  const [locationObj, setLocationObj] = useState<Record<string, string>>({});
   const [workingHoursObj, setWorkingHoursObj] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -104,7 +96,7 @@ export function PreferencesProvider({
   };
 
   const activeWorkingHours = workingHoursObj[locale] || workingHoursObj.en || "";
-  const activeLocation = locationObj[locale] || locationObj.en || "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria";
+  const activeLocation = locationObj[locale] || locationObj.en || locationObj.fr || locationObj.ar || "";
 
   return (
     <PreferencesContext.Provider

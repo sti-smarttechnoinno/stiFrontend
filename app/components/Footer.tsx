@@ -40,8 +40,8 @@ export default function Footer() {
   const currentLocale = pathname.split("/")[1] || "en";
   const { phone, email, socialMedia, locationObj, workingHoursObj, activeWorkingHours: ctxWorkingHours } = usePreferences();
 
-  const activeWorkingHours = ctxWorkingHours || workingHoursObj[currentLocale] || workingHoursObj.en || t.nav.phone_hours;
-  const activeLocation = locationObj[currentLocale] || locationObj.en || "Lot 24, Zone Industrielle, Bab Ezzouar, Algiers, Algeria";
+  const activeWorkingHours = ctxWorkingHours || workingHoursObj[currentLocale] || workingHoursObj.en || "";
+  const activeLocation = locationObj[currentLocale] || locationObj.en || locationObj.fr || locationObj.ar || "";
 
   const socials = [
     { icon: <LinkedinIcon />, href: socialMedia.linkedin, label: "LinkedIn" },

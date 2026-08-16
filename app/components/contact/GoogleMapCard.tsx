@@ -1,40 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { MapPin, ExternalLink } from "lucide-react";
-import type { CompanyPreferences } from "../../api/preferences/route";
+import { usePreferences } from "../../[locale]/preferences-context";
+
+function parseGoogleMapInputs(gmapsEmbedInput?: string, addressText?: string) {
+  if (!gmapsEmbedInput || typeof gmapsEmbedInput !== "string" || !gmapsEmbedInput.trim()) {
+    return { embedUrl: "", externalUrl: "" };
+  }
+
+  let raw = gmapsEmbedInput.trim();
+
+  // Extract src if full iframe tag is passed
+  if (raw.includes("<iframe") && raw.includes("src=")) {
+    const match = raw.match(/src=["']([^"']+)["']/i);
+    if (match && match[1]) {
+      raw = match[1];
+    }
+  }
+
+  // If it's an embed URL, construct an interactive Google Maps URL for opening
+  if (raw.includes("/maps/embed") || raw.includes("output=embed")) {
+    const embedUrl = raw;
+    const query = addressText || "SARL Smart Technologie Innovation STI";
+    const externalUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    return { embedUrl, externalUrl };
+  }
+
+  // If it's already an external map/place URL
+  if (raw.startsWith("http://") || raw.startsWith("https://")) {
+    const externalUrl = raw;
+    const query = addressText || "SARL Smart Technologie Innovation STI";
+    const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    return { embedUrl, externalUrl };
+  }
+
+  return { embedUrl: "", externalUrl: "" };
+}
 
 export default function GoogleMapCard() {
   const pathname = usePathname();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
 
-  const [prefs, setPrefs] = useState<CompanyPreferences | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { preferences, loading } = usePreferences();
+  const addressText =
+    preferences?.address?.[currentLocale] ||
+    preferences?.address?.en ||
+    preferences?.address?.fr ||
+    preferences?.address?.ar ||
+    "";
 
-  useEffect(() => {
-    async function loadPrefs() {
-      try {
-        const res = await fetch("/api/preferences");
-        if (res.ok) {
-          const data = await res.json();
-          setPrefs(data);
-        }
-      } catch {} finally {
-        setLoading(false);
-      }
-    }
-    loadPrefs();
-  }, []);
+  const { embedUrl, externalUrl: googleMapsUrl } = parseGoogleMapInputs(
+    preferences?.gmapsEmbed,
+    addressText
+  );
 
-  const embedUrl = prefs?.gmapsEmbed || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3236.4678129532675!2d5.4263334!3d36.1878916!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f315007983d29b%3A0xb969c549a0ef2f09!2sSARL%20Smart%20Technologie%20Innovation%20-%20STI!5e0!3m2!1sen!2sdz!4v1700000000000!5m2!1sen!2sdz";
-  
-  const googleMapsUrl = prefs?.gmapsEmbed || "https://www.google.com/maps/place/SARL+Smart+Technologie+Innovation+-+STI/@36.1878916,5.4263334,19z/data=!4m6!3m5!1s0x12f315007983d29b:0xb969c549a0ef2f09!8m2!3d36.1878817!4d5.4266392";
-
-  const addressText = prefs?.address?.[currentLocale] || prefs?.address?.en || "Official Ooredoo Distributor Headquarters, Sétif, Algeria";
-
-  const openMapsLabel = currentLocale === "ar" ? "افتح في خرائط جوجل" : currentLocale === "fr" ? "Ouvrir dans Google Maps" : "Open in Google Maps";
+  const openMapsLabel =
+    currentLocale === "ar"
+      ? "افتح في خرائط جوجل"
+      : currentLocale === "fr"
+      ? "Ouvrir dans Google Maps"
+      : "Open in Google Maps";
 
   return (
     <motion.div
