@@ -17,8 +17,8 @@ import {
   User as UserIcon,
   Key,
 } from "lucide-react";
-import type { MemberItem } from "../../api/members/route";
-import type { RoleItem } from "../../api/roles/route";
+import type { UserItem } from "../../api/users/route";
+import type { RoleItem } from "../../types/roles";
 import { useAuth } from "../../hooks/useAuth";
 
 const roleBadgeColors: Record<string, string> = {
@@ -31,9 +31,9 @@ const roleBadgeColors: Record<string, string> = {
 
 export default function UsersPage() {
   const { hasPermission } = useAuth();
-  const canManageMembers = hasPermission("members:manage");
+  const canManageUsers = hasPermission("members:manage") || hasPermission("users:manage");
 
-  const [members, setMembers] = useState<MemberItem[]>([]);
+  const [users, setUsers] = useState<UserItem[]>([]);
   const [roles, setRoles] = useState<RoleItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,11 +42,11 @@ export default function UsersPage() {
 
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState<MemberItem | null>(null);
+  const [editingUser, setEditingUser] = useState<UserItem | null>(null);
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     username: "",
+    email: "",
     password: "",
     roleId: "",
     roleName: "",
@@ -58,14 +58,14 @@ export default function UsersPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [membersRes, rolesRes] = await Promise.all([
-        fetch("/api/members"),
+      const [usersRes, rolesRes] = await Promise.all([
+        fetch("/api/users"),
         fetch("/api/roles"),
       ]);
 
-      if (membersRes.ok) {
-        const membersData = await membersRes.json();
-        setMembers(membersData);
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        setUsers(usersData);
       }
       if (rolesRes.ok) {
         const rolesData = await rolesRes.json();
@@ -84,11 +84,11 @@ export default function UsersPage() {
 
   const openCreateModal = () => {
     const defaultRole = roles[0] || { id: "viewer", name: "Viewer" };
-    setEditingMember(null);
+    setEditingUser(null);
     setFormData({
       name: "",
-      email: "",
       username: "",
+      email: "",
       password: "",
       roleId: defaultRole.id,
       roleName: defaultRole.name,
@@ -98,16 +98,16 @@ export default function UsersPage() {
     setModalOpen(true);
   };
 
-  const openEditModal = (member: MemberItem) => {
-    setEditingMember(member);
+  const openEditModal = (user: UserItem) => {
+    setEditingUser(user);
     setFormData({
-      name: member.name,
-      email: member.email || "",
-      username: member.username,
+      name: user.name,
+      username: user.username,
+      email: user.email || "",
       password: "", // Optional on update
-      roleId: member.roleId,
-      roleName: member.roleName,
-      status: member.status,
+      roleId: user.roleId,
+      roleName: user.roleName,
+      status: user.status,
     });
     setFormError(null);
     setModalOpen(true);
@@ -122,14 +122,14 @@ export default function UsersPage() {
     }));
   };
 
-  const handleSaveMember = async (e: React.FormEvent) => {
+  const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.username.trim()) {
       setFormError("Name and username are required.");
       return;
     }
 
-    if (!editingMember && !formData.password.trim()) {
+    if (!editingUser && !formData.password.trim()) {
       setFormError("Password is required for new user accounts.");
       return;
     }
@@ -138,12 +138,12 @@ export default function UsersPage() {
     setFormError(null);
 
     try {
-      const method = editingMember ? "PUT" : "POST";
-      const payload = editingMember
-        ? { id: editingMember.id, ...formData }
+      const method = editingUser ? "PUT" : "POST";
+      const payload = editingUser
+        ? { id: editingUser.id, ...formData }
         : formData;
 
-      const res = await fetch("/api/members", {
+      const res = await fetch("/api/users", {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -164,16 +164,16 @@ export default function UsersPage() {
     }
   };
 
-  const handleDeleteMember = async (member: MemberItem) => {
-    if (member.username === "admin") {
+  const handleDeleteUser = async (user: UserItem) => {
+    if (user.username === "admin") {
       alert("The default Super Admin account cannot be deleted.");
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete user account "${member.name}"?`)) return;
+    if (!confirm(`Are you sure you want to delete user account "${user.name}"?`)) return;
 
     try {
-      const res = await fetch(`/api/members?id=${member.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/users?id=${user.id}`, { method: "DELETE" });
       if (res.ok) {
         fetchData();
       } else {
@@ -185,20 +185,20 @@ export default function UsersPage() {
     }
   };
 
-  const filteredMembers = members.filter((member) => {
+  const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (member.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.username.toLowerCase().includes(searchQuery.toLowerCase());
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.username.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesRole = selectedRole ? member.roleId === selectedRole || member.roleName === selectedRole : true;
+    const matchesRole = selectedRole ? user.roleId === selectedRole || user.roleName === selectedRole : true;
     return matchesSearch && matchesRole;
   });
 
-  const totalCount = members.length;
-  const activeCount = members.filter((m) => m.status === "Active").length;
-  const inactiveCount = members.filter((m) => m.status === "Inactive").length;
-  const superAdminCount = members.filter((m) => m.roleId === "super_admin" || m.roleName === "Super Admin").length;
+  const totalCount = users.length;
+  const activeCount = users.filter((u) => u.status === "Active").length;
+  const inactiveCount = users.filter((u) => u.status === "Inactive").length;
+  const superAdminCount = users.filter((u) => u.roleId === "super_admin" || u.roleName === "Super Admin").length;
 
   return (
     <div className="space-y-6">
@@ -212,7 +212,7 @@ export default function UsersPage() {
             Admin User Accounts
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Manage admin users, credentials, role assignments, and active status.
+            Manage admin users, login credentials, role permissions, and active status.
           </p>
         </div>
 
@@ -226,7 +226,7 @@ export default function UsersPage() {
             <span>Refresh</span>
           </button>
 
-          {canManageMembers && (
+          {canManageUsers && (
             <button
               onClick={openCreateModal}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-primary text-white text-xs font-bold rounded-xl hover:bg-red-primary/90 transition-all shadow-xs cursor-pointer"
@@ -276,7 +276,7 @@ export default function UsersPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name, email, or username..."
+              placeholder="Search by name or username..."
               className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-red-primary/10 focus:border-red-primary bg-white"
             />
           </div>
@@ -328,7 +328,7 @@ export default function UsersPage() {
                     </div>
                   </td>
                 </tr>
-              ) : filteredMembers.length === 0 ? (
+              ) : filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-gray-500">
                     <UserX size={32} className="mx-auto mb-3 text-gray-300" />
@@ -341,65 +341,67 @@ export default function UsersPage() {
                   </td>
                 </tr>
               ) : (
-                filteredMembers.map((member) => (
-                  <tr key={member.id} className="hover:bg-gray-50/80 transition-colors">
+                filteredUsers.map((userItem) => (
+                  <tr key={userItem.id} className="hover:bg-gray-50/80 transition-colors">
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-red-primary/10 text-red-primary rounded-xl flex items-center justify-center shrink-0 font-bold text-xs">
-                          {member.name.charAt(0).toUpperCase()}
+                          {userItem.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div className="font-bold text-gray-900">{member.name}</div>
-                          <div className="text-xs text-gray-400 font-medium">{member.email}</div>
+                          <div className="font-bold text-gray-900">{userItem.name}</div>
+                          {userItem.email && (
+                            <div className="text-xs text-gray-400 font-medium">{userItem.email}</div>
+                          )}
                         </div>
                       </div>
                     </td>
 
                     <td className="py-3.5 px-4 font-semibold text-gray-700">
-                      @{member.username}
+                      @{userItem.username}
                     </td>
 
                     <td className="py-3.5 px-4">
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                          roleBadgeColors[member.roleName] || "bg-gray-100 text-gray-700 border-gray-200"
+                          roleBadgeColors[userItem.roleName] || "bg-gray-100 text-gray-700 border-gray-200"
                         }`}
                       >
                         <ShieldCheck size={12} />
-                        {member.roleName}
+                        {userItem.roleName}
                       </span>
                     </td>
 
                     <td className="py-3.5 px-4">
                       <span
                         className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          member.status === "Active"
+                          userItem.status === "Active"
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-gray-100 text-gray-600 border border-gray-200"
                         }`}
                       >
-                        {member.status}
+                        {userItem.status}
                       </span>
                     </td>
 
                     <td className="py-3.5 px-4 text-xs text-gray-500 whitespace-nowrap">
-                      {member.lastLogin || "Never"}
+                      {userItem.lastLogin || "Never"}
                     </td>
 
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      {canManageMembers && (
+                      {canManageUsers && (
                         <div className="flex items-center justify-end gap-1">
                           <button
-                            onClick={() => openEditModal(member)}
+                            onClick={() => openEditModal(userItem)}
                             title="Edit User Account"
                             className="p-2 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
                           >
                             <Edit size={16} />
                           </button>
                           <button
-                            onClick={() => handleDeleteMember(member)}
-                            disabled={member.username === "admin"}
-                            title={member.username === "admin" ? "Super Admin cannot be deleted" : "Delete User Account"}
+                            onClick={() => handleDeleteUser(userItem)}
+                            disabled={userItem.username === "admin"}
+                            title={userItem.username === "admin" ? "Super Admin cannot be deleted" : "Delete User Account"}
                             className="p-2 rounded-xl text-red-500 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <Trash2 size={16} />
@@ -430,9 +432,9 @@ export default function UsersPage() {
                     className="font-extrabold text-gray-900 text-base"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
-                    {editingMember ? `Edit User: ${editingMember.name}` : "Create New User Account"}
+                    {editingUser ? `Edit User: ${editingUser.name}` : "Create New User Account"}
                   </h3>
-                  <p className="text-xs text-gray-500">Configure credentials and role permissions.</p>
+                  <p className="text-xs text-gray-500 font-medium">Configure credentials and role permissions.</p>
                 </div>
               </div>
               <button
@@ -444,7 +446,7 @@ export default function UsersPage() {
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleSaveMember} className="p-6 space-y-4 text-xs overflow-y-auto">
+            <form onSubmit={handleSaveUser} className="p-6 space-y-4 text-xs overflow-y-auto">
               {formError && (
                 <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 font-semibold">
                   {formError}
@@ -504,7 +506,7 @@ export default function UsersPage() {
 
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    Password {editingMember ? "(Leave blank to keep current)" : "*"}
+                    Password {editingUser ? "(Leave blank to keep)" : "*"}
                   </label>
                   <div className="relative">
                     <Key size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -567,7 +569,7 @@ export default function UsersPage() {
                   className="px-5 py-2 bg-red-primary text-white text-xs font-bold rounded-xl hover:bg-red-primary/90 transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
                 >
                   {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
-                  <span>{editingMember ? "Update User" : "Create User"}</span>
+                  <span>{editingUser ? "Update User" : "Create User"}</span>
                 </button>
               </div>
             </form>

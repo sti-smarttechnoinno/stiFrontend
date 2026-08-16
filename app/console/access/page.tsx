@@ -39,18 +39,18 @@ export default function RolesPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [rolesRes, membersRes] = await Promise.all([
+      const [rolesRes, usersRes] = await Promise.all([
         fetch("/api/roles"),
-        fetch("/api/members"),
+        fetch("/api/users"),
       ]);
 
       if (rolesRes.ok) {
         const rolesData = await rolesRes.json();
         setRoles(rolesData);
       }
-      if (membersRes.ok) {
-        const membersData = await membersRes.json();
-        setMembers(membersData);
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        setMembers(usersData);
       }
     } catch (err) {
       console.error("Failed to load roles/members:", err);

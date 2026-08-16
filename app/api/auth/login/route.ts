@@ -3,14 +3,21 @@ import type { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
 
+const USERS_FILE = path.join(process.cwd(), ".data", "users_cache.json");
 const MEMBERS_FILE = path.join(process.cwd(), ".data", "members_cache.json");
 const ROLES_FILE = path.join(process.cwd(), ".data", "roles_cache.json");
 
-function getMembers() {
+function getUsers() {
   try {
+    if (fs.existsSync(USERS_FILE)) {
+      const raw = fs.readFileSync(USERS_FILE, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
     if (fs.existsSync(MEMBERS_FILE)) {
       const raw = fs.readFileSync(MEMBERS_FILE, "utf-8");
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
   } catch {}
   return [
@@ -48,11 +55,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Username and Password are required." }, { status: 400 });
     }
 
-    const members = getMembers();
-    const user = members.find(
-      (m: any) =>
-        (m.username && m.username.toLowerCase() === cleanUsername) ||
-        (m.email && m.email.toLowerCase() === cleanUsername)
+    const users = getUsers();
+    const user = users.find(
+      (u: any) =>
+        (u.username && u.username.toLowerCase() === cleanUsername) ||
+        (u.email && u.email.toLowerCase() === cleanUsername)
     );
 
     if (!user || user.password !== password) {
