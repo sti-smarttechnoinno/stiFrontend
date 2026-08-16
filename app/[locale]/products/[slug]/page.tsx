@@ -10,11 +10,11 @@ import ProductOrderingProcess from "../../../components/product-detail/ProductOr
 import RelatedProducts from "../../../components/product-detail/RelatedProducts";
 import ProductFAQ from "../../../components/product-detail/ProductFAQ";
 import FinalCTA from "../../../components/FinalCTA";
-import { getProductBySlug, getRelatedProducts, getAllProductSlugs } from "../../../data/products";
+import { getProductBySlug, getRelatedProducts } from "../../../data/products";
 import { fetchFromBackend } from "../../../api/backend-helper";
 import type { Product } from "../../../data/products";
 
-const LOCALES = ["en", "fr", "ar"];
+export const dynamic = "force-dynamic";
 
 async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
   try {
@@ -58,16 +58,6 @@ async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
 interface PageParams {
   locale: string;
   slug: string;
-}
-
-export async function generateStaticParams() {
-  const slugs = getAllProductSlugs();
-  return LOCALES.flatMap((locale) =>
-    slugs.map((slug) => ({
-      locale,
-      slug,
-    }))
-  );
 }
 
 export async function generateMetadata({

@@ -3,22 +3,12 @@ import { notFound } from "next/navigation";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 import FinalCTA from "../../../components/FinalCTA";
-import { newsArticles } from "../../../data/news-articles";
 import { getArticleBySlugServer } from "../../../data/news-server";
 import ArticlePageClient from "./ArticlePageClient";
 
 type Params = Promise<{ locale: string; slug: string }>;
 
-const LOCALES = ["en", "fr", "ar"];
-
-export async function generateStaticParams() {
-  return LOCALES.flatMap((locale) =>
-    newsArticles.map((article) => ({
-      locale,
-      slug: article.slug,
-    }))
-  );
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
