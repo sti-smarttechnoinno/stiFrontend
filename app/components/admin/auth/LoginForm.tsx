@@ -53,7 +53,8 @@ export default function LoginForm() {
         body: JSON.stringify({ username, email: username, password, rememberMe }),
       });
       if (!res.ok) {
-        setError("Invalid username or password. Please try again.");
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Invalid username or password. Please try again.");
         setIsLoading(false);
         return;
       }
