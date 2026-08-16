@@ -5,12 +5,14 @@ import { motion } from "framer-motion";
 import { MapPin, ExternalLink } from "lucide-react";
 import { usePreferences } from "../../[locale]/preferences-context";
 
-function parseGoogleMapInputs(gmapsEmbedInput?: string, addressText?: string) {
-  if (!gmapsEmbedInput || typeof gmapsEmbedInput !== "string" || !gmapsEmbedInput.trim()) {
-    return { embedUrl: "", externalUrl: "" };
-  }
+const DEFAULT_EMBED_URL =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3220.1233568508337!2d5.4240589120880305!3d36.18788167231293!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f315007983d29b%3A0xb969c549a0ef2f09!2sSARL%20Smart%20Technologie%20Innovation%20-%20STI!5e0!3m2!1sfr!2sdz!4v1786524577700!5m2!1sfr!2sdz";
 
-  let raw = gmapsEmbedInput.trim();
+function parseGoogleMapInputs(gmapsEmbedInput?: string, addressText?: string) {
+  let raw =
+    gmapsEmbedInput && typeof gmapsEmbedInput === "string" && gmapsEmbedInput.trim()
+      ? gmapsEmbedInput.trim()
+      : DEFAULT_EMBED_URL;
 
   // Extract src if full iframe tag is passed
   if (raw.includes("<iframe") && raw.includes("src=")) {
@@ -20,23 +22,48 @@ function parseGoogleMapInputs(gmapsEmbedInput?: string, addressText?: string) {
     }
   }
 
-  // If it's an embed URL, construct an interactive Google Maps URL for opening
-  if (raw.includes("/maps/embed") || raw.includes("output=embed")) {
-    const embedUrl = raw;
-    const query = addressText || "SARL Smart Technologie Innovation STI";
-    const externalUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-    return { embedUrl, externalUrl };
+  let embedUrl = raw;
+  let lat = "";
+  let lng = "";
+  let placeName = "";
+
+  // Try extracting coordinates (!2d = lng, !3d = lat) from Google Maps embed pb parameter
+  const lngMatch = raw.match(/!2d(-?\d+\.\d+)/);
+  const latMatch = raw.match(/!3d(-?\d+\.\d+)/);
+  if (lngMatch && lngMatch[1]) lng = lngMatch[1];
+  if (latMatch && latMatch[1]) lat = latMatch[1];
+
+  // Try extracting place name (!2s...) from Google Maps embed pb parameter
+  const placeMatch = raw.match(/!2s([^!&]+)/);
+  if (placeMatch && placeMatch[1]) {
+    try {
+      placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
+    } catch {}
   }
 
-  // If it's already an external map/place URL
-  if (raw.startsWith("http://") || raw.startsWith("https://")) {
-    const externalUrl = raw;
-    const query = addressText || "SARL Smart Technologie Innovation STI";
-    const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-    return { embedUrl, externalUrl };
+  let externalUrl = "";
+
+  // Priority 1: Place name + Address search
+  if (placeName) {
+    const query = `${placeName}, ${addressText || "Setif, Algeria"}`;
+    externalUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  }
+  // Priority 2: Direct lat,lng coordinates search
+  else if (lat && lng) {
+    externalUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  }
+  // Priority 3: Check if input is direct Google Maps link
+  else if ((raw.startsWith("http://") || raw.startsWith("https://")) && !raw.includes("/maps/embed") && !raw.includes("output=embed")) {
+    externalUrl = raw;
+    embedUrl = DEFAULT_EMBED_URL;
+  }
+  // Fallback: Default STI location search query
+  else {
+    const query = `SARL Smart Technologie Innovation - STI, ${addressText || "Setif, Algeria"}`;
+    externalUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
   }
 
-  return { embedUrl: "", externalUrl: "" };
+  return { embedUrl, externalUrl };
 }
 
 export default function GoogleMapCard() {
@@ -49,7 +76,7 @@ export default function GoogleMapCard() {
     preferences?.address?.en ||
     preferences?.address?.fr ||
     preferences?.address?.ar ||
-    "";
+    "Setif, Algeria";
 
   const { embedUrl, externalUrl: googleMapsUrl } = parseGoogleMapInputs(
     preferences?.gmapsEmbed,
