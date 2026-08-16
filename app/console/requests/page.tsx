@@ -17,6 +17,7 @@ import {
   RefreshCw,
   FileText,
   Send,
+  Loader2,
 } from "lucide-react";
 
 export interface QuoteRequestItem {
@@ -36,11 +37,11 @@ export interface QuoteRequestItem {
 }
 
 const statusColors: Record<string, string> = {
-  Pending: "bg-amber-50 text-amber-700 border-amber-200",
-  Contacted: "bg-blue-50 text-blue-700 border-blue-200",
-  Quoted: "bg-purple-50 text-purple-700 border-purple-200",
-  Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Rejected: "bg-red-50 text-red-700 border-red-200",
+  Pending: "bg-amber-50 text-amber-700 border-amber-200 font-semibold",
+  Contacted: "bg-blue-50 text-blue-700 border-blue-200 font-semibold",
+  Quoted: "bg-purple-50 text-purple-700 border-purple-200 font-semibold",
+  Completed: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold",
+  Rejected: "bg-gray-100 text-gray-700 border-gray-200 font-semibold",
 };
 
 export default function QuotesPage() {
@@ -146,72 +147,77 @@ export default function QuotesPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Quotation Requests</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage, review, and track incoming partner quote submissions.
+          <h1
+            className="text-2xl font-extrabold text-gray-900"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Quotation Requests
+          </h1>
+          <p className="text-xs text-gray-500 mt-1">
+            Manage, review, and process incoming business partner quotation requests.
           </p>
         </div>
         <button
           onClick={fetchQuotes}
           disabled={loading}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all shadow-xs self-start sm:self-auto cursor-pointer"
         >
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          <RefreshCw size={14} className={loading ? "animate-spin text-red-primary" : ""} />
           <span>Refresh</span>
         </button>
       </div>
 
       {/* Quick Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Requests</div>
-          <div className="text-2xl font-bold text-gray-900 mt-1">{totalCount}</div>
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Requests</div>
+          <div className="text-2xl font-extrabold text-gray-900 mt-1" style={{ fontFamily: "var(--font-display)" }}>{totalCount}</div>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <div className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Pending Review</div>
-          <div className="text-2xl font-bold text-amber-700 mt-1">{pendingCount}</div>
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Pending Review</div>
+          <div className="text-2xl font-extrabold text-amber-700 mt-1" style={{ fontFamily: "var(--font-display)" }}>{pendingCount}</div>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <div className="text-xs font-semibold text-purple-600 uppercase tracking-wider">Quoted</div>
-          <div className="text-2xl font-bold text-purple-700 mt-1">{quotedCount}</div>
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-purple-600">Quoted</div>
+          <div className="text-2xl font-extrabold text-purple-700 mt-1" style={{ fontFamily: "var(--font-display)" }}>{quotedCount}</div>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Completed</div>
-          <div className="text-2xl font-bold text-emerald-700 mt-1">{completedCount}</div>
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Completed</div>
+          <div className="text-2xl font-extrabold text-emerald-700 mt-1" style={{ fontFamily: "var(--font-display)" }}>{completedCount}</div>
         </div>
       </div>
 
       {/* Main Table Container */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)] overflow-hidden">
         {/* Search & Filter Bar */}
-        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="relative max-w-sm flex-1 w-full">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by company, person, email, product..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#D71920]/20 focus:border-[#D71920]"
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-red-primary/10 focus:border-red-primary bg-white"
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
             <select
               value={selectedStatus || ""}
               onChange={(e) => setSelectedStatus(e.target.value || null)}
-              className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#D71920]/20"
+              className="px-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-red-primary/10 focus:border-red-primary cursor-pointer"
             >
-              <option value="">All Statuses</option>
+              <option value="">All Statuses ({quotes.length})</option>
               {Object.keys(statusColors).map((status) => (
                 <option key={status} value={status}>
-                  {status}
+                  {status} ({quotes.filter((q) => q.status === status).length})
                 </option>
               ))}
             </select>
             {selectedStatus && (
               <button
                 onClick={() => setSelectedStatus(null)}
-                className="text-xs text-gray-500 hover:text-gray-700 underline"
+                className="text-xs text-gray-500 hover:text-red-primary font-semibold underline cursor-pointer"
               >
                 Clear
               </button>
@@ -221,35 +227,37 @@ export default function QuotesPage() {
 
         {/* Quotes Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50/70 border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
-              <tr>
-                <th className="py-3.5 px-4 font-semibold">Company / Business</th>
-                <th className="py-3.5 px-4 font-semibold">Contact Info</th>
-                <th className="py-3.5 px-4 font-semibold">Business Type</th>
-                <th className="py-3.5 px-4 font-semibold">Products Requested</th>
-                <th className="py-3.5 px-4 font-semibold">Submitted</th>
-                <th className="py-3.5 px-4 font-semibold">Status</th>
-                <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
+          <table className="w-full text-xs text-left">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50/50 text-gray-700 font-bold uppercase tracking-wider text-[11px]">
+                <th className="py-3.5 px-4 font-bold">Company / Business</th>
+                <th className="py-3.5 px-4 font-bold">Contact Info</th>
+                <th className="py-3.5 px-4 font-bold">Business Type</th>
+                <th className="py-3.5 px-4 font-bold">Products Requested</th>
+                <th className="py-3.5 px-4 font-bold">Submitted</th>
+                <th className="py-3.5 px-4 font-bold">Status</th>
+                <th className="py-3.5 px-4 font-bold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-gray-400">
-                    <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-[#D71920]" />
-                    <span>Loading quotation requests...</span>
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Loader2 size={24} className="animate-spin text-red-primary" />
+                      <span className="text-xs font-semibold">Loading quotation requests...</span>
+                    </div>
                   </td>
                 </tr>
               ) : filteredQuotes.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-gray-500">
                     <FileText size={32} className="mx-auto mb-3 text-gray-300" />
-                    <p className="font-medium text-gray-700">No quotation requests found</p>
+                    <p className="font-bold text-gray-800 text-sm">No quotation requests found</p>
                     <p className="text-xs text-gray-400 mt-1">
                       {searchQuery || selectedStatus
-                        ? "Try clearing search filters."
-                        : "Quote submissions from the website will appear here."}
+                        ? "Try clearing search or status filters."
+                        : "Quotation submissions from the website will appear here."}
                     </p>
                   </td>
                 </tr>
@@ -262,9 +270,9 @@ export default function QuotesPage() {
                   return (
                     <tr key={quote.id} className="hover:bg-gray-50/80 transition-colors">
                       <td className="py-3.5 px-4">
-                        <div className="font-semibold text-gray-900">{quote.business_name}</div>
+                        <div className="font-bold text-gray-900">{quote.business_name}</div>
                         <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                          <User size={10} className="text-gray-400" />
+                          <User size={12} className="text-gray-400" />
                           <span>{quote.contact_person}</span>
                         </div>
                       </td>
@@ -273,14 +281,14 @@ export default function QuotesPage() {
                         <div className="flex flex-col gap-1 text-xs">
                           <a
                             href={`mailto:${quote.email}`}
-                            className="text-gray-600 hover:text-[#D71920] flex items-center gap-1 transition-colors"
+                            className="text-gray-600 hover:text-red-primary flex items-center gap-1 transition-colors font-medium"
                           >
                             <Mail size={12} className="text-gray-400 shrink-0" />
                             <span className="truncate max-w-[180px]">{quote.email}</span>
                           </a>
                           <a
                             href={`tel:${quote.phone}`}
-                            className="text-gray-600 hover:text-[#D71920] flex items-center gap-1 transition-colors"
+                            className="text-gray-600 hover:text-red-primary flex items-center gap-1 transition-colors font-medium"
                           >
                             <Phone size={12} className="text-gray-400 shrink-0" />
                             <span>{quote.phone}</span>
@@ -289,7 +297,7 @@ export default function QuotesPage() {
                       </td>
 
                       <td className="py-3.5 px-4 text-gray-600">
-                        <span className="inline-flex px-2 py-0.5 rounded bg-gray-100 text-xs font-medium text-gray-700">
+                        <span className="inline-flex px-2.5 py-0.5 rounded-md bg-gray-100 text-xs font-semibold text-gray-700">
                           {quote.business_type || "Standard"}
                         </span>
                       </td>
@@ -300,7 +308,7 @@ export default function QuotesPage() {
                             productsList.slice(0, 2).map((prod, idx) => (
                               <span
                                 key={idx}
-                                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-[#D71920] border border-red-100"
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-primary/10 text-red-primary"
                               >
                                 {prod}
                               </span>
@@ -309,7 +317,7 @@ export default function QuotesPage() {
                             <span className="text-xs text-gray-400 italic">Not specified</span>
                           )}
                           {productsList.length > 2 && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
                               +{productsList.length - 2} more
                             </span>
                           )}
@@ -325,7 +333,7 @@ export default function QuotesPage() {
                           value={quote.status}
                           onChange={(e) => handleStatusChange(quote.id, e.target.value)}
                           className={`text-xs font-semibold px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none transition-colors ${
-                            statusColors[quote.status] || "bg-gray-50 text-gray-700 border-gray-200"
+                            statusColors[quote.status] || "bg-gray-100 text-gray-700 border-gray-200"
                           }`}
                         >
                           {Object.keys(statusColors).map((st) => (
@@ -341,7 +349,7 @@ export default function QuotesPage() {
                           <button
                             onClick={() => setActiveModalQuote(quote)}
                             title="View Quote Details"
-                            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors"
+                            className="p-2 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
                           >
                             <Eye size={16} />
                           </button>
@@ -349,7 +357,7 @@ export default function QuotesPage() {
                             onClick={() => handleDelete(quote.id)}
                             disabled={deletingId === quote.id}
                             title="Delete Quote Request"
-                            className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                            className="p-2 rounded-xl text-red-500 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -366,44 +374,44 @@ export default function QuotesPage() {
 
       {/* Quote Detail Modal */}
       {activeModalQuote && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
             {/* Modal Header */}
             <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-red-50 text-[#D71920] flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-red-primary/10 text-red-primary flex items-center justify-center font-bold">
                   <Building2 size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 text-lg">
+                  <h3 className="font-extrabold text-gray-900 text-base" style={{ fontFamily: "var(--font-display)" }}>
                     {activeModalQuote.business_name}
                   </h3>
                   <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                     <span>Submitted {activeModalQuote.date || "recently"}</span>
                     <span>•</span>
-                    <span className="font-medium text-gray-700">{activeModalQuote.business_type}</span>
+                    <span className="font-semibold text-gray-700">{activeModalQuote.business_type}</span>
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => setActiveModalQuote(null)}
-                className="p-2 rounded-lg hover:bg-gray-200/60 text-gray-400 hover:text-gray-600 transition-colors"
+                className="p-2 rounded-xl hover:bg-gray-200/60 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Modal Content */}
-            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm">
+            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
               {/* Status & Quick Contact Banner */}
               <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-gray-500">Current Status:</span>
+                  <span className="text-xs font-bold text-gray-500">Current Status:</span>
                   <select
                     value={activeModalQuote.status}
                     disabled={updatingStatus}
                     onChange={(e) => handleStatusChange(activeModalQuote.id, e.target.value)}
-                    className={`text-xs font-bold px-3 py-1 rounded-full border cursor-pointer focus:outline-none ${
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-full border cursor-pointer focus:outline-none ${
                       statusColors[activeModalQuote.status] || "bg-gray-100 text-gray-700"
                     }`}
                   >
@@ -417,16 +425,16 @@ export default function QuotesPage() {
                 <div className="flex items-center gap-2">
                   <a
                     href={`mailto:${activeModalQuote.email}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#D71920] text-white text-xs font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-sm"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-primary text-white text-xs font-bold rounded-xl hover:bg-red-primary/90 transition-all shadow-xs"
                   >
-                    <Mail size={12} />
-                    <span>Email Company</span>
+                    <Mail size={14} />
+                    <span>Email Partner</span>
                   </a>
                   <a
                     href={`tel:${activeModalQuote.phone}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all shadow-xs"
                   >
-                    <Phone size={12} />
+                    <Phone size={14} />
                     <span>Call</span>
                   </a>
                 </div>
@@ -434,45 +442,45 @@ export default function QuotesPage() {
 
               {/* Contact Details Grid */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
                   Contact Information
                 </h4>
-                <div className="grid sm:grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div className="grid sm:grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-xs">
                   <div>
-                    <span className="text-xs text-gray-500">Contact Person</span>
-                    <p className="font-semibold text-gray-900 mt-0.5">{activeModalQuote.contact_person}</p>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Contact Person</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalQuote.contact_person}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-gray-500">Preferred Contact Method</span>
-                    <p className="font-semibold text-gray-900 mt-0.5">{activeModalQuote.contact_method || "Email"}</p>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Preferred Contact Method</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalQuote.contact_method || "Email"}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-gray-500">Email Address</span>
-                    <p className="font-semibold text-gray-900 mt-0.5">{activeModalQuote.email}</p>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Email Address</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalQuote.email}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-gray-500">Phone Number</span>
-                    <p className="font-semibold text-gray-900 mt-0.5">{activeModalQuote.phone}</p>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Phone Number</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalQuote.phone}</p>
                   </div>
                 </div>
               </div>
 
               {/* Products & Volume Request */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
                   Quotation Details
                 </h4>
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-4">
+                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs space-y-4">
                   <div>
-                    <span className="text-xs text-gray-500 block mb-2">Requested Products & Solutions</span>
+                    <span className="text-[11px] text-gray-400 block font-semibold mb-2">Requested Products & Solutions</span>
                     <div className="flex flex-wrap gap-2">
                       {Array.isArray(activeModalQuote.products) && activeModalQuote.products.length > 0 ? (
                         activeModalQuote.products.map((p, idx) => (
                           <span
                             key={idx}
-                            className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-red-50 text-[#D71920] border border-red-100"
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold bg-red-primary/10 text-red-primary"
                           >
-                            <Package size={12} />
+                            <Package size={14} />
                             {p}
                           </span>
                         ))
@@ -482,8 +490,8 @@ export default function QuotesPage() {
                     </div>
                   </div>
                   <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-xs text-gray-500">Estimated Monthly Volume</span>
-                    <span className="font-semibold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-md text-xs">
+                    <span className="text-[11px] text-gray-400 font-semibold">Estimated Monthly Volume</span>
+                    <span className="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg text-xs">
                       {activeModalQuote.volume || "Not specified"}
                     </span>
                   </div>
@@ -493,10 +501,10 @@ export default function QuotesPage() {
               {/* Additional Message / Notes */}
               {activeModalQuote.message && (
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
                     Additional Notes / Message
                   </h4>
-                  <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 text-gray-700 italic leading-relaxed">
+                  <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 text-gray-800 italic leading-relaxed text-xs">
                     "{activeModalQuote.message}"
                   </div>
                 </div>
@@ -507,14 +515,14 @@ export default function QuotesPage() {
             <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
               <button
                 onClick={() => handleDelete(activeModalQuote.id)}
-                className="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-semibold hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-bold hover:underline cursor-pointer"
               >
                 <Trash2 size={14} />
-                <span>Delete Quote Request</span>
+                <span>Delete Request</span>
               </button>
               <button
                 onClick={() => setActiveModalQuote(null)}
-                className="px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-xl hover:bg-gray-800 transition-colors cursor-pointer"
               >
                 Close
               </button>

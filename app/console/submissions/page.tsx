@@ -1,7 +1,32 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Eye, Download, Mail, Phone, X, FileText, MapPin, ExternalLink } from "lucide-react";
+import {
+  Search,
+  Eye,
+  Download,
+  Mail,
+  Phone,
+  X,
+  FileText,
+  MapPin,
+  ExternalLink,
+  RefreshCw,
+  Loader2,
+  Trash2,
+  Briefcase,
+  GraduationCap,
+  Globe,
+  DollarSign,
+  Calendar,
+} from "lucide-react";
+
+const LinkedinIcon = ({ size = 14 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+    <rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
+  </svg>
+);
 
 export interface FileAttachment {
   name: string;
@@ -33,12 +58,12 @@ export interface ApplicationSubmission {
 }
 
 const statusColors: Record<string, string> = {
-  New: "bg-blue-50 text-blue-700 border-blue-200",
-  Reviewing: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  Shortlisted: "bg-purple-50 text-purple-700 border-purple-200",
-  Interview: "bg-orange-50 text-orange-700 border-orange-200",
-  Accepted: "bg-green-50 text-green-700 border-green-200",
-  Rejected: "bg-red-50 text-red-700 border-red-200",
+  New: "bg-blue-50 text-blue-700 border-blue-200 font-semibold",
+  Reviewing: "bg-amber-50 text-amber-700 border-amber-200 font-semibold",
+  Shortlisted: "bg-purple-50 text-purple-700 border-purple-200 font-semibold",
+  Interview: "bg-orange-50 text-orange-700 border-orange-200 font-semibold",
+  Accepted: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold",
+  Rejected: "bg-gray-100 text-gray-700 border-gray-200 font-semibold",
 };
 
 export default function ApplicationsPage() {
@@ -47,6 +72,7 @@ export default function ApplicationsPage() {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeModalApp, setActiveModalApp] = useState<ApplicationSubmission | null>(null);
+  const [deletingId, setDeletingId] = useState<number | string | null>(null);
 
   const fetchSubmissions = async () => {
     setLoading(true);
@@ -81,9 +107,34 @@ export default function ApplicationsPage() {
         setSubmissions((prev) =>
           prev.map((app) => (String(app.id) === String(id) ? { ...app, status: newStatus } : app))
         );
+        if (activeModalApp && String(activeModalApp.id) === String(id)) {
+          setActiveModalApp((prev) => (prev ? { ...prev, status: newStatus } : null));
+        }
       }
     } catch (err) {
       console.error("Failed to update status:", err);
+    }
+  };
+
+  const handleDelete = async (id: number | string) => {
+    if (!confirm("Are you sure you want to delete this job application?")) return;
+
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/submissions?id=${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setSubmissions((prev) => prev.filter((app) => String(app.id) !== String(id)));
+        if (activeModalApp && String(activeModalApp.id) === String(id)) {
+          setActiveModalApp(null);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to delete application:", err);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -92,11 +143,17 @@ export default function ApplicationsPage() {
     const matchesSearch =
       candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.email.toLowerCase().includes(searchQuery.toLowerCase());
+      app.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.city || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus = selectedStatus ? app.status === selectedStatus : true;
     return matchesSearch && matchesStatus;
   });
+
+  const totalCount = submissions.length;
+  const newCount = submissions.filter((s) => s.status === "New").length;
+  const reviewingCount = submissions.filter((s) => s.status === "Reviewing" || s.status === "Shortlisted").length;
+  const acceptedCount = submissions.filter((s) => s.status === "Accepted" || s.status === "Interview").length;
 
   const renderAttachmentCard = (label: string, fileData: any) => {
     if (!fileData) return null;
@@ -118,66 +175,35 @@ export default function ApplicationsPage() {
         }
       } else {
         name = fileData;
-        if (fileData.startsWith("data:")) {
-          url = fileData;
-        }
       }
     }
 
-    const handleDownload = () => {
-      if (!url) return;
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = name || `${label}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    };
-
-    const handleView = () => {
-      if (!url) return;
-      const win = window.open();
-      if (win) {
-        if (url.startsWith("data:")) {
-          win.document.write(
-            `<html><head><title>${name}</title></head><body style="margin:0;"><iframe src="${url}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100vh;" allowfullscreen></iframe></body></html>`
-          );
-        } else {
-          win.location.href = url;
-        }
-      }
-    };
+    const isDataUrl = url.startsWith("data:");
 
     return (
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-200/80">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-red-50 text-red-primary flex items-center justify-center shrink-0">
+      <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs">
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <div className="w-8 h-8 rounded-lg bg-red-primary/10 text-red-primary flex items-center justify-center shrink-0">
             <FileText size={16} />
           </div>
-          <div className="min-w-0">
-            <span className="text-xs font-bold text-gray-900 block">{label}</span>
-            <span className="text-xs text-gray-500 truncate block max-w-[220px]">{name}</span>
+          <div className="truncate">
+            <div className="font-bold text-gray-900 truncate">{name || label}</div>
+            <div className="text-[10px] text-gray-400 font-semibold">{label} Attachment</div>
           </div>
         </div>
         {url ? (
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleView}
-              className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-            >
-              <Eye size={13} />
-              <span>View</span>
-            </button>
-            <button
-              onClick={handleDownload}
-              className="px-3 py-1.5 rounded-xl bg-[#D71920] text-white hover:bg-[#D71920]/90 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-            >
-              <Download size={13} />
-              <span>Download</span>
-            </button>
-          </div>
+          <a
+            href={url}
+            download={name || `${label}.pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-100 transition-colors shrink-0 shadow-xs"
+          >
+            <Download size={12} />
+            <span>Download</span>
+          </a>
         ) : (
-          <span className="text-[11px] text-gray-400 font-medium italic">Filename only ({name})</span>
+          <span className="text-[10px] text-gray-400 font-semibold italic">Uploaded</span>
         )}
       </div>
     );
@@ -185,118 +211,217 @@ export default function ApplicationsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Applications (CV Submissions)</h1>
-          <p className="text-sm text-gray-500 mt-1">Review and manage candidate applications submitted via Careers portal.</p>
+          <h1
+            className="text-2xl font-extrabold text-gray-900"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Job Applications (CVs)
+          </h1>
+          <p className="text-xs text-gray-500 mt-1">
+            Review, evaluate, and manage candidate recruitment applications.
+          </p>
         </div>
         <button
           onClick={fetchSubmissions}
-          className="self-start sm:self-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-colors cursor-pointer"
+          disabled={loading}
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all shadow-xs self-start sm:self-auto cursor-pointer"
         >
-          Refresh Submissions
+          <RefreshCw size={14} className={loading ? "animate-spin text-red-primary" : ""} />
+          <span>Refresh Applications</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1 max-w-sm">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+      {/* Quick Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Applications</div>
+          <div className="text-2xl font-extrabold text-gray-900 mt-1" style={{ fontFamily: "var(--font-display)" }}>{totalCount}</div>
+        </div>
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-blue-600">New</div>
+          <div className="text-2xl font-extrabold text-blue-700 mt-1" style={{ fontFamily: "var(--font-display)" }}>{newCount}</div>
+        </div>
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-amber-600">In Review</div>
+          <div className="text-2xl font-extrabold text-amber-700 mt-1" style={{ fontFamily: "var(--font-display)" }}>{reviewingCount}</div>
+        </div>
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Accepted / Interview</div>
+          <div className="text-2xl font-extrabold text-emerald-700 mt-1" style={{ fontFamily: "var(--font-display)" }}>{acceptedCount}</div>
+        </div>
+      </div>
+
+      {/* Main Table Container */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)] overflow-hidden">
+        {/* Search & Filter Bar */}
+        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="relative max-w-sm flex-1 w-full">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search candidate, position, or email..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#D71920]/20 focus:border-[#D71920]"
+              placeholder="Search by candidate name, position, or email..."
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-red-primary/10 focus:border-red-primary bg-white"
             />
           </div>
-          <select
-            value={selectedStatus || ""}
-            onChange={(e) => setSelectedStatus(e.target.value || null)}
-            className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#D71920]/20 cursor-pointer"
-          >
-            <option value="">All Statuses ({submissions.length})</option>
-            {Object.keys(statusColors).map((status) => (
-              <option key={status} value={status}>
-                {status} ({submissions.filter((s) => s.status === status).length})
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <select
+              value={selectedStatus || ""}
+              onChange={(e) => setSelectedStatus(e.target.value || null)}
+              className="px-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-red-primary/10 focus:border-red-primary cursor-pointer"
+            >
+              <option value="">All Statuses ({submissions.length})</option>
+              {Object.keys(statusColors).map((status) => (
+                <option key={status} value={status}>
+                  {status} ({submissions.filter((s) => s.status === status).length})
+                </option>
+              ))}
+            </select>
+            {selectedStatus && (
+              <button
+                onClick={() => setSelectedStatus(null)}
+                className="text-xs text-gray-500 hover:text-red-primary font-semibold underline cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
 
+        {/* Submissions Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs text-left">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Candidate</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Target Position</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Contact</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Submitted Date</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-700">Actions</th>
+              <tr className="border-b border-gray-100 bg-gray-50/50 text-gray-700 font-bold uppercase tracking-wider text-[11px]">
+                <th className="py-3.5 px-4 font-bold">Candidate</th>
+                <th className="py-3.5 px-4 font-bold">Target Position</th>
+                <th className="py-3.5 px-4 font-bold">Contact Details</th>
+                <th className="py-3.5 px-4 font-bold">City / Location</th>
+                <th className="py-3.5 px-4 font-bold">Submitted Date</th>
+                <th className="py-3.5 px-4 font-bold">Status</th>
+                <th className="py-3.5 px-4 font-bold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-gray-400">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 border-2 border-red-primary border-t-transparent rounded-full animate-spin" />
-                      <span>Loading submissions...</span>
+                  <td colSpan={7} className="py-12 text-center text-gray-400">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Loader2 size={24} className="animate-spin text-red-primary" />
+                      <span className="text-xs font-semibold">Loading applications...</span>
                     </div>
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-gray-400">
-                    No application submissions found.
+                  <td colSpan={7} className="py-12 text-center text-gray-500">
+                    <FileText size={32} className="mx-auto mb-3 text-gray-300" />
+                    <p className="font-bold text-gray-800 text-sm">No applications found</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {searchQuery || selectedStatus
+                        ? "Try clearing search or status filters."
+                        : "Job candidate applications will appear here when submitted."}
+                    </p>
                   </td>
                 </tr>
               ) : (
                 filtered.map((app) => {
-                  const candidateName = app.candidate_name || app.candidate || "Applicant";
+                  const candidateName = app.candidate_name || app.candidate || "Unknown Candidate";
+
                   return (
-                    <tr key={app.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                      <td className="py-3 px-4">
+                    <tr key={app.id} className="hover:bg-gray-50/80 transition-colors">
+                      <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 bg-[#D71920] rounded-full flex items-center justify-center shrink-0">
-                            <span className="text-white text-xs font-bold">{candidateName.charAt(0).toUpperCase()}</span>
+                          <div className="w-9 h-9 bg-red-primary/10 text-red-primary rounded-xl flex items-center justify-center shrink-0 font-bold text-xs">
+                            {candidateName.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900">{candidateName}</div>
-                            {app.city && <div className="text-xs text-gray-400 flex items-center gap-1"><MapPin size={10} />{app.city}</div>}
+                            <div className="font-bold text-gray-900">{candidateName}</div>
+                            {app.experience && (
+                              <div className="text-xs text-gray-400 font-medium">{app.experience} exp.</div>
+                            )}
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-gray-700 font-medium">{app.position}</td>
-                      <td className="py-3 px-4">
-                        <div className="space-y-0.5 text-xs text-gray-600">
-                          <div className="flex items-center gap-1.5"><Mail size={12} className="text-gray-400" />{app.email}</div>
-                          <div className="flex items-center gap-1.5"><Phone size={12} className="text-gray-400" />{app.phone}</div>
+
+                      <td className="py-3.5 px-4">
+                        <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-primary/10 text-red-primary">
+                          {app.position}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="flex flex-col gap-1 text-xs">
+                          <a
+                            href={`mailto:${app.email}`}
+                            className="text-gray-600 hover:text-red-primary flex items-center gap-1 transition-colors font-medium"
+                          >
+                            <Mail size={12} className="text-gray-400 shrink-0" />
+                            <span className="truncate max-w-[180px]">{app.email}</span>
+                          </a>
+                          <a
+                            href={`tel:${app.phone}`}
+                            className="text-gray-600 hover:text-red-primary flex items-center gap-1 transition-colors font-medium"
+                          >
+                            <Phone size={12} className="text-gray-400 shrink-0" />
+                            <span>{app.phone}</span>
+                          </a>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-gray-500 text-xs">
-                        {app.submitted || (app.created_at ? new Date(app.created_at).toLocaleDateString("en-US") : "Recent")}
+
+                      <td className="py-3.5 px-4 text-gray-600 font-medium">
+                        {app.city || app.nationality || "Algeria"}
                       </td>
-                      <td className="py-3 px-4">
+
+                      <td className="py-3.5 px-4 text-xs text-gray-500 whitespace-nowrap">
+                        {app.submitted ||
+                          (app.created_at
+                            ? new Date(app.created_at).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })
+                            : "Recent")}
+                      </td>
+
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <select
                           value={app.status || "New"}
                           onChange={(e) => handleStatusChange(app.id, e.target.value)}
-                          className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${statusColors[app.status] || statusColors.New} focus:outline-none cursor-pointer`}
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none transition-colors ${
+                            statusColors[app.status] || "bg-gray-100 text-gray-700 border-gray-200"
+                          }`}
                         >
                           {Object.keys(statusColors).map((st) => (
-                            <option key={st} value={st}>{st}</option>
+                            <option key={st} value={st}>
+                              {st}
+                            </option>
                           ))}
                         </select>
                       </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => setActiveModalApp(app)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold transition-colors cursor-pointer"
-                        >
-                          <Eye size={14} />
-                          <span>View Details</span>
-                        </button>
+
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => setActiveModalApp(app)}
+                            title="View Application Details"
+                            className="p-2 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(app.id)}
+                            disabled={deletingId === app.id}
+                            title="Delete Application"
+                            className="p-2 rounded-xl text-red-500 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -307,98 +432,198 @@ export default function ApplicationsPage() {
         </div>
       </div>
 
-      {/* Candidate Details Modal */}
+      {/* Candidate Application Modal */}
       {activeModalApp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
-            <button
-              onClick={() => setActiveModalApp(null)}
-              className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
-            >
-              <X size={20} />
-            </button>
-
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-[#D71920] rounded-2xl flex items-center justify-center text-white text-xl font-bold">
-                {(activeModalApp.candidate_name || activeModalApp.candidate || "A").charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h3 className="text-xl font-extrabold text-gray-900">{activeModalApp.candidate_name || activeModalApp.candidate}</h3>
-                <p className="text-sm font-semibold text-[#D71920]">{activeModalApp.position}</p>
-              </div>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-2xl text-xs text-gray-700 border border-gray-100">
-              <div><span className="font-bold text-gray-900">Email:</span> {activeModalApp.email}</div>
-              <div><span className="font-bold text-gray-900">Phone:</span> {activeModalApp.phone}</div>
-              <div><span className="font-bold text-gray-900">City / Wilaya:</span> {activeModalApp.city || "N/A"}</div>
-              <div><span className="font-bold text-gray-900">Nationality:</span> {activeModalApp.nationality || "N/A"}</div>
-              <div><span className="font-bold text-gray-900">Experience:</span> {activeModalApp.experience || "N/A"}</div>
-              <div><span className="font-bold text-gray-900">Education:</span> {activeModalApp.education || "N/A"}</div>
-              <div><span className="font-bold text-gray-900">Expected Salary:</span> {activeModalApp.salary || "N/A"}</div>
-              <div><span className="font-bold text-gray-900">Availability:</span> {activeModalApp.availability || "N/A"}</div>
-            </div>
-
-            {(activeModalApp.linkedin || activeModalApp.portfolio) && (
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Links & Portfolios</h4>
-                <div className="flex flex-wrap gap-3">
-                  {activeModalApp.linkedin && (
-                    <a href={activeModalApp.linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
-                      <ExternalLink size={12} /> LinkedIn Profile
-                    </a>
-                  )}
-                  {activeModalApp.portfolio && (
-                    <a href={activeModalApp.portfolio} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
-                      <ExternalLink size={12} /> Portfolio Website
-                    </a>
-                  )}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-red-primary/10 text-red-primary flex items-center justify-center font-bold text-sm">
+                  {(activeModalApp.candidate_name || activeModalApp.candidate || "C").charAt(0).toUpperCase()}
                 </div>
-              </div>
-            )}
-
-            {activeModalApp.message && (
-              <div className="space-y-1.5">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Cover Note / Additional Comments</h4>
-                <div className="p-4 bg-gray-50 rounded-2xl text-xs text-gray-700 italic border border-gray-100 leading-relaxed">
-                  "{activeModalApp.message}"
+                <div>
+                  <h3
+                    className="font-extrabold text-gray-900 text-base"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {activeModalApp.candidate_name || activeModalApp.candidate}
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                    <span className="font-bold text-red-primary">{activeModalApp.position}</span>
+                    <span>•</span>
+                    <span>Submitted {activeModalApp.submitted || "Recently"}</span>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Attached Documents</h4>
-              <div className="space-y-2">
-                {activeModalApp.cv_file ? (
-                  renderAttachmentCard("Curriculum Vitae (CV)", activeModalApp.cv_file)
-                ) : (
-                  <span className="text-xs text-gray-400 block italic">No CV file attached</span>
-                )}
-
-                {activeModalApp.cover_file && renderAttachmentCard("Cover Letter", activeModalApp.cover_file)}
-                {activeModalApp.cert_file && renderAttachmentCard("Certificates", activeModalApp.cert_file)}
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 font-medium">Status:</span>
-                <select
-                  value={activeModalApp.status || "New"}
-                  onChange={(e) => {
-                    handleStatusChange(activeModalApp.id, e.target.value);
-                    setActiveModalApp({ ...activeModalApp, status: e.target.value });
-                  }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${statusColors[activeModalApp.status] || statusColors.New} cursor-pointer`}
-                >
-                  {Object.keys(statusColors).map((st) => (
-                    <option key={st} value={st}>{st}</option>
-                  ))}
-                </select>
               </div>
               <button
                 onClick={() => setActiveModalApp(null)}
-                className="px-5 py-2 bg-gray-900 text-white rounded-xl text-xs font-semibold hover:bg-gray-800 transition-colors cursor-pointer"
+                className="p-2 rounded-xl hover:bg-gray-200/60 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+              {/* Status & Quick Action Banner */}
+              <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-gray-500">Application Status:</span>
+                  <select
+                    value={activeModalApp.status}
+                    onChange={(e) => handleStatusChange(activeModalApp.id, e.target.value)}
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-full border cursor-pointer focus:outline-none ${
+                      statusColors[activeModalApp.status] || "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {Object.keys(statusColors).map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`mailto:${activeModalApp.email}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-primary text-white text-xs font-bold rounded-xl hover:bg-red-primary/90 transition-all shadow-xs"
+                  >
+                    <Mail size={14} />
+                    <span>Email Candidate</span>
+                  </a>
+                  <a
+                    href={`tel:${activeModalApp.phone}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all shadow-xs"
+                  >
+                    <Phone size={14} />
+                    <span>Call Candidate</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Personal Details */}
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                  Personal Details
+                </h4>
+                <div className="grid sm:grid-cols-3 gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-xs">
+                  <div>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Email</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalApp.email}</p>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Phone</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalApp.phone}</p>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-gray-400 block font-semibold">City / Nationality</span>
+                    <p className="font-bold text-gray-900 mt-0.5">
+                      {activeModalApp.city || "N/A"} {activeModalApp.nationality ? `(${activeModalApp.nationality})` : ""}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Background & Qualifications */}
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                  Background & Qualifications
+                </h4>
+                <div className="grid sm:grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-xs">
+                  <div>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Years of Experience</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalApp.experience || "N/A"}</p>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Education</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalApp.education || "N/A"}</p>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Salary Expectation</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalApp.salary || "N/A"}</p>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-gray-400 block font-semibold">Availability / Notice</span>
+                    <p className="font-bold text-gray-900 mt-0.5">{activeModalApp.availability || "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Online Profiles */}
+              {(activeModalApp.linkedin || activeModalApp.portfolio) && (
+                <div>
+                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                    Online Profiles & Portfolios
+                  </h4>
+                  <div className="flex flex-wrap gap-3">
+                    {activeModalApp.linkedin && (
+                      <a
+                        href={activeModalApp.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 text-blue-700 border border-blue-100 text-xs font-bold hover:bg-blue-100 transition-colors"
+                      >
+                        <LinkedinIcon size={14} />
+                        <span>LinkedIn Profile</span>
+                        <ExternalLink size={12} />
+                      </a>
+                    )}
+                    {activeModalApp.portfolio && (
+                      <a
+                        href={activeModalApp.portfolio}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-100 text-gray-800 border border-gray-200 text-xs font-bold hover:bg-gray-200 transition-colors"
+                      >
+                        <Globe size={14} />
+                        <span>Portfolio / Website</span>
+                        <ExternalLink size={12} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Uploaded Attachments */}
+              {(activeModalApp.cv_file || activeModalApp.cover_file || activeModalApp.cert_file) && (
+                <div>
+                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                    Uploaded Documents
+                  </h4>
+                  <div className="space-y-2">
+                    {renderAttachmentCard("Curriculum Vitae (CV)", activeModalApp.cv_file)}
+                    {renderAttachmentCard("Cover Letter", activeModalApp.cover_file)}
+                    {renderAttachmentCard("Certificates", activeModalApp.cert_file)}
+                  </div>
+                </div>
+              )}
+
+              {/* Candidate Message */}
+              {activeModalApp.message && (
+                <div>
+                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                    Candidate Cover Note
+                  </h4>
+                  <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 text-gray-800 italic leading-relaxed text-xs">
+                    "{activeModalApp.message}"
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+              <button
+                onClick={() => handleDelete(activeModalApp.id)}
+                className="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-bold hover:underline cursor-pointer"
+              >
+                <Trash2 size={14} />
+                <span>Delete Application</span>
+              </button>
+              <button
+                onClick={() => setActiveModalApp(null)}
+                className="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-xl hover:bg-gray-800 transition-colors cursor-pointer"
               >
                 Close
               </button>
