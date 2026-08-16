@@ -3,41 +3,9 @@ import type { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
 import { fetchFromBackend } from "../backend-helper";
+import { ALL_PERMISSIONS, type RoleItem } from "../../types/roles";
 
-export interface RoleItem {
-  id: string;
-  name: string;
-  description: string;
-  isSystem?: boolean;
-  permissions: string[];
-  created_at?: string;
-}
-
-export const ALL_PERMISSIONS = [
-  { id: "dashboard:view", label: "View Dashboard", category: "Dashboard" },
-  { id: "solutions:view", label: "View Solutions", category: "Solutions" },
-  { id: "solutions:manage", label: "Create / Edit / Delete Solutions", category: "Solutions" },
-  { id: "products:view", label: "View Products", category: "Products" },
-  { id: "products:manage", label: "Create / Edit / Delete Products", category: "Products" },
-  { id: "news:view", label: "View News Articles", category: "News" },
-  { id: "news:manage", label: "Create / Edit / Delete News", category: "News" },
-  { id: "openings:view", label: "View Job Offers", category: "Careers" },
-  { id: "openings:manage", label: "Create / Edit / Delete Jobs", category: "Careers" },
-  { id: "submissions:view", label: "View Candidate Applications", category: "Careers" },
-  { id: "submissions:manage", label: "Manage / Delete Applications", category: "Careers" },
-  { id: "mailbox:view", label: "View Messages", category: "Communication" },
-  { id: "mailbox:manage", label: "Manage / Reply / Delete Messages", category: "Communication" },
-  { id: "requests:view", label: "View Quote Requests", category: "Communication" },
-  { id: "requests:manage", label: "Manage / Update / Delete Quotes", category: "Communication" },
-  { id: "company:view", label: "View Company Info", category: "Company" },
-  { id: "company:manage", label: "Update Company Details", category: "Company" },
-  { id: "members:view", label: "View Users", category: "Users & Access" },
-  { id: "members:manage", label: "Create / Edit / Delete Users", category: "Users & Access" },
-  { id: "access:view", label: "View Roles & Access", category: "Users & Access" },
-  { id: "access:manage", label: "Create / Edit / Delete Roles", category: "Users & Access" },
-  { id: "settings:view", label: "View Settings", category: "Settings" },
-  { id: "settings:manage", label: "Update General Settings", category: "Settings" },
-];
+export { ALL_PERMISSIONS, type RoleItem };
 
 const DEFAULT_ROLES: RoleItem[] = [
   {
@@ -180,7 +148,6 @@ export async function POST(request: NextRequest) {
     memoryRoles.push(newRole);
     writeDiskCache(memoryRoles);
 
-    // Sync to Laravel Backend if online
     fetchFromBackend("/roles", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -222,7 +189,6 @@ export async function PUT(request: NextRequest) {
     memoryRoles[index] = updatedRole;
     writeDiskCache(memoryRoles);
 
-    // Sync to Laravel Backend if online
     fetchFromBackend(`/roles/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -256,7 +222,6 @@ export async function DELETE(request: NextRequest) {
     memoryRoles = memoryRoles.filter((r) => String(r.id) !== String(id));
     writeDiskCache(memoryRoles);
 
-    // Sync deletion to Laravel Backend if online
     fetchFromBackend(`/roles/${id}`, {
       method: "DELETE",
     }).catch(() => null);
