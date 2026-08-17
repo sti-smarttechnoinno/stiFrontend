@@ -67,7 +67,7 @@ export default function Statistics() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-5"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 items-stretch"
         >
           {statsT.items.map((s, idx) => {
             const formattedTitle = s.title.replace("58", provincesCount);
@@ -75,15 +75,17 @@ export default function Statistics() {
               <motion.div
                 key={s.title}
                 variants={item}
-                className="group flex flex-col items-center rounded-3xl bg-white p-8 shadow-[0_2px_20px_rgba(0,0,0,0.04)] border border-gray-100 transition-all duration-500 hover:shadow-[0_8px_40px_rgba(200,16,46,0.08)] hover:-translate-y-1"
+                className="group flex flex-col items-center justify-start h-full rounded-3xl bg-white p-6 sm:p-8 shadow-[0_2px_20px_rgba(0,0,0,0.04)] border border-gray-100 transition-all duration-500 hover:shadow-[0_8px_40px_rgba(200,16,46,0.08)] hover:-translate-y-1 text-center"
               >
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-primary/8 text-red-primary transition-colors group-hover:bg-red-primary group-hover:text-white">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-primary/8 text-red-primary transition-colors group-hover:bg-red-primary group-hover:text-white shrink-0">
                   {statIcons[idx % statIcons.length]}
                 </div>
-                <div className="mb-2 text-lg font-extrabold text-gray-900 text-center" style={{ fontFamily: "var(--font-display)" }}>
-                  {formattedTitle}
+                <div className="flex flex-col items-center justify-start flex-1 w-full space-y-2">
+                  <h3 className="text-base sm:text-lg font-extrabold text-gray-900 text-center leading-snug" style={{ fontFamily: "var(--font-display)" }}>
+                    {formattedTitle}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-500 text-center leading-relaxed">{s.label}</p>
                 </div>
-                <div className="text-sm text-gray-500 text-center leading-relaxed">{s.label}</div>
               </motion.div>
             );
           })}

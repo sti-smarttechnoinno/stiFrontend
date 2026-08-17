@@ -81,13 +81,13 @@ export default function ProductOverview({ product }: { product: Product }) {
     <section className="py-20 sm:py-28 lg:py-36 bg-gray-50">
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-stretch">
-          {/* Left - Visual Showcase (Product Image from DB) */}
+          {/* Left - Visual Showcase (Product Image from DB) - hidden on mobile */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="flex items-center justify-center h-full min-h-[380px] sm:min-h-[440px]"
+            className="hidden lg:flex items-center justify-center h-full min-h-[380px] sm:min-h-[440px]"
           >
             {product.image ? (
               <img
