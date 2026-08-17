@@ -13,10 +13,10 @@ export async function GET() {
   let memoryMembers = getMemoryMembers();
 
   try {
-    const backendRes = await fetchFromBackend("/members", {}, 3000);
+    const backendRes = await fetchFromBackend("/members", { cache: "no-store" }, 3000);
     if (backendRes && backendRes.ok) {
       const backendData = await backendRes.json();
-      if (Array.isArray(backendData) && backendData.length > 0) {
+      if (Array.isArray(backendData)) {
         const localMap = new Map<string, MemberItem>();
         for (const member of memoryMembers) {
           const key = String(member.id) || (member.username || "").toLowerCase() || (member.email || "").toLowerCase();
@@ -31,22 +31,27 @@ export async function GET() {
               localMap.set(key, {
                 ...bMember,
                 ...existing,
+                id: bMember.id || existing.id,
                 name: bMember.name || existing.name,
                 email: bMember.email || existing.email,
+                username: (bMember.username || existing.username || "").toLowerCase().replace(/^@/, ""),
+                roleId: bMember.role_id || bMember.roleId || existing.roleId || "viewer",
+                roleName: bMember.role_name || bMember.roleName || existing.roleName || "Viewer",
+                status: bMember.status || existing.status || "Active",
                 password: existing.password || "password",
               });
             } else {
               localMap.set(key, {
                 id: bMember.id || Date.now(),
-                name: bMember.name || "Backend Member",
-                username: bMember.username || (bMember.email ? bMember.email.split("@")[0] : `member_${bMember.id}`),
+                name: bMember.name || bMember.username || "Backend Member",
+                username: (bMember.username || bMember.name || (bMember.email ? bMember.email.split("@")[0] : `member_${bMember.id}`)).toLowerCase().replace(/^@/, ""),
                 email: bMember.email || "",
                 password: "password",
-                roleId: bMember.roleId || "viewer",
-                roleName: bMember.roleName || "Viewer",
+                roleId: bMember.role_id || bMember.roleId || "viewer",
+                roleName: bMember.role_name || bMember.roleName || "Viewer",
                 status: bMember.status || "Active",
-                lastLogin: bMember.lastLogin || "Unknown",
-                createdAt: bMember.createdAt || new Date().toISOString(),
+                lastLogin: bMember.last_login || bMember.lastLogin || "Unknown",
+                createdAt: bMember.created_at || bMember.createdAt || new Date().toISOString(),
               });
             }
           }
@@ -71,7 +76,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Name, username, and password are required." }, { status: 400 });
     }
 
-    const memoryMembers = getMemoryMembers();
+    let memoryMembers = getMemoryMembers();
     const cleanUsername = username.trim().toLowerCase().replace(/^@/, "");
 
     const exists = memoryMembers.some(
@@ -121,9 +126,38 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "User ID is required." }, { status: 400 });
     }
 
-    const memoryMembers = getMemoryMembers();
+    let memoryMembers = getMemoryMembers();
 
-    const index = memoryMembers.findIndex((m) => String(m.id) === String(id));
+    let index = memoryMembers.findIndex((m) => String(m.id) === String(id));
+    if (index === -1) {
+      try {
+        const backendRes = await fetchFromBackend("/members", { cache: "no-store" }, 3000);
+        if (backendRes && backendRes.ok) {
+          const backendData = await backendRes.json();
+          if (Array.isArray(backendData) && backendData.length > 0) {
+            const mapped = backendData.map((u: any) => ({
+              id: u.id,
+              name: u.name || u.username || "User",
+              username: (u.username || u.name || "").toLowerCase().replace(/^@/, ""),
+              email: u.email || "",
+              password: "password",
+              roleId: u.role_id || u.roleId || "viewer",
+              roleName: u.role_name || u.roleName || "Viewer",
+              status: u.status || "Active",
+              lastLogin: u.last_login || u.lastLogin || "Never",
+              createdAt: u.created_at || u.createdAt || new Date().toISOString(),
+            }));
+            const combinedMap = new Map<string, MemberItem>();
+            for (const item of mapped) combinedMap.set(String(item.id), item);
+            for (const item of memoryMembers) combinedMap.set(String(item.id), item);
+            memoryMembers = Array.from(combinedMap.values());
+            setMemoryMembers(memoryMembers);
+            index = memoryMembers.findIndex((m) => String(m.id) === String(id));
+          }
+        }
+      } catch {}
+    }
+
     if (index === -1) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
@@ -181,8 +215,34 @@ export async function DELETE(request: NextRequest) {
 
     let memoryMembers = getMemoryMembers();
 
-    const targetUser = memoryMembers.find((m) => String(m.id) === String(id));
-    if (targetUser && targetUser.username === "admin") {
+    let targetUser = memoryMembers.find((m) => String(m.id) === String(id));
+    if (!targetUser) {
+      try {
+        const backendRes = await fetchFromBackend("/members", { cache: "no-store" }, 3000);
+        if (backendRes && backendRes.ok) {
+          const backendData = await backendRes.json();
+          if (Array.isArray(backendData)) {
+            const mapped = backendData.map((u: any) => ({
+              id: u.id,
+              name: u.name || u.username || "User",
+              username: (u.username || u.name || "").toLowerCase().replace(/^@/, ""),
+              email: u.email || "",
+              password: "password",
+              roleId: u.role_id || u.roleId || "viewer",
+              roleName: u.role_name || u.roleName || "Viewer",
+              status: u.status || "Active",
+              lastLogin: u.last_login || u.lastLogin || "Never",
+              createdAt: u.created_at || u.createdAt || new Date().toISOString(),
+            }));
+            setMemoryMembers(mapped);
+            memoryMembers = mapped;
+            targetUser = memoryMembers.find((m) => String(m.id) === String(id));
+          }
+        }
+      } catch {}
+    }
+
+    if (targetUser && (targetUser.username === "admin" || String(targetUser.id) === "1")) {
       return NextResponse.json({ error: "The default Super Admin account cannot be deleted." }, { status: 403 });
     }
 
