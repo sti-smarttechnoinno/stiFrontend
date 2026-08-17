@@ -187,9 +187,9 @@ export default function UsersPage() {
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.username.toLowerCase().includes(searchQuery.toLowerCase());
+      (user.username || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesRole = selectedRole ? user.roleId === selectedRole || user.roleName === selectedRole : true;
     return matchesSearch && matchesRole;

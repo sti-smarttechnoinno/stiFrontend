@@ -96,9 +96,9 @@ export default function JobsPage() {
 
     const matchesSearch =
       !query ||
-      title.toLowerCase().includes(query) ||
-      department.toLowerCase().includes(query) ||
-      location.toLowerCase().includes(query);
+      (title || "").toLowerCase().includes(query) ||
+      (department || "").toLowerCase().includes(query) ||
+      (location || "").toLowerCase().includes(query);
 
     const matchesDept =
       selectedDeptFilter === "All" ||

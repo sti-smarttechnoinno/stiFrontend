@@ -47,7 +47,7 @@ export default function ProductsPage() {
 
   const filteredProducts = products.filter((p) => {
     const name = p.translations?.en?.name || p.slug;
-    return name.toLowerCase().includes(searchTerm.toLowerCase()) || p.category.toLowerCase().includes(searchTerm.toLowerCase());
+    return (name || "").toLowerCase().includes(searchTerm.toLowerCase()) || (p.category || "").toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (

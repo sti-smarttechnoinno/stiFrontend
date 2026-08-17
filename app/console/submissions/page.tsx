@@ -242,8 +242,8 @@ export default function ApplicationsPage() {
     const candidateName = app.candidate_name || app.candidate || "";
     const matchesSearch =
       candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.position || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (app.city || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus = selectedStatus ? app.status === selectedStatus : true;

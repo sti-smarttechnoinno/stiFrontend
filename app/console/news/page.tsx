@@ -171,9 +171,9 @@ export default function NewsManagementPage() {
     const title = art.translations?.en?.title || art.slug;
     const catNameEn = getCategoryName(art.category);
     const matchesSearch =
-      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      catNameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      art.slug.toLowerCase().includes(searchTerm.toLowerCase());
+      (title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (catNameEn || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (art.slug || "").toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesCategory =
       selectedCategoryFilter === "All" || art.category === selectedCategoryFilter;

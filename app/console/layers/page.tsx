@@ -58,7 +58,7 @@ export default function SolutionsPage() {
 
   const filteredSolutions = solutions.filter((sol) => {
     const title = sol.translations?.en?.name || sol.translations?.en?.shortName || sol.slug;
-    return title.toLowerCase().includes(searchTerm.toLowerCase()) || sol.slug.toLowerCase().includes(searchTerm.toLowerCase());
+    return (title || "").toLowerCase().includes(searchTerm.toLowerCase()) || (sol.slug || "").toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (

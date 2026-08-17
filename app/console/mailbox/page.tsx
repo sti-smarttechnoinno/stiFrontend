@@ -113,9 +113,9 @@ export default function MessagesPage() {
     const senderName = msg.name || "";
     const matchesSearch =
       senderName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      msg.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      msg.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      msg.phone.toLowerCase().includes(searchQuery.toLowerCase());
+      (msg.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (msg.subject || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (msg.phone || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus = selectedStatus ? msg.status === selectedStatus : true;
     return matchesSearch && matchesStatus;

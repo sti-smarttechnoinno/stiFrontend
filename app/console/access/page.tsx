@@ -46,11 +46,11 @@ export default function RolesPage() {
 
       if (rolesRes.ok) {
         const rolesData = await rolesRes.json();
-        setRoles(rolesData);
+        setRoles(Array.isArray(rolesData) ? rolesData : []);
       }
       if (usersRes.ok) {
         const usersData = await usersRes.json();
-        setMembers(usersData);
+        setMembers(Array.isArray(usersData) ? usersData : []);
       }
     } catch (err) {
       console.error("Failed to load roles/members:", err);
@@ -171,8 +171,11 @@ export default function RolesPage() {
   const categories = Array.from(new Set(ALL_PERMISSIONS.map((p) => p.category)));
 
   const getUserCountForRole = (role: RoleItem) => {
+    if (!Array.isArray(members)) return 0;
     return members.filter(
-      (m) => m.roleId === role.id || m.roleName.toLowerCase() === role.name.toLowerCase()
+      (m) =>
+        (m.roleId && role.id && m.roleId === role.id) ||
+        (m.roleName && role.name && m.roleName.toLowerCase() === role.name.toLowerCase())
     ).length;
   };
 
@@ -312,7 +315,7 @@ export default function RolesPage() {
 
                   {/* Granted Permissions Tags */}
                   <div className="flex flex-wrap gap-1.5">
-                    {role.permissions.map((permId) => {
+                    {(role.permissions || []).map((permId) => {
                       const foundPerm = ALL_PERMISSIONS.find((p) => p.id === permId);
                       return (
                         <span
