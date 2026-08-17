@@ -76,8 +76,9 @@ export function useAuth() {
         return true;
       }
 
-      // Find longest matching route prefix
-      const matchingRoute = Object.keys(routePermissionMap).find(
+      // Find longest matching route prefix by sorting routes by length descending
+      const sortedRoutes = Object.keys(routePermissionMap).sort((a, b) => b.length - a.length);
+      const matchingRoute = sortedRoutes.find(
         (route) => path === route || path.startsWith(route + "/")
       );
 

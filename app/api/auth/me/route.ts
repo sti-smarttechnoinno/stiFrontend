@@ -1,52 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
+import { getPermissionsForRole } from "../../roles/roles-store";
 
-const ROLES_FILE = path.join(process.cwd(), ".data", "roles_cache.json");
-
-function getRolePermissions(roleId: string, roleName: string) {
-  try {
-    if (fs.existsSync(ROLES_FILE)) {
-      const raw = fs.readFileSync(ROLES_FILE, "utf-8");
-      const roles = JSON.parse(raw);
-      if (Array.isArray(roles)) {
-        const found = roles.find((r) => r.id === roleId || r.name === roleName);
-        if (found) return found.permissions;
-      }
-    }
-  } catch {}
-
-  // Default Super Admin fallback permissions if role cache is uninitialized
-  if (roleId === "super_admin" || roleName === "Super Admin" || roleName === "Administrator") {
-    return [
-      "dashboard:view",
-      "solutions:view",
-      "solutions:manage",
-      "products:view",
-      "products:manage",
-      "news:view",
-      "news:manage",
-      "openings:view",
-      "openings:manage",
-      "submissions:view",
-      "submissions:manage",
-      "mailbox:view",
-      "mailbox:manage",
-      "requests:view",
-      "requests:manage",
-      "company:view",
-      "company:manage",
-      "members:view",
-      "members:manage",
-      "access:view",
-      "access:manage",
-      "settings:view",
-      "settings:manage",
-    ];
-  }
-  return [];
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("sti_admin_token")?.value;
@@ -64,8 +21,8 @@ export async function GET(request: NextRequest) {
     const rawJson = Buffer.from(payloadBase64, "base64").toString("utf-8");
     const sessionUser = JSON.parse(rawJson);
 
-    // Refresh live role permissions
-    const livePermissions = getRolePermissions(sessionUser.roleId, sessionUser.roleName);
+    // Refresh live role permissions from roles-store
+    const livePermissions = getPermissionsForRole(sessionUser.roleId, sessionUser.roleName);
 
     return NextResponse.json({
       authenticated: true,
@@ -85,7 +42,7 @@ export async function GET(request: NextRequest) {
         email: "admin@sti-dz.com",
         roleId: "super_admin",
         roleName: "Super Admin",
-        permissions: getRolePermissions("super_admin", "Super Admin"),
+        permissions: getPermissionsForRole("super_admin", "Super Admin"),
       },
     });
   }
