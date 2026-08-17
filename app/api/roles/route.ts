@@ -104,21 +104,35 @@ function writeDiskCache(data: RoleItem[]): void {
 }
 
 export async function GET() {
+  if (!memoryRoles) {
+    memoryRoles = readDiskCache();
+  }
+
   try {
     const backendRes = await fetchFromBackend("/roles", {}, 3000);
     if (backendRes && backendRes.ok) {
       const backendData = await backendRes.json();
       if (Array.isArray(backendData) && backendData.length > 0) {
-        memoryRoles = backendData;
+        const localMap = new Map<string, RoleItem>();
+        for (const role of memoryRoles) {
+          const key = String(role.id) || (role.name || "").toLowerCase();
+          if (key) localMap.set(key, role);
+        }
+
+        for (const bRole of backendData) {
+          const key = String(bRole.id) || (bRole.name || "").toLowerCase();
+          if (key) {
+            const existing = localMap.get(key);
+            localMap.set(key, existing ? { ...bRole, ...existing } : bRole);
+          }
+        }
+
+        memoryRoles = Array.from(localMap.values());
         writeDiskCache(memoryRoles);
-        return NextResponse.json(memoryRoles);
       }
     }
   } catch {}
 
-  if (!memoryRoles) {
-    memoryRoles = readDiskCache();
-  }
   return NextResponse.json(memoryRoles);
 }
 

@@ -107,20 +107,54 @@ function writeDiskCache(data: MemberItem[]): void {
 }
 
 export async function GET() {
+  if (!memoryMembers) {
+    memoryMembers = readDiskCache();
+  }
+
   try {
     const backendRes = await fetchFromBackend("/members", {}, 3000);
     if (backendRes && backendRes.ok) {
       const backendData = await backendRes.json();
       if (Array.isArray(backendData) && backendData.length > 0) {
-        memoryMembers = backendData;
+        const localMap = new Map<string, MemberItem>();
+        for (const member of memoryMembers) {
+          const key = String(member.id) || (member.username || "").toLowerCase() || (member.email || "").toLowerCase();
+          if (key) localMap.set(key, member);
+        }
+
+        for (const bMember of backendData) {
+          const key = String(bMember.id) || (bMember.username || "").toLowerCase() || (bMember.email || "").toLowerCase();
+          if (key) {
+            const existing = localMap.get(key);
+            if (existing) {
+              localMap.set(key, {
+                ...bMember,
+                ...existing,
+                name: bMember.name || existing.name,
+                email: bMember.email || existing.email,
+              });
+            } else {
+              localMap.set(key, {
+                id: bMember.id || Date.now(),
+                name: bMember.name || "Backend Member",
+                username: bMember.username || (bMember.email ? bMember.email.split("@")[0] : `member_${bMember.id}`),
+                email: bMember.email || "",
+                roleId: bMember.roleId || "viewer",
+                roleName: bMember.roleName || "Viewer",
+                status: bMember.status || "Active",
+                lastLogin: bMember.lastLogin || "Unknown",
+                createdAt: bMember.createdAt || new Date().toISOString(),
+              });
+            }
+          }
+        }
+
+        memoryMembers = Array.from(localMap.values());
         writeDiskCache(memoryMembers);
       }
     }
   } catch {}
 
-  if (!memoryMembers) {
-    memoryMembers = readDiskCache();
-  }
   const sanitized = memoryMembers.map(({ password, ...rest }) => rest);
   return NextResponse.json(sanitized);
 }

@@ -114,20 +114,54 @@ function writeDiskCache(data: UserItem[]): void {
 }
 
 export async function GET() {
+  if (!memoryUsers) {
+    memoryUsers = readDiskCache();
+  }
+
   try {
     const backendRes = await fetchFromBackend("/users", {}, 3000);
     if (backendRes && backendRes.ok) {
       const backendData = await backendRes.json();
       if (Array.isArray(backendData) && backendData.length > 0) {
-        memoryUsers = backendData;
+        const localMap = new Map<string, UserItem>();
+        for (const user of memoryUsers) {
+          const key = String(user.id) || (user.username || "").toLowerCase() || (user.email || "").toLowerCase();
+          if (key) localMap.set(key, user);
+        }
+
+        for (const bUser of backendData) {
+          const key = String(bUser.id) || (bUser.username || "").toLowerCase() || (bUser.email || "").toLowerCase();
+          if (key) {
+            const existing = localMap.get(key);
+            if (existing) {
+              localMap.set(key, {
+                ...bUser,
+                ...existing,
+                name: bUser.name || existing.name,
+                email: bUser.email || existing.email,
+              });
+            } else {
+              localMap.set(key, {
+                id: bUser.id || Date.now(),
+                name: bUser.name || "Backend User",
+                username: bUser.username || (bUser.email ? bUser.email.split("@")[0] : `user_${bUser.id}`),
+                email: bUser.email || "",
+                roleId: bUser.roleId || "viewer",
+                roleName: bUser.roleName || "Viewer",
+                status: bUser.status || "Active",
+                lastLogin: bUser.lastLogin || "Unknown",
+                createdAt: bUser.createdAt || new Date().toISOString(),
+              });
+            }
+          }
+        }
+
+        memoryUsers = Array.from(localMap.values());
         writeDiskCache(memoryUsers);
       }
     }
   } catch {}
 
-  if (!memoryUsers) {
-    memoryUsers = readDiskCache();
-  }
   const sanitized = memoryUsers.map(({ password, ...rest }) => rest);
   return NextResponse.json(sanitized);
 }
