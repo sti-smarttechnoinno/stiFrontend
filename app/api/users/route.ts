@@ -1,122 +1,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
 import { fetchFromBackend } from "../backend-helper";
+import {
+  UserItem,
+  getMemoryUsers,
+  setMemoryUsers,
+  readUsersDiskCache,
+  writeUsersDiskCache,
+} from "./users-store";
 
-export interface UserItem {
-  id: string | number;
-  name: string;
-  username: string;
-  email?: string;
-  password?: string;
-  roleId: string;
-  roleName: string;
-  status: "Active" | "Inactive";
-  lastLogin?: string;
-  createdAt?: string;
-}
-
-const DEFAULT_USERS: UserItem[] = [
-  {
-    id: 1,
-    name: "Admin User",
-    username: "admin",
-    email: "admin@sti-dz.com",
-    password: "password",
-    roleId: "super_admin",
-    roleName: "Super Admin",
-    status: "Active",
-    lastLogin: "Just now",
-    createdAt: "2026-01-01T00:00:00.000Z",
-  },
-  {
-    id: 2,
-    name: "Content Manager",
-    username: "content",
-    email: "content@sti-dz.com",
-    password: "password",
-    roleId: "content_manager",
-    roleName: "Content Manager",
-    status: "Active",
-    lastLogin: "May 19, 2026",
-    createdAt: "2026-01-15T00:00:00.000Z",
-  },
-  {
-    id: 3,
-    name: "HR Manager",
-    username: "hr",
-    email: "hr@sti-dz.com",
-    password: "password",
-    roleId: "recruitment_manager",
-    roleName: "Recruitment Manager",
-    status: "Active",
-    lastLogin: "May 18, 2026",
-    createdAt: "2026-02-01T00:00:00.000Z",
-  },
-  {
-    id: 4,
-    name: "Sales Manager",
-    username: "sales",
-    email: "sales@sti-dz.com",
-    password: "password",
-    roleId: "sales_manager",
-    roleName: "Sales Manager",
-    status: "Active",
-    lastLogin: "May 17, 2026",
-    createdAt: "2026-02-10T00:00:00.000Z",
-  },
-  {
-    id: 5,
-    name: "Viewer Account",
-    username: "viewer",
-    email: "viewer@sti-dz.com",
-    password: "password",
-    roleId: "viewer",
-    roleName: "Viewer",
-    status: "Inactive",
-    lastLogin: "May 10, 2026",
-    createdAt: "2026-03-01T00:00:00.000Z",
-  },
-];
-
-let memoryUsers: UserItem[] | null = null;
-const CACHE_FILE = path.join(process.cwd(), ".data", "users_cache.json");
-const OLD_MEMBERS_CACHE = path.join(process.cwd(), ".data", "members_cache.json");
-
-function readDiskCache(): UserItem[] {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-    // Migrate old members cache if exists
-    if (fs.existsSync(OLD_MEMBERS_CACHE)) {
-      const raw = fs.readFileSync(OLD_MEMBERS_CACHE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {}
-  return DEFAULT_USERS;
-}
-
-function writeDiskCache(data: UserItem[]): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Failed to write users disk cache:", err);
-  }
-}
+export type { UserItem };
 
 export async function GET() {
-  if (!memoryUsers) {
-    memoryUsers = readDiskCache();
-  }
+  let memoryUsers = getMemoryUsers();
 
   try {
     const backendRes = await fetchFromBackend("/users", {}, 3000);
@@ -139,6 +35,7 @@ export async function GET() {
                 ...existing,
                 name: bUser.name || existing.name,
                 email: bUser.email || existing.email,
+                password: existing.password || "password",
               });
             } else {
               localMap.set(key, {
@@ -146,6 +43,7 @@ export async function GET() {
                 name: bUser.name || "Backend User",
                 username: bUser.username || (bUser.email ? bUser.email.split("@")[0] : `user_${bUser.id}`),
                 email: bUser.email || "",
+                password: "password",
                 roleId: bUser.roleId || "viewer",
                 roleName: bUser.roleName || "Viewer",
                 status: bUser.status || "Active",
@@ -157,7 +55,7 @@ export async function GET() {
         }
 
         memoryUsers = Array.from(localMap.values());
-        writeDiskCache(memoryUsers);
+        setMemoryUsers(memoryUsers);
       }
     }
   } catch {}
@@ -175,14 +73,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Name, username, and password are required." }, { status: 400 });
     }
 
-    if (!memoryUsers) {
-      memoryUsers = readDiskCache();
-    }
-
-    const cleanUsername = username.trim().toLowerCase();
+    const memoryUsers = getMemoryUsers();
+    const cleanUsername = username.trim().toLowerCase().replace(/^@/, "");
 
     const exists = memoryUsers.some(
-      (u) => u.username && u.username.toLowerCase() === cleanUsername
+      (u) => u.username && u.username.toLowerCase().replace(/^@/, "") === cleanUsername
     );
 
     if (exists) {
@@ -203,7 +98,7 @@ export async function POST(request: NextRequest) {
     };
 
     memoryUsers.push(newUser);
-    writeDiskCache(memoryUsers);
+    setMemoryUsers(memoryUsers);
 
     // Sync to Laravel Backend if online
     fetchFromBackend("/users", {
@@ -228,9 +123,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "User ID is required." }, { status: 400 });
     }
 
-    if (!memoryUsers) {
-      memoryUsers = readDiskCache();
-    }
+    const memoryUsers = getMemoryUsers();
 
     const index = memoryUsers.findIndex((u) => String(u.id) === String(id));
     if (index === -1) {
@@ -239,9 +132,9 @@ export async function PUT(request: NextRequest) {
 
     const existing = memoryUsers[index];
 
-    if (username && username.trim().toLowerCase() !== existing.username.toLowerCase()) {
-      const cleanU = username.trim().toLowerCase();
-      const conflict = memoryUsers.some((u) => String(u.id) !== String(id) && u.username.toLowerCase() === cleanU);
+    if (username && username.trim().toLowerCase().replace(/^@/, "") !== existing.username.toLowerCase().replace(/^@/, "")) {
+      const cleanU = username.trim().toLowerCase().replace(/^@/, "");
+      const conflict = memoryUsers.some((u) => String(u.id) !== String(id) && u.username.toLowerCase().replace(/^@/, "") === cleanU);
       if (conflict) {
         return NextResponse.json({ error: `Username "@${cleanU}" is already taken.` }, { status: 400 });
       }
@@ -250,7 +143,7 @@ export async function PUT(request: NextRequest) {
     const updatedUser: UserItem = {
       ...existing,
       name: name !== undefined ? name.trim() : existing.name,
-      username: username !== undefined ? username.trim().toLowerCase() : existing.username,
+      username: username !== undefined ? username.trim().toLowerCase().replace(/^@/, "") : existing.username,
       email: email !== undefined ? email.trim() : existing.email,
       roleId: roleId !== undefined ? roleId : existing.roleId,
       roleName: roleName !== undefined ? roleName : existing.roleName,
@@ -263,7 +156,7 @@ export async function PUT(request: NextRequest) {
     }
 
     memoryUsers[index] = updatedUser;
-    writeDiskCache(memoryUsers);
+    setMemoryUsers(memoryUsers);
 
     // Sync to Laravel Backend if online
     fetchFromBackend(`/users/${id}`, {
@@ -288,9 +181,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "User ID is required." }, { status: 400 });
     }
 
-    if (!memoryUsers) {
-      memoryUsers = readDiskCache();
-    }
+    let memoryUsers = getMemoryUsers();
 
     const targetUser = memoryUsers.find((u) => String(u.id) === String(id));
     if (targetUser && targetUser.username === "admin") {
@@ -298,7 +189,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     memoryUsers = memoryUsers.filter((u) => String(u.id) !== String(id));
-    writeDiskCache(memoryUsers);
+    setMemoryUsers(memoryUsers);
 
     // Sync deletion to Laravel Backend if online
     fetchFromBackend(`/users/${id}`, {

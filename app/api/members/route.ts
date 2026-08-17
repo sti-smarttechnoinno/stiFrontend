@@ -1,115 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
 import { fetchFromBackend } from "../backend-helper";
+import {
+  UserItem as MemberItem,
+  getMemoryUsers as getMemoryMembers,
+  setMemoryUsers as setMemoryMembers,
+} from "../users/users-store";
 
-export interface MemberItem {
-  id: string | number;
-  name: string;
-  username: string;
-  email?: string;
-  password?: string;
-  roleId: string;
-  roleName: string;
-  status: "Active" | "Inactive";
-  lastLogin?: string;
-  createdAt?: string;
-}
-
-const DEFAULT_MEMBERS: MemberItem[] = [
-  {
-    id: 1,
-    name: "Admin User",
-    username: "admin",
-    email: "admin@sti-dz.com",
-    password: "password",
-    roleId: "super_admin",
-    roleName: "Super Admin",
-    status: "Active",
-    lastLogin: "Just now",
-    createdAt: "2026-01-01T00:00:00.000Z",
-  },
-  {
-    id: 2,
-    name: "Content Manager",
-    username: "content",
-    email: "content@sti-dz.com",
-    password: "password",
-    roleId: "content_manager",
-    roleName: "Content Manager",
-    status: "Active",
-    lastLogin: "May 19, 2026",
-    createdAt: "2026-01-15T00:00:00.000Z",
-  },
-  {
-    id: 3,
-    name: "HR Manager",
-    username: "hr",
-    email: "hr@sti-dz.com",
-    password: "password",
-    roleId: "recruitment_manager",
-    roleName: "Recruitment Manager",
-    status: "Active",
-    lastLogin: "May 18, 2026",
-    createdAt: "2026-02-01T00:00:00.000Z",
-  },
-  {
-    id: 4,
-    name: "Sales Manager",
-    username: "sales",
-    email: "sales@sti-dz.com",
-    password: "password",
-    roleId: "sales_manager",
-    roleName: "Sales Manager",
-    status: "Active",
-    lastLogin: "May 17, 2026",
-    createdAt: "2026-02-10T00:00:00.000Z",
-  },
-  {
-    id: 5,
-    name: "Viewer Account",
-    username: "viewer",
-    email: "viewer@sti-dz.com",
-    password: "password",
-    roleId: "viewer",
-    roleName: "Viewer",
-    status: "Inactive",
-    lastLogin: "May 10, 2026",
-    createdAt: "2026-03-01T00:00:00.000Z",
-  },
-];
-
-let memoryMembers: MemberItem[] | null = null;
-const CACHE_FILE = path.join(process.cwd(), ".data", "members_cache.json");
-
-function readDiskCache(): MemberItem[] {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {}
-  return DEFAULT_MEMBERS;
-}
-
-function writeDiskCache(data: MemberItem[]): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Failed to write members disk cache:", err);
-  }
-}
+export type { MemberItem };
 
 export async function GET() {
-  if (!memoryMembers) {
-    memoryMembers = readDiskCache();
-  }
+  let memoryMembers = getMemoryMembers();
 
   try {
     const backendRes = await fetchFromBackend("/members", {}, 3000);
@@ -132,6 +33,7 @@ export async function GET() {
                 ...existing,
                 name: bMember.name || existing.name,
                 email: bMember.email || existing.email,
+                password: existing.password || "password",
               });
             } else {
               localMap.set(key, {
@@ -139,6 +41,7 @@ export async function GET() {
                 name: bMember.name || "Backend Member",
                 username: bMember.username || (bMember.email ? bMember.email.split("@")[0] : `member_${bMember.id}`),
                 email: bMember.email || "",
+                password: "password",
                 roleId: bMember.roleId || "viewer",
                 roleName: bMember.roleName || "Viewer",
                 status: bMember.status || "Active",
@@ -150,7 +53,7 @@ export async function GET() {
         }
 
         memoryMembers = Array.from(localMap.values());
-        writeDiskCache(memoryMembers);
+        setMemoryMembers(memoryMembers);
       }
     }
   } catch {}
@@ -168,14 +71,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Name, username, and password are required." }, { status: 400 });
     }
 
-    if (!memoryMembers) {
-      memoryMembers = readDiskCache();
-    }
-
-    const cleanUsername = username.trim().toLowerCase();
+    const memoryMembers = getMemoryMembers();
+    const cleanUsername = username.trim().toLowerCase().replace(/^@/, "");
 
     const exists = memoryMembers.some(
-      (m) => m.username && m.username.toLowerCase() === cleanUsername
+      (m) => m.username && m.username.toLowerCase().replace(/^@/, "") === cleanUsername
     );
 
     if (exists) {
@@ -196,7 +96,7 @@ export async function POST(request: NextRequest) {
     };
 
     memoryMembers.push(newMember);
-    writeDiskCache(memoryMembers);
+    setMemoryMembers(memoryMembers);
 
     // Sync to Laravel Backend if online
     fetchFromBackend("/members", {
@@ -221,9 +121,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "User ID is required." }, { status: 400 });
     }
 
-    if (!memoryMembers) {
-      memoryMembers = readDiskCache();
-    }
+    const memoryMembers = getMemoryMembers();
 
     const index = memoryMembers.findIndex((m) => String(m.id) === String(id));
     if (index === -1) {
@@ -232,9 +130,9 @@ export async function PUT(request: NextRequest) {
 
     const existing = memoryMembers[index];
 
-    if (username && username.trim().toLowerCase() !== existing.username.toLowerCase()) {
-      const cleanU = username.trim().toLowerCase();
-      const conflict = memoryMembers.some((m) => String(m.id) !== String(id) && m.username.toLowerCase() === cleanU);
+    if (username && username.trim().toLowerCase().replace(/^@/, "") !== existing.username.toLowerCase().replace(/^@/, "")) {
+      const cleanU = username.trim().toLowerCase().replace(/^@/, "");
+      const conflict = memoryMembers.some((m) => String(m.id) !== String(id) && m.username.toLowerCase().replace(/^@/, "") === cleanU);
       if (conflict) {
         return NextResponse.json({ error: `Username "@${cleanU}" is already taken.` }, { status: 400 });
       }
@@ -243,7 +141,7 @@ export async function PUT(request: NextRequest) {
     const updatedMember: MemberItem = {
       ...existing,
       name: name !== undefined ? name.trim() : existing.name,
-      username: username !== undefined ? username.trim().toLowerCase() : existing.username,
+      username: username !== undefined ? username.trim().toLowerCase().replace(/^@/, "") : existing.username,
       email: email !== undefined ? email.trim() : existing.email,
       roleId: roleId !== undefined ? roleId : existing.roleId,
       roleName: roleName !== undefined ? roleName : existing.roleName,
@@ -256,7 +154,7 @@ export async function PUT(request: NextRequest) {
     }
 
     memoryMembers[index] = updatedMember;
-    writeDiskCache(memoryMembers);
+    setMemoryMembers(memoryMembers);
 
     // Sync to Laravel Backend if online
     fetchFromBackend(`/members/${id}`, {
@@ -281,9 +179,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "User ID is required." }, { status: 400 });
     }
 
-    if (!memoryMembers) {
-      memoryMembers = readDiskCache();
-    }
+    let memoryMembers = getMemoryMembers();
 
     const targetUser = memoryMembers.find((m) => String(m.id) === String(id));
     if (targetUser && targetUser.username === "admin") {
@@ -291,7 +187,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     memoryMembers = memoryMembers.filter((m) => String(m.id) !== String(id));
-    writeDiskCache(memoryMembers);
+    setMemoryMembers(memoryMembers);
 
     // Sync deletion to Laravel Backend if online
     fetchFromBackend(`/members/${id}`, {

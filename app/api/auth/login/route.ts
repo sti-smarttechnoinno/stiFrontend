@@ -2,37 +2,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
+import { getMemoryUsers } from "../../users/users-store";
 
-const USERS_FILE = path.join(process.cwd(), ".data", "users_cache.json");
-const MEMBERS_FILE = path.join(process.cwd(), ".data", "members_cache.json");
 const ROLES_FILE = path.join(process.cwd(), ".data", "roles_cache.json");
-
-function getUsers() {
-  try {
-    if (fs.existsSync(USERS_FILE)) {
-      const raw = fs.readFileSync(USERS_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-    if (fs.existsSync(MEMBERS_FILE)) {
-      const raw = fs.readFileSync(MEMBERS_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {}
-  return [
-    {
-      id: 1,
-      name: "Admin User",
-      username: "admin",
-      email: "admin@sti-dz.com",
-      password: "password",
-      roleId: "super_admin",
-      roleName: "Super Admin",
-      status: "Active",
-    },
-  ];
-}
 
 function getRoles() {
   try {
@@ -49,20 +21,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { username, password, rememberMe } = body;
 
-    const cleanUsername = (username || "").toLowerCase().trim();
+    const rawInput = (username || "").toLowerCase().trim();
+    const cleanUsername = rawInput.replace(/^@/, "");
 
     if (!cleanUsername || !password) {
       return NextResponse.json({ error: "Username and Password are required." }, { status: 400 });
     }
 
-    const users = getUsers();
+    const users = getMemoryUsers();
     const user = users.find(
-      (u: any) =>
-        (u.username && u.username.toLowerCase() === cleanUsername) ||
-        (u.email && u.email.toLowerCase() === cleanUsername)
+      (u: any) => {
+        const uName = (u.username || "").toLowerCase().trim().replace(/^@/, "");
+        const uEmail = (u.email || "").toLowerCase().trim();
+        return (uName && uName === cleanUsername) || (uEmail && uEmail === cleanUsername);
+      }
     );
 
-    if (!user || user.password !== password) {
+    const userPassword = user?.password || "password";
+
+    if (!user || userPassword !== password) {
       return NextResponse.json(
         { error: "Invalid username or password." },
         { status: 401 }
