@@ -59,8 +59,8 @@ export default function UsersPage() {
     setLoading(true);
     try {
       const [usersRes, rolesRes] = await Promise.all([
-        fetch("/api/users"),
-        fetch("/api/roles"),
+        fetch("/api/users", { cache: "no-store" }),
+        fetch("/api/roles", { cache: "no-store" }),
       ]);
 
       if (usersRes.ok) {

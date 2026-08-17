@@ -7,13 +7,16 @@ import {
   setMemoryUsers as setMemoryMembers,
 } from "../users/users-store";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export type { MemberItem };
 
 export async function GET() {
   let memoryMembers = getMemoryMembers();
 
   try {
-    const backendRes = await fetchFromBackend("/members", { cache: "no-store" }, 3000);
+    const backendRes = await fetchFromBackend("/members", { cache: "no-store" }, 10000);
     if (backendRes && backendRes.ok) {
       const backendData = await backendRes.json();
       if (Array.isArray(backendData)) {

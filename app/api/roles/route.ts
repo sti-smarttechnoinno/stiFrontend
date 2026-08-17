@@ -103,13 +103,16 @@ function writeDiskCache(data: RoleItem[]): void {
   }
 }
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   if (!memoryRoles) {
     memoryRoles = readDiskCache();
   }
 
   try {
-    const backendRes = await fetchFromBackend("/roles", {}, 3000);
+    const backendRes = await fetchFromBackend("/roles", { cache: "no-store" }, 10000);
     if (backendRes && backendRes.ok) {
       const backendData = await backendRes.json();
       if (Array.isArray(backendData) && backendData.length > 0) {

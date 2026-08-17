@@ -1,4 +1,4 @@
-export async function fetchFromBackend(endpoint: string, options: RequestInit = {}, timeoutMs = 8000): Promise<Response | null> {
+export async function fetchFromBackend(endpoint: string, options: RequestInit = {}, timeoutMs = 10000): Promise<Response | null> {
   const urlsToTry: string[] = [];
 
   const primaryUrl = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL;
@@ -36,6 +36,7 @@ export async function fetchFromBackend(endpoint: string, options: RequestInit = 
       const fullUrl = `${baseUrl}${cleanEndpoint}`;
 
       const res = await fetch(fullUrl, {
+        cache: "no-store",
         ...options,
         redirect: "follow",
         signal: controller.signal,
