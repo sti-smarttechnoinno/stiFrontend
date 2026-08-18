@@ -1,0 +1,49 @@
+[
+  {
+    "id": 7,
+    "slug": "sales-manager",
+    "department": "Sales",
+    "location": "Sétif",
+    "type": "Full-time",
+    "experience": "+3 years",
+    "salary": "Competitive",
+    "status": "Published",
+    "translations": {
+      "en": {
+        "title": "Sales Manager",
+        "description": "+3 Years Experience, driving license.",
+        "department": "Sales",
+        "location": "Sétif",
+        "streetAddress": "50 Merouani Tbinet Setif / Siège STI",
+        "addressRegion": "Sétif",
+        "postalCode": "19000",
+        "experience": "+3 years",
+        "salary": "Competitive"
+      },
+      "ar": {
+        "title": "مسؤول مبيعات",
+        "description": "+3 خبرة سنوات ، رخصة سياقة صنف ب",
+        "department": "المبيعات",
+        "location": "سطيف",
+        "streetAddress": "50 مرواني، سطيف",
+        "addressRegion": "سطيف",
+        "postalCode": "19000",
+        "experience": "+3 سنوات",
+        "salary": "راتب تنافسي"
+      },
+      "fr": {
+        "title": "Responsable Commercial",
+        "description": "+3 ans experience, Permis de conduire",
+        "department": "Commercial",
+        "location": "Setif",
+        "streetAddress": "50 Merouani Tbinet Setif / Siège STI",
+        "addressRegion": "Setif",
+        "postalCode": "19000",
+        "experience": "+3 ans",
+        "salary": "Compétitif"
+      }
+    },
+    "created_at": "2026-08-11T13:20:18.000000Z",
+    "updated_at": "2026-08-16T08:41:26.000000Z"
+  }
+]

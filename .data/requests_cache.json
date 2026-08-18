@@ -1,0 +1,21 @@
+[
+  {
+    "id": 1,
+    "business_name": "dqdqd",
+    "contact_person": "sdqsdqdqsd",
+    "phone": "0550505050",
+    "email": "dqsdqs@qdqsd.d",
+    "business_type": "Wholesaler",
+    "products": [
+      "Mobile Recharge Credit",
+      "Wholesale Solutions"
+    ],
+    "volume": "200,000–500,000 DA",
+    "contact_method": "Email",
+    "message": null,
+    "status": "Completed",
+    "created_at": "2026-08-16T13:35:43.000000Z",
+    "updated_at": "2026-08-16T13:36:31.000000Z",
+    "date": "Aug 16, 2026"
+  }
+]
