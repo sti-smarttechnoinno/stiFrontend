@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import SolutionLayout from "../../components/solutions/detail/SolutionLayout";
@@ -9,7 +8,7 @@ import type { SolutionData } from "./data";
 export const dynamic = "force-dynamic";
 
 function getIllustrationType(slug: string): "recharge" | "sim" | "wholesale" | "retail" | "partnership" | "support" {
-  const s = slug.toLowerCase();
+  const s = (slug || "").toLowerCase();
   if (s.includes("sim") || s.includes("card")) return "sim";
   if (s.includes("wholesale") || s.includes("bulk") || s.includes("gros")) return "wholesale";
   if (s.includes("retail") || s.includes("pos") || s.includes("point")) return "retail";
@@ -18,48 +17,65 @@ function getIllustrationType(slug: string): "recharge" | "sim" | "wholesale" | "
   return "recharge";
 }
 
+function parseSolution(data: any): SolutionData {
+  const trans = data.translations?.en || data.translations?.fr || data.translations?.ar || {};
+  const rawDesc = trans.description || data.description;
+  const description: string[] = Array.isArray(rawDesc)
+    ? rawDesc
+    : typeof rawDesc === "string" && rawDesc.trim()
+    ? [rawDesc]
+    : ["Official STI Ooredoo Distribution Solution across Algeria."];
+
+  const rawHighlights = trans.highlights || data.highlights;
+  const highlights: string[] | undefined = Array.isArray(rawHighlights) && rawHighlights.length > 0
+    ? rawHighlights
+    : undefined;
+
+  const rawFeatures = trans.features || data.features;
+  const features = Array.isArray(rawFeatures) && rawFeatures.length > 0 ? rawFeatures : [];
+
+  const rawBenefits = trans.benefits || data.benefits;
+  const benefits = Array.isArray(rawBenefits) && rawBenefits.length > 0 ? rawBenefits : [];
+
+  const rawFaqs = trans.faqs || data.faqs;
+  const faqs = Array.isArray(rawFaqs) && rawFaqs.length > 0 ? rawFaqs : [];
+
+  return {
+    slug: data.slug,
+    name: trans.name || data.name || data.slug,
+    shortName: trans.shortName || trans.name || data.name || data.slug,
+    badge: trans.badge || "Official Ooredoo Solution",
+    title: trans.title || trans.name || data.name || data.slug,
+    description,
+    highlights,
+    features,
+    benefits,
+    faqs,
+    illustration: getIllustrationType(data.slug),
+    translations: data.translations,
+  };
+}
+
 async function fetchSolutionFromApi(slug: string): Promise<SolutionData | undefined> {
   try {
     const res = await fetchFromBackend(`/solutions/${encodeURIComponent(slug)}`, { cache: "no-store" }, 8000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (data && (data.slug || data.id)) {
-        const trans = data.translations?.en || data.translations?.fr || data.translations?.ar || {};
-        const rawDesc = trans.description || data.description;
-        const description: string[] = Array.isArray(rawDesc)
-          ? rawDesc
-          : typeof rawDesc === "string" && rawDesc.trim()
-          ? [rawDesc]
-          : ["Official STI Ooredoo Distribution Solution across Algeria."];
+        return parseSolution(data);
+      }
+    }
+  } catch {}
 
-        const rawHighlights = trans.highlights || data.highlights;
-        const highlights: string[] | undefined = Array.isArray(rawHighlights) && rawHighlights.length > 0
-          ? rawHighlights
-          : undefined;
-
-        const rawFeatures = trans.features || data.features;
-        const features = Array.isArray(rawFeatures) && rawFeatures.length > 0 ? rawFeatures : [];
-
-        const rawBenefits = trans.benefits || data.benefits;
-        const benefits = Array.isArray(rawBenefits) && rawBenefits.length > 0 ? rawBenefits : [];
-
-        const rawFaqs = trans.faqs || data.faqs;
-        const faqs = Array.isArray(rawFaqs) && rawFaqs.length > 0 ? rawFaqs : [];
-
-        return {
-          slug: data.slug,
-          name: trans.name || data.name || data.slug,
-          shortName: trans.shortName || trans.name || data.name || data.slug,
-          badge: trans.badge || "Official Ooredoo Solution",
-          title: trans.title || trans.name || data.name || data.slug,
-          description,
-          highlights,
-          features,
-          benefits,
-          faqs,
-          illustration: getIllustrationType(data.slug),
-          translations: data.translations,
-        };
+  try {
+    const listRes = await fetchFromBackend("/solutions", { cache: "no-store" }, 8000);
+    if (listRes && listRes.ok) {
+      const list = await listRes.json().catch(() => null);
+      if (Array.isArray(list)) {
+        const found = list.find((s: any) => s.slug === slug || String(s.id) === slug);
+        if (found) {
+          return parseSolution(found);
+        }
       }
     }
   } catch {}
@@ -113,26 +129,27 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const solution = await fetchSolutionFromApi(slug);
-  if (!solution) return { title: "Solution Not Found" };
+  const title = solution?.name || `${slug} | STI Official Ooredoo Distributor Algeria`;
+  const desc = solution?.description?.[0] || `Learn about STI solutions across Algeria.`;
 
   return {
-    title: `${solution.name} | STI Official Ooredoo Distributor Algeria`,
-    description: solution.description?.[0] || `Learn about STI's ${solution.name} across Algeria.`,
+    title,
+    description: desc,
     alternates: { canonical: `/solutions/${slug}` },
     openGraph: {
-      title: `${solution.name} | STI Official Ooredoo Distributor Algeria`,
-      description: solution.description?.[0] || `Learn about STI's ${solution.name} across Algeria.`,
+      title,
+      description: desc,
       type: "website",
       locale: "en_US",
       siteName: "STI - Smart Technologie Innovation",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${solution.name} | STI Official Ooredoo Distributor Algeria`,
-      description: solution.description?.[0] || `Learn about STI's ${solution.name} across Algeria.`,
+      title,
+      description: desc,
     },
     keywords: [
-      solution.name,
+      solution?.name || slug,
       "Ooredoo distributor Algeria",
       "telecom distribution Algeria",
       "official Ooredoo partner",
@@ -148,15 +165,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function SolutionPage({ params }: PageProps) {
   const { slug } = await params;
   const solution = await fetchSolutionFromApi(slug);
-  if (!solution) notFound();
-
   const related = await fetchRelatedSolutions(slug);
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: solution.name,
-    description: solution.description?.[0] || "",
+    name: solution?.name || slug,
+    description: solution?.description?.[0] || "",
     provider: {
       "@type": "Organization",
       name: "SARL Smart Technologie Innovation (STI)",

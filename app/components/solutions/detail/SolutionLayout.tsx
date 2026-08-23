@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import HeroSolution from "./HeroSolution";
 import { FeaturesSection } from "./FeatureCard";
 import SolutionTimeline from "./SolutionTimeline";
@@ -29,16 +30,29 @@ interface ApiSolutionItem {
   };
 }
 
+function getIllustrationType(slug: string): "recharge" | "sim" | "wholesale" | "retail" | "partnership" | "support" {
+  const s = (slug || "").toLowerCase();
+  if (s.includes("sim") || s.includes("card")) return "sim";
+  if (s.includes("wholesale") || s.includes("bulk") || s.includes("gros")) return "wholesale";
+  if (s.includes("retail") || s.includes("pos") || s.includes("point")) return "retail";
+  if (s.includes("partner") || s.includes("business") || s.includes("b2b")) return "partnership";
+  if (s.includes("support") || s.includes("help") || s.includes("service")) return "support";
+  return "recharge";
+}
+
 export default function SolutionLayout({ solution: initialSolution, related: initialRelated }: Props) {
   const pathname = usePathname();
   const t = useTranslations();
-  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+  const segments = pathname.split("/").filter(Boolean);
+  const currentLocale = (segments[0] === "ar" || segments[0] === "fr" || segments[0] === "en" ? segments[0] : "en") as "en" | "ar" | "fr";
+  const slugFromUrl = segments[segments.length - 1] || "";
 
   const [activeSolution, setActiveSolution] = useState<SolutionData | null>(initialSolution || null);
   const [otherSolutions, setOtherSolutions] = useState<SolutionData[]>(
     initialRelated && initialSolution ? initialRelated.filter((r) => r.slug !== initialSolution.slug) : []
   );
   const [loading, setLoading] = useState(!initialSolution);
+  const [isNotFound, setIsNotFound] = useState(false);
 
   useEffect(() => {
     if (initialSolution) {
@@ -58,11 +72,9 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
           const apiData: ApiSolutionItem[] = await res.json();
           if (Array.isArray(apiData) && apiData.length > 0) {
             const published = apiData.filter((s) => !s.status || s.status === "Published");
+            const targetSlug = initialSolution?.slug || slugFromUrl;
 
-            const currentSlug = initialSolution?.slug || pathname.split("/").pop();
-
-            // Match current solution from DB
-            const dbMatch = published.find((s) => s.slug === currentSlug);
+            const dbMatch = published.find((s) => s.slug === targetSlug);
             if (dbMatch && isMounted) {
               const langContent = dbMatch.translations?.[currentLocale] || dbMatch.translations?.en || dbMatch.translations?.fr || dbMatch.translations?.ar;
               const enContent = dbMatch.translations?.en;
@@ -97,14 +109,18 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
                   features: finalFeatures || [],
                   benefits: finalBenefits || [],
                   faqs: finalFaqs || [],
-                  illustration: initialSolution?.illustration || "recharge",
+                  illustration: getIllustrationType(dbMatch.slug),
                 });
+                setIsNotFound(false);
+                setLoading(false);
               }
+            } else if (!initialSolution && isMounted) {
+              setIsNotFound(true);
+              setLoading(false);
             }
 
-            // Exclude current solution and convert all remaining solutions for Related cards
             const dbOthers = published
-              .filter((s) => s.slug !== currentSlug)
+              .filter((s) => s.slug !== targetSlug)
               .map((s) => {
                 const lang = s.translations?.[currentLocale] || s.translations?.en || s.translations?.fr || s.translations?.ar;
                 return {
@@ -117,7 +133,7 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
                   features: lang?.features || [],
                   benefits: lang?.benefits || [],
                   faqs: lang?.faqs || [],
-                  illustration: (initialSolution?.illustration || "recharge") as SolutionData["illustration"],
+                  illustration: getIllustrationType(s.slug),
                 };
               });
 
@@ -127,7 +143,10 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
           }
         }
       } catch {
-        // Keep initial
+        if (!initialSolution && isMounted) {
+          setIsNotFound(true);
+          setLoading(false);
+        }
       }
     }
 
@@ -136,10 +155,27 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
     return () => {
       isMounted = false;
     };
-  }, [initialSolution?.slug, currentLocale, pathname]);
+  }, [initialSolution?.slug, currentLocale, slugFromUrl]);
 
-  if (loading || !activeSolution) {
+  if (loading) {
     return <SolutionDetailSkeleton />;
+  }
+
+  if (isNotFound || !activeSolution) {
+    return (
+      <main className="py-36 text-center bg-white min-h-[60vh] flex flex-col items-center justify-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Solution Not Found</h1>
+        <p className="text-gray-500 mb-8 max-w-md">
+          The solution you are looking for does not exist or has been moved.
+        </p>
+        <Link
+          href={`/${currentLocale}/solutions`}
+          className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-red-primary text-white font-medium hover:bg-red-700 transition"
+        >
+          Explore All Solutions
+        </Link>
+      </main>
+    );
   }
 
   return (
