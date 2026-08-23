@@ -89,24 +89,48 @@ export default function NewsGrid() {
   // Filter 1: Must be Published
   const publishedArticles = articles.filter((a) => a.status === "Published");
 
-  // Filter 2: Exclude featured article
-  const finalArticlesList = publishedArticles.filter((a) => String(a.id) !== String(featuredId));
+  const isCategoryMatch = (articleCat: string, targetCatId: string) => {
+    if (targetCatId === "All") return true;
+    const cat = categories.find(
+      (c) =>
+        c.id === targetCatId ||
+        c.translations?.en === targetCatId ||
+        c.id.replace(/-/g, "_") === targetCatId.replace(/-/g, "_")
+    );
+    const cleanArt = (articleCat || "").toLowerCase().trim();
+
+    if (!cat) {
+      const cleanTarget = (targetCatId || "").toLowerCase().trim();
+      return cleanArt === cleanTarget || cleanArt.replace(/[^a-z0-9]+/g, "-") === cleanTarget.replace(/[^a-z0-9]+/g, "-");
+    }
+
+    return (
+      cleanArt === cat.id.toLowerCase() ||
+      cleanArt === cat.translations?.en?.toLowerCase() ||
+      cleanArt === cat.translations?.fr?.toLowerCase() ||
+      cleanArt === cat.translations?.ar?.toLowerCase() ||
+      cleanArt.replace(/[^a-z0-9]+/g, "-") === cat.id.toLowerCase()
+    );
+  };
 
   // Filter categories to only those containing at least one published article
   const activeCategories = categories.filter((cat) =>
-    publishedArticles.some((a) => a.category === cat.id || a.category === cat.translations.en)
+    publishedArticles.some((a) => isCategoryMatch(a.category, cat.id))
   );
 
-  // Category Filter Match
-  const filteredArticles =
+  // Category Filter Match: If "All" is active, exclude top featured article to avoid duplication.
+  // If a specific category pill is selected, include all articles matching that category.
+  const candidateArticles =
     activeCategory === "All"
-      ? finalArticlesList
-      : finalArticlesList.filter((a) => a.category === activeCategory);
+      ? publishedArticles.filter((a) => String(a.id) !== String(featuredId))
+      : publishedArticles;
+
+  const filteredArticles = candidateArticles.filter((a) => isCategoryMatch(a.category, activeCategory));
 
   // Map to local format for card
   const displayCards = filteredArticles.map((art) => {
     const translation = art.translations?.[currentLocale] || art.translations?.en || {};
-    const categoryItem = categories.find((c) => c.id === art.category || c.translations?.en === art.category);
+    const categoryItem = categories.find((c) => isCategoryMatch(art.category, c.id));
     const categoryLabel = categoryItem?.translations?.[currentLocale] || categoryItem?.translations?.en || art.category;
 
     return {
