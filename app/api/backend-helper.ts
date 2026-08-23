@@ -1,5 +1,14 @@
-export async function fetchFromBackend(endpoint: string, options: RequestInit = {}, timeoutMs = 10000): Promise<Response | null> {
+let cachedWorkingBaseUrl: string | null = null;
+let lastCheckTime = 0;
+const CHECK_CACHE_TTL_MS = 60000; // 60 seconds
+
+export async function fetchFromBackend(endpoint: string, options: RequestInit = {}, timeoutMs = 5000): Promise<Response | null> {
   const urlsToTry: string[] = [];
+
+  // 1. If we have a recently verified working URL, try it first for instant response
+  if (cachedWorkingBaseUrl && Date.now() - lastCheckTime < CHECK_CACHE_TTL_MS) {
+    urlsToTry.push(cachedWorkingBaseUrl);
+  }
 
   const primaryUrl = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL;
   const fallbackUrlsRaw = process.env.BACKEND_FALLBACK_URLS || process.env.NEXT_PUBLIC_BACKEND_FALLBACK_URLS;
@@ -24,7 +33,7 @@ export async function fetchFromBackend(endpoint: string, options: RequestInit = 
     urlsToTry.push(`http://localhost:${port}/api`);
   }
 
-  // Remove duplicates
+  // Remove duplicates while maintaining order
   const uniqueUrls = Array.from(new Set(urlsToTry));
 
   for (const baseUrl of uniqueUrls) {
@@ -44,10 +53,16 @@ export async function fetchFromBackend(endpoint: string, options: RequestInit = 
       clearTimeout(timer);
 
       if (res.ok) {
+        // Cache the active working URL to bypass timeout delays on future requests
+        cachedWorkingBaseUrl = baseUrl;
+        lastCheckTime = Date.now();
         return res;
       }
     } catch (err) {
-      // Continue to next URL fallback
+      // Clear cached URL if it fails, then try next fallback
+      if (cachedWorkingBaseUrl === baseUrl) {
+        cachedWorkingBaseUrl = null;
+      }
     }
   }
 
