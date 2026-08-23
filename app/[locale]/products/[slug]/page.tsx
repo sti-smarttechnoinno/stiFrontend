@@ -10,49 +10,113 @@ import ProductOrderingProcess from "../../../components/product-detail/ProductOr
 import RelatedProducts from "../../../components/product-detail/RelatedProducts";
 import ProductFAQ from "../../../components/product-detail/ProductFAQ";
 import FinalCTA from "../../../components/FinalCTA";
-import { getProductBySlug, getRelatedProducts } from "../../../data/products";
+import { getProductBySlug } from "../../../data/products";
 import { fetchFromBackend } from "../../../api/backend-helper";
+import { getMemoryProducts } from "../../../api/products/products-store";
 import type { Product } from "../../../data/products";
 
 export const dynamic = "force-dynamic";
 
-async function fetchProductFromApi(slug: string): Promise<Product | undefined> {
-  try {
-    const res = await fetchFromBackend(`/products/${encodeURIComponent(slug)}`, { cache: "no-store" }, 8000);
+async function fetchProductFromApi(slug: string, locale: string = "en"): Promise<Product | undefined> {
+  const decodedSlug = decodeURIComponent(slug);
+  let data: any = null;
 
+  try {
+    const res = await fetchFromBackend(`/products/${encodeURIComponent(decodedSlug)}`, { cache: "no-store" }, 8000);
+    if (res && res.ok) {
+      data = await res.json().catch(() => null);
+    }
+  } catch {}
+
+  if (!data || (!data.slug && !data.id)) {
+    const memory = getMemoryProducts();
+    data = memory.find(
+      (p) =>
+        p.slug === decodedSlug ||
+        String(p.id) === decodedSlug ||
+        p.slug === slug ||
+        String(p.id) === slug
+    );
+  }
+
+  if (data && (data.slug || data.id)) {
+    const loc = (locale as "en" | "ar" | "fr") || "en";
+    const langTrans = data.translations?.[loc] || data.translations?.en || data.translations?.fr || data.translations?.ar || {};
+    return {
+      id: String(data.id),
+      sku: data.sku || "",
+      slug: data.slug,
+      name: langTrans.name || data.name || data.slug,
+      category: data.category || "Recharge Credit",
+      categoryId: (data.category || "recharge-credit").toLowerCase().replace(/\s+/g, "-"),
+      value: data.value || "Available",
+      description: langTrans.description || (Array.isArray(langTrans.description) ? langTrans.description.join(" ") : data.description) || "",
+      shortDescription: langTrans.shortDescription || data.shortDescription || "",
+      availability: "Available",
+      format: data.format || "Standard Product",
+      wholesale: "Available",
+      suitableFor: Array.isArray(data.suitableFor) ? data.suitableFor : ["Retailers", "Wholesalers", "Business Partners"],
+      brand: data.brand || "Ooredoo",
+      productType: data.productType || data.product_type || "Recharge",
+      authenticity: "Official Ooredoo Product",
+      features: Array.isArray(langTrans.features) ? langTrans.features : [],
+      specifications: Array.isArray(langTrans.specifications) ? langTrans.specifications : [],
+      faqs: Array.isArray(langTrans.faqs) ? langTrans.faqs : [],
+      image: data.image || "",
+      translations: data.translations,
+      relatedSlugs: [],
+    };
+  }
+
+  return getProductBySlug(slug);
+}
+
+async function fetchAllProductsFromApi(locale: string = "en"): Promise<Product[]> {
+  let list: any[] = [];
+  try {
+    const res = await fetchFromBackend("/products", { cache: "no-store" }, 8000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
-      if (data && (data.slug || data.id)) {
-        const enTrans = data.translations?.en || {};
-        return {
-          id: String(data.id),
-          sku: data.sku || "",
-          slug: data.slug,
-          name: enTrans.name || data.name || data.slug,
-          category: data.category || "Recharge Credit",
-          categoryId: data.category?.toLowerCase().replace(/\s+/g, "-") || "recharge-credit",
-          value: data.value || "Available",
-          description: enTrans.description || data.description || "",
-          shortDescription: enTrans.shortDescription || data.shortDescription || "",
-          availability: "Available",
-          format: "Standard Product",
-          wholesale: "Available",
-          suitableFor: ["Retailers", "Wholesalers", "Business Partners"],
-          brand: data.brand || "Ooredoo",
-          productType: data.productType || data.product_type || "Recharge",
-          authenticity: "Official Ooredoo Product",
-          features: Array.isArray(enTrans.features) ? enTrans.features : [],
-          specifications: Array.isArray(enTrans.specifications) ? enTrans.specifications : [],
-          faqs: Array.isArray(enTrans.faqs) ? enTrans.faqs : [],
-          image: data.image || "",
-          translations: data.translations,
-          relatedSlugs: [],
-        };
+      if (Array.isArray(data) && data.length > 0) {
+        list = data;
       }
     }
   } catch {}
 
-  return getProductBySlug(slug);
+  if (list.length === 0) {
+    list = getMemoryProducts();
+  }
+
+  const loc = (locale as "en" | "ar" | "fr") || "en";
+  return list
+    .filter((item) => !item.status || item.status === "Published")
+    .map((data) => {
+      const langTrans = data.translations?.[loc] || data.translations?.en || data.translations?.fr || data.translations?.ar || {};
+      return {
+        id: String(data.id),
+        sku: data.sku || "",
+        slug: data.slug,
+        name: langTrans.name || data.name || data.slug,
+        category: data.category || "Recharge Credit",
+        categoryId: (data.category || "recharge-credit").toLowerCase().replace(/\s+/g, "-"),
+        value: data.value || "Available",
+        description: langTrans.description || (Array.isArray(langTrans.description) ? langTrans.description.join(" ") : data.description) || "",
+        shortDescription: langTrans.shortDescription || data.shortDescription || "",
+        availability: "Available",
+        format: data.format || "Standard Product",
+        wholesale: "Available",
+        suitableFor: Array.isArray(data.suitableFor) ? data.suitableFor : ["Retailers", "Wholesalers", "Business Partners"],
+        brand: data.brand || "Ooredoo",
+        productType: data.productType || data.product_type || "Recharge",
+        authenticity: "Official Ooredoo Product",
+        features: Array.isArray(langTrans.features) ? langTrans.features : [],
+        specifications: Array.isArray(langTrans.specifications) ? langTrans.specifications : [],
+        faqs: Array.isArray(langTrans.faqs) ? langTrans.faqs : [],
+        image: data.image || "",
+        translations: data.translations,
+        relatedSlugs: [],
+      };
+    });
 }
 
 interface PageParams {
@@ -65,8 +129,8 @@ export async function generateMetadata({
 }: {
   params: Promise<PageParams>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const product = await fetchProductFromApi(slug);
+  const { locale, slug } = await params;
+  const product = await fetchProductFromApi(slug, locale);
 
   if (!product) {
     return { title: "Product Not Found" };
@@ -102,13 +166,14 @@ export default async function ProductDetailPage({
   params: Promise<PageParams>;
 }) {
   const { locale, slug } = await params;
-  const product = await fetchProductFromApi(slug);
+  const product = await fetchProductFromApi(slug, locale);
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = getRelatedProducts(product);
+  const allProducts = await fetchAllProductsFromApi(locale);
+  const relatedProducts = allProducts.filter((p) => p.slug !== product.slug);
 
   const productImageUrl = product.image
     ? product.image.startsWith("http")

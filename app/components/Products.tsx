@@ -29,12 +29,12 @@ interface DynamicProductItem {
 const getProductIllustration = (productType: string) => {
   const typeLower = productType?.toLowerCase() || "";
   if (typeLower.includes("sim")) {
-    return "/assets/sim-card.png";
+    return "/assets/mobile-recharge-credit.png";
   }
-  if (typeLower.includes("recharge") || typeLower.includes("credit")) {
-    return "/assets/recharge-card.png";
+  if (typeLower.includes("recharge") || typeLower.includes("credit") || typeLower.includes("wholesale")) {
+    return "/assets/wholesale-recharge.png";
   }
-  return "/assets/delivery-ticket.png";
+  return "/assets/partner-services.png";
 };
 
 function ProductCard({
@@ -45,6 +45,7 @@ function ProductCard({
   ctaText,
   currentLocale,
   slug,
+  productType,
 }: {
   image: string;
   title: string;
@@ -53,8 +54,15 @@ function ProductCard({
   ctaText: string;
   currentLocale: string;
   slug: string;
+  productType?: string;
 }) {
   const { ref, visible } = useScrollReveal(0.2);
+  const fallback = getProductIllustration(productType || "");
+  const [imgSrc, setImgSrc] = useState(image || fallback);
+
+  useEffect(() => {
+    setImgSrc(image || fallback);
+  }, [image, fallback]);
 
   return (
     <article
@@ -64,12 +72,13 @@ function ProductCard({
       }`}
       style={{ transitionDelay: `${index * 80}ms` }}
     >
-      <div className="relative overflow-hidden bg-gray-50 p-8 flex items-center justify-center h-48 border-b border-gray-50">
+      <div className="relative overflow-hidden bg-gray-50 p-6 flex items-center justify-center h-48 border-b border-gray-50">
         <div className="absolute inset-0 bg-gradient-to-br from-red-primary/3 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
         <img
-          src={image}
+          src={imgSrc}
           alt={title}
-          className="h-32 w-auto object-contain transition-transform duration-500 group-hover:scale-110"
+          onError={() => setImgSrc(fallback)}
+          className="h-36 w-full object-contain transition-transform duration-500 group-hover:scale-105"
         />
       </div>
       <div className="p-6 flex flex-col flex-1">
@@ -162,24 +171,30 @@ export default function Products() {
                   ctaText={t.products.cta || "View Details"}
                   currentLocale={currentLocale}
                   slug={p.slug}
+                  productType={p.productType}
                 />
               );
             })}
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {t.products.items.map((p, i) => (
-              <ProductCard
-                key={p.title}
-                image="/assets/sim-card.png"
-                title={p.title}
-                description={p.description}
-                index={i}
-                ctaText={t.products.cta}
-                currentLocale={currentLocale}
-                slug={i === 0 ? "ooredoo-prepaid-sim-card" : "recharge-credit"}
-              />
-            ))}
+            {t.products.items.map((p, i) => {
+              const slug = i === 0 ? "ooredoo-prepaid-sim-card" : i === 1 ? "recharge-credit" : "recharge-credit-delivery-ticket";
+              const productType = i === 0 ? "SIM Card" : i === 1 ? "Recharge Credit" : "Distribution Document";
+              return (
+                <ProductCard
+                  key={p.title}
+                  image={getProductIllustration(productType)}
+                  title={p.title}
+                  description={p.description}
+                  index={i}
+                  ctaText={t.products.cta}
+                  currentLocale={currentLocale}
+                  slug={slug}
+                  productType={productType}
+                />
+              );
+            })}
           </div>
         )}
       </div>

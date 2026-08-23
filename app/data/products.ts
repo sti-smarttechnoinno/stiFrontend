@@ -1,4 +1,4 @@
-export interface Product {
+﻿export interface Product {
   id: string;
   sku: string;
   slug: string;
@@ -62,4 +62,4 @@ export function getRelatedProducts(product: Product): Product[] {
 
 export function getAllProductSlugs(): string[] {
   return products.map((p) => p.slug);
-}
+}

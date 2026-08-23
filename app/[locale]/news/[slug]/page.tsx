@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 import FinalCTA from "../../../components/FinalCTA";
-import { getArticleBySlugServer } from "../../../data/news-server";
+import { getArticlePageDataServer } from "../../../data/news-server";
 import ArticlePageClient from "./ArticlePageClient";
 
 type Params = Promise<{ locale: string; slug: string }>;
@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const article = await getArticleBySlugServer(slug, locale);
+  const { article } = await getArticlePageDataServer(slug, locale);
   if (!article) {
     return {
       title: "Article | STI News",
@@ -60,7 +60,7 @@ export default async function NewsArticlePage({
   params: Params;
 }) {
   const { locale, slug } = await params;
-  const article = await getArticleBySlugServer(slug, locale);
+  const { article, relatedArticles, prev, next } = await getArticlePageDataServer(slug, locale);
 
   if (!article) {
     notFound();
@@ -102,7 +102,12 @@ export default async function NewsArticlePage({
       />
       <Navbar />
       <main>
-        <ArticlePageClient article={article} />
+        <ArticlePageClient
+          article={article}
+          relatedArticles={relatedArticles}
+          prev={prev}
+          next={next}
+        />
         <FinalCTA />
       </main>
       <Footer />

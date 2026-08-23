@@ -137,7 +137,22 @@ export default function FeaturedProductsGrid() {
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-12 h-12 bg-red-primary/10 rounded-xl flex items-center justify-center text-red-primary group-hover:bg-red-primary group-hover:text-white transition-colors duration-300 overflow-hidden p-1">
                       {product.image ? (
-                        <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            const str = `${product.productType || ""} ${product.category || ""} ${product.slug || ""}`.toLowerCase();
+                            if (str.includes("sim")) {
+                              target.src = "/assets/mobile-recharge-credit.png";
+                            } else if (str.includes("recharge") || str.includes("credit")) {
+                              target.src = "/assets/wholesale-recharge.png";
+                            } else {
+                              target.src = "/assets/partner-services.png";
+                            }
+                          }}
+                          className="w-full h-full object-contain"
+                        />
                       ) : (
                         <Icon size={24} />
                       )}

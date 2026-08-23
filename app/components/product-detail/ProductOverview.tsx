@@ -36,7 +36,7 @@ export default function ProductOverview({ product }: { product: Product }) {
       category: "Catégorie",
       availability: "Disponibilité",
       format: "Format",
-      suitableFor: "Adapté à",
+      suitableFor: "Convient Pour",
       wholesale: "Vente en Gros",
       available: "Disponible",
       requestQuote: "Demander un Devis",
@@ -52,7 +52,11 @@ export default function ProductOverview({ product }: { product: Product }) {
     requestQuote: "Request Quote",
   };
 
-  const availLabel = product.availability === "Available" ? staticT.available : product.availability;
+  const langTrans = product.translations?.[currentLocale] || product.translations?.en;
+  const description = langTrans?.description || product.description;
+  const shortDescription = langTrans?.shortDescription || product.shortDescription;
+
+  const availLabel = product.availability === "Available" ? staticT.available : (product.availability || staticT.available);
 
   const translatedCategory = {
     "SIM Cards": { en: "SIM Cards", ar: "شرائح SIM", fr: "Cartes SIM" },
@@ -64,7 +68,7 @@ export default function ProductOverview({ product }: { product: Product }) {
     "Standard SIM Card": { en: "Standard SIM Card", ar: "شريحة SIM قياسية", fr: "Carte SIM Standard" },
     "Physical & Digital Recharge": { en: "Physical & Digital Recharge", ar: "شحن رقمي ورصيد بطاقات", fr: "Recharge Physique & Numérique" },
     "Official Document": { en: "Official Document", ar: "وثيقة رسمية معتمدة", fr: "Document Officiel" },
-  }[product.format]?.[currentLocale] || product.format;
+  }[product.format]?.[currentLocale] || (product.format || "Standard");
 
   const suitableForMap: Record<string, Record<string, string>> = {
     "Retailers": { en: "Retailers", ar: "تجار التجزئة", fr: "Détaillants" },
@@ -75,6 +79,19 @@ export default function ProductOverview({ product }: { product: Product }) {
 
   const translatedSuitableFor = product.suitableFor
     ? product.suitableFor.map((item) => suitableForMap[item]?.[currentLocale] || item).join(", ")
+    : suitableForText;
+
+  const rawDesc = description || shortDescription || "";
+  const descParagraphs = typeof rawDesc === "string"
+    ? rawDesc.split("\n\n").filter(Boolean)
+    : Array.isArray(rawDesc)
+    ? rawDesc
+    : [];
+
+  const mainDescription = descParagraphs.length > 0
+    ? descParagraphs[0]
+    : typeof rawDesc === "string"
+    ? rawDesc
     : "";
 
   return (
@@ -93,6 +110,17 @@ export default function ProductOverview({ product }: { product: Product }) {
               <img
                 src={product.image}
                 alt={product.name}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  const str = `${product.productType || ""} ${product.category || ""} ${product.slug || ""}`.toLowerCase();
+                  if (str.includes("sim")) {
+                    target.src = "/assets/mobile-recharge-credit.png";
+                  } else if (str.includes("recharge") || str.includes("credit")) {
+                    target.src = "/assets/wholesale-recharge.png";
+                  } else {
+                    target.src = "/assets/partner-services.png";
+                  }
+                }}
                 className="w-full h-auto max-h-[440px] object-contain drop-shadow-xl"
               />
             ) : (

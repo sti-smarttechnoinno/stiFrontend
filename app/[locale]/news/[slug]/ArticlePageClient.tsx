@@ -21,7 +21,7 @@ import {
   Quote,
   Share2,
 } from "lucide-react";
-import { NewsArticle, getRelatedArticles, getAdjacentArticles } from "../../../data/news-articles";
+import { NewsArticle, convertApiItemToNewsArticle, getRelatedArticles, getAdjacentArticles } from "../../../data/news-articles";
 import NewsletterSection from "../../../components/news/NewsletterSection";
 
 const LinkedinIcon = () => (
@@ -87,11 +87,59 @@ function slugify(text: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export default function ArticlePageClient({ article }: { article: NewsArticle }) {
+export default function ArticlePageClient({
+  article,
+  relatedArticles = [],
+  prev: initialPrev = null,
+  next: initialNext = null,
+}: {
+  article: NewsArticle;
+  relatedArticles?: NewsArticle[];
+  prev?: NewsArticle | null;
+  next?: NewsArticle | null;
+}) {
   const pathname = usePathname();
-  const currentLocale = pathname.split("/")[1] || "en";
-  const { prev, next } = getAdjacentArticles(article?.slug || "");
-  const related = getRelatedArticles(article?.slug || "", 3);
+  const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+  const [related, setRelated] = useState<NewsArticle[]>(relatedArticles);
+  const [prev, setPrev] = useState<NewsArticle | null>(initialPrev);
+  const [next, setNext] = useState<NewsArticle | null>(initialNext);
+
+  useEffect(() => {
+    if (relatedArticles && relatedArticles.length > 0) {
+      setRelated(relatedArticles);
+    }
+    setPrev(initialPrev);
+    setNext(initialNext);
+  }, [relatedArticles, initialPrev, initialNext]);
+
+  useEffect(() => {
+    if (related.length === 0) {
+      fetch("/api/news")
+        .then((res) => res.json())
+        .then((data: any[]) => {
+          if (Array.isArray(data)) {
+            const published = data.filter((a) => a.status === "Published" || !a.status);
+            const converted = published.map((a) => convertApiItemToNewsArticle(a, currentLocale));
+            const otherArticles = converted.filter(
+              (a) => a.slug !== article?.slug && String(a.id) !== String(article?.id)
+            );
+            const sameCategory = otherArticles.filter(
+              (a) => a.category && article?.category && a.category.toLowerCase().trim() === article.category.toLowerCase().trim()
+            );
+            const diffCategory = otherArticles.filter(
+              (a) => !a.category || !article?.category || a.category.toLowerCase().trim() !== article.category.toLowerCase().trim()
+            );
+            const computedRelated = [...sameCategory, ...diffCategory].slice(0, 3);
+            setRelated(computedRelated);
+
+            const currIndex = converted.findIndex((a) => a.slug === article?.slug || String(a.id) === String(article?.id));
+            if (currIndex > 0) setPrev(converted[currIndex - 1]);
+            if (currIndex >= 0 && currIndex < converted.length - 1) setNext(converted[currIndex + 1]);
+          }
+        })
+        .catch((err) => console.error("Failed to fetch related news", err));
+    }
+  }, [article?.slug, currentLocale, related.length]);
 
   const [copied, setCopied] = useState(false);
   const [activeToc, setActiveToc] = useState("");
@@ -409,48 +457,50 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
             </div>
 
             {/* Prev / Next Pagination Controls */}
-            <div className="my-14 grid gap-4 sm:grid-cols-2 border-t border-gray-100 pt-8">
-              {prev ? (
-                <Link
-                  href={`/${currentLocale}/news/${prev.slug}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 transition-all duration-300 hover:border-red-primary hover:shadow-md hover:scale-[1.01]"
-                >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400 transition-colors group-hover:bg-red-primary group-hover:text-white">
-                    <ArrowLeft size={16} />
-                  </div>
-                  <div className="min-w-0">
-                    <span className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                      Previous Article
-                    </span>
-                    <span className="text-xs font-bold text-gray-900 line-clamp-1 group-hover:text-red-primary transition-colors">
-                      {prev.title}
-                    </span>
-                  </div>
-                </Link>
-              ) : (
-                <div />
-              )}
-              {next ? (
-                <Link
-                  href={`/${currentLocale}/news/${next.slug}`}
-                  className="group flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white p-5 transition-all duration-300 hover:border-red-primary hover:shadow-md hover:scale-[1.01]"
-                >
-                  <div className="min-w-0 text-left">
-                    <span className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                      Next Article
-                    </span>
-                    <span className="text-xs font-bold text-gray-900 line-clamp-1 group-hover:text-red-primary transition-colors">
-                      {next.title}
-                    </span>
-                  </div>
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400 transition-colors group-hover:bg-red-primary group-hover:text-white">
-                    <ArrowRight size={16} />
-                  </div>
-                </Link>
-              ) : (
-                <div />
-              )}
-            </div>
+            {(prev || next) && (
+              <div className="my-14 grid gap-4 sm:grid-cols-2 border-t border-gray-100 pt-8">
+                {prev ? (
+                  <Link
+                    href={`/${currentLocale}/news/${prev.slug}`}
+                    className="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 transition-all duration-300 hover:border-red-primary hover:shadow-md hover:scale-[1.01]"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400 transition-colors group-hover:bg-red-primary group-hover:text-white rtl:rotate-180">
+                      <ArrowLeft size={16} />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        {currentLocale === "ar" ? "المقال السابق" : currentLocale === "fr" ? "Article précédent" : "Previous Article"}
+                      </span>
+                      <span className="text-xs font-bold text-gray-900 line-clamp-1 group-hover:text-red-primary transition-colors">
+                        {prev.title}
+                      </span>
+                    </div>
+                  </Link>
+                ) : (
+                  <div />
+                )}
+                {next ? (
+                  <Link
+                    href={`/${currentLocale}/news/${next.slug}`}
+                    className="group flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white p-5 transition-all duration-300 hover:border-red-primary hover:shadow-md hover:scale-[1.01]"
+                  >
+                    <div className="min-w-0 text-left rtl:text-right">
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        {currentLocale === "ar" ? "المقال التالي" : currentLocale === "fr" ? "Article suivant" : "Next Article"}
+                      </span>
+                      <span className="text-xs font-bold text-gray-900 line-clamp-1 group-hover:text-red-primary transition-colors">
+                        {next.title}
+                      </span>
+                    </div>
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400 transition-colors group-hover:bg-red-primary group-hover:text-white rtl:rotate-180">
+                      <ArrowRight size={16} />
+                    </div>
+                  </Link>
+                ) : (
+                  <div />
+                )}
+              </div>
+            )}
           </div>
 
           {/* Sidebar - Desktop Only */}
@@ -567,81 +617,84 @@ export default function ArticlePageClient({ article }: { article: NewsArticle })
       )}
 
       {/* Related News Carousel/Grid Section */}
-      <section className="border-t border-gray-100 bg-gray-50/40 py-24">
-        <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 flex items-end justify-between">
-            <div>
-              <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-red-primary">
-                More News
-              </span>
-              <h2
-                className="text-2xl sm:text-3xl font-extrabold text-gray-900"
-                style={{ fontFamily: "var(--font-manrope)" }}
-              >
-                Related News
-              </h2>
-            </div>
-            <Link
-              href={`/${currentLocale}/news`}
-              className="hidden items-center gap-1.5 text-xs font-bold text-red-primary transition-colors hover:text-red-accent sm:inline-flex"
-            >
-              <span>View all news</span>
-              <ArrowRight size={14} />
-            </Link>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((rel) => (
+      {related.length > 0 && (
+        <section className="border-t border-gray-100 bg-gray-50/40 py-24">
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
+            <div className="mb-12 flex items-end justify-between">
+              <div>
+                <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-red-primary">
+                  {currentLocale === "ar" ? "المزيد من الأخبار" : currentLocale === "fr" ? "Plus d'actualités" : "More News"}
+                </span>
+                <h2
+                  className="text-2xl sm:text-3xl font-extrabold text-gray-900"
+                  style={{ fontFamily: "var(--font-manrope)" }}
+                >
+                  {currentLocale === "ar" ? "أخبار ذات صلة" : currentLocale === "fr" ? "Actualités connexes" : "Related News"}
+                </h2>
+              </div>
               <Link
-                key={rel.id}
-                href={`/${currentLocale}/news/${rel.slug}`}
-                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_12px_48px_rgba(200,16,46,0.06)] hover:-translate-y-1"
+                href={`/${currentLocale}/news`}
+                className="hidden items-center gap-1.5 text-xs font-bold text-red-primary transition-colors hover:text-red-accent sm:inline-flex"
               >
-                <div>
-                  <div className="relative h-48 overflow-hidden bg-gray-100">
-                    <img
-                      src={rel.heroImage || "/assets/hero.png"}
-                      alt={rel.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold text-red-primary shadow-sm uppercase tracking-widest backdrop-blur-sm">
-                      {rel.category}
+                <span>{currentLocale === "ar" ? "عرض جميع الأخبار" : currentLocale === "fr" ? "Toutes les actualités" : "View all news"}</span>
+                <ArrowRight size={14} className="rtl:rotate-180" />
+              </Link>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((rel) => (
+                <Link
+                  key={rel.id || rel.slug}
+                  href={`/${currentLocale}/news/${rel.slug}`}
+                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_12px_48px_rgba(200,16,46,0.06)] hover:-translate-y-1"
+                >
+                  <div>
+                    <div className="relative h-48 overflow-hidden bg-gray-100">
+                      <img
+                        src={rel.heroImage && rel.heroImage.trim() !== "" ? rel.heroImage : "/assets/hero.png"}
+                        alt={rel.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold text-red-primary shadow-sm uppercase tracking-widest backdrop-blur-sm">
+                        {rel.category}
+                      </span>
+                    </div>
+                    <div className="p-6">
+                      <div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                        {rel.publishedAt} • {rel.readingTime}
+                      </div>
+                      <h3
+                        className="mb-2 text-base font-bold text-gray-900 line-clamp-2 group-hover:text-red-primary transition-colors duration-300"
+                        style={{ fontFamily: "var(--font-manrope)" }}
+                      >
+                        {rel.title}
+                      </h3>
+                      <p className="text-xs leading-relaxed text-gray-500 line-clamp-2 font-medium">{rel.excerpt}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-6 pt-0">
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-red-primary group-hover:underline">
+                      {currentLocale === "ar" ? "قراءة المقال" : currentLocale === "fr" ? "Lire l'article" : "Read Article"}{" "}
+                      <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180" />
                     </span>
                   </div>
-                  <div className="p-6">
-                    <div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                      {rel.publishedAt} • {rel.readingTime}
-                    </div>
-                    <h3
-                      className="mb-2 text-base font-bold text-gray-900 line-clamp-2 group-hover:text-red-primary transition-colors duration-300"
-                      style={{ fontFamily: "var(--font-manrope)" }}
-                    >
-                      {rel.title}
-                    </h3>
-                    <p className="text-xs leading-relaxed text-gray-500 line-clamp-2 font-medium">{rel.excerpt}</p>
-                  </div>
-                </div>
+                </Link>
+              ))}
+            </div>
 
-                <div className="p-6 pt-0">
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-red-primary group-hover:underline">
-                    Read Article <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180" />
-                  </span>
-                </div>
+            <div className="mt-10 text-center sm:hidden">
+              <Link
+                href={`/${currentLocale}/news`}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-red-primary"
+              >
+                <span>{currentLocale === "ar" ? "عرض جميع الأخبار" : currentLocale === "fr" ? "Toutes les actualités" : "View all news"}</span>
+                <ArrowRight size={14} className="rtl:rotate-180" />
               </Link>
-            ))}
+            </div>
           </div>
-
-          <div className="mt-10 text-center sm:hidden">
-            <Link
-              href={`/${currentLocale}/news`}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-red-primary"
-            >
-              <span>View all news</span>
-              <ArrowRight size={14} className="rtl:rotate-180" />
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Main Newsletter Signup Form */}
       <NewsletterSection />
