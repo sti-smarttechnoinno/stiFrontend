@@ -48,6 +48,7 @@ export default function Navbar() {
   const [langOpen, setLangOpen] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
   const [dbSolutions, setDbSolutions] = useState<Array<{ icon: React.ReactNode; title: string; description: string; href: string }>>([]);
+  const [loadingSolutions, setLoadingSolutions] = useState(true);
 
   const currentLocale = pathname.split("/")[1] || "en";
   const phone = ctxPhone;
@@ -56,6 +57,7 @@ export default function Navbar() {
   useEffect(() => {
     async function loadSolutions() {
       try {
+        setLoadingSolutions(true);
         const res = await fetch("/api/solutions");
         if (res.ok) {
           const data = await res.json();
@@ -76,7 +78,11 @@ export default function Navbar() {
             }
           }
         }
-      } catch {}
+      } catch {
+        // Fallback
+      } finally {
+        setLoadingSolutions(false);
+      }
     }
     loadSolutions();
   }, [currentLocale]);
@@ -116,6 +122,7 @@ export default function Navbar() {
     {
       label: t.nav.solutions,
       href: `/${currentLocale}/solutions`,
+      isSolutions: true,
       children: solutionChildren,
     },
     { label: t.nav.products, href: `/${currentLocale}/products` },
@@ -188,25 +195,39 @@ export default function Navbar() {
                 {item.children && (
                   <div className="mega-menu absolute top-full left-0 rtl:left-auto rtl:right-0 pt-3">
                     <div className="w-[540px] rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_20px_60px_rgba(0,0,0,0.1)]">
-                      <div className="grid grid-cols-2 gap-2">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.title}
-                            href={child.href ?? item.href}
-                            className="flex items-start gap-3 rounded-xl p-3.5 transition-all hover:bg-gray-50 group"
-                          >
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-primary/8 text-red-primary transition-colors group-hover:bg-red-primary group-hover:text-white">
-                              {child.icon}
-                            </div>
-                            <div>
-                              <div className="text-[12px] font-semibold text-gray-900 group-hover:text-red-primary transition-colors line-clamp-1">
-                                {child.title}
+                      {item.isSolutions && loadingSolutions ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="flex items-start gap-3 rounded-xl p-3.5 animate-pulse">
+                              <div className="h-8 w-8 shrink-0 rounded-xl bg-gray-100" />
+                              <div className="flex-1 space-y-2 py-0.5">
+                                <div className="h-3 w-3/4 rounded bg-gray-200" />
+                                <div className="h-2.5 w-full rounded bg-gray-100" />
                               </div>
-                              <div className="text-[11px] text-gray-500 line-clamp-2 mt-0.5">{child.description}</div>
                             </div>
-                          </Link>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2">
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.title}
+                              href={child.href ?? item.href}
+                              className="flex items-start gap-3 rounded-xl p-3.5 transition-all hover:bg-gray-50 group"
+                            >
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-primary/8 text-red-primary transition-colors group-hover:bg-red-primary group-hover:text-white">
+                                {child.icon}
+                              </div>
+                              <div>
+                                <div className="text-[12px] font-semibold text-gray-900 group-hover:text-red-primary transition-colors line-clamp-1">
+                                  {child.title}
+                                </div>
+                                <div className="text-[11px] text-gray-500 line-clamp-2 mt-0.5">{child.description}</div>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
 
                       <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-end">
                         <Link
@@ -331,22 +352,36 @@ export default function Navbar() {
                       expandedMobile === item.label ? "max-h-96 pb-3" : "max-h-0"
                     }`}
                   >
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.title}
-                        href={child.href ?? item.href}
-                        onClick={closeMobile}
-                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50"
-                      >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-primary/8 text-red-primary">
-                          {child.icon}
-                        </div>
-                        <div>
-                          <div className="text-[12px] font-semibold text-gray-900">{child.title}</div>
-                          <div className="text-[10px] text-gray-500 line-clamp-1">{child.description}</div>
-                        </div>
-                      </Link>
-                    ))}
+                    {item.isSolutions && loadingSolutions ? (
+                      <div className="space-y-1 py-1">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2.5 animate-pulse">
+                            <div className="h-8 w-8 shrink-0 rounded-lg bg-gray-100" />
+                            <div className="flex-1 space-y-1.5">
+                              <div className="h-3 w-3/4 rounded bg-gray-200" />
+                              <div className="h-2.5 w-1/2 rounded bg-gray-100" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      item.children.map((child) => (
+                        <Link
+                          key={child.title}
+                          href={child.href ?? item.href}
+                          onClick={closeMobile}
+                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50"
+                        >
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-primary/8 text-red-primary">
+                            {child.icon}
+                          </div>
+                          <div>
+                            <div className="text-[12px] font-semibold text-gray-900">{child.title}</div>
+                            <div className="text-[10px] text-gray-500 line-clamp-1">{child.description}</div>
+                          </div>
+                        </Link>
+                      ))
+                    )}
                     <Link
                       href={`/${currentLocale}/solutions`}
                       onClick={closeMobile}

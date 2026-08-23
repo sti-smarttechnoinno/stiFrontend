@@ -133,8 +133,22 @@ export default function Services() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <span className="text-xs text-gray-400 font-semibold">Loading solutions...</span>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)] flex flex-col h-[280px] animate-pulse"
+              >
+                <div className="mb-5 h-14 w-14 rounded-2xl bg-gray-100" />
+                <div className="mb-3 h-5 w-3/5 rounded bg-gray-200" />
+                <div className="space-y-2 mb-8 flex-1">
+                  <div className="h-3.5 w-full rounded bg-gray-100" />
+                  <div className="h-3.5 w-5/6 rounded bg-gray-100" />
+                  <div className="h-3.5 w-4/6 rounded bg-gray-100" />
+                </div>
+                <div className="mt-auto h-4 w-28 rounded bg-gray-200" />
+              </div>
+            ))}
           </div>
         ) : displaySolutions.length > 0 ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
