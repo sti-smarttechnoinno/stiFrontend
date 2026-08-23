@@ -8,12 +8,13 @@ import SolutionTimeline from "./SolutionTimeline";
 import RelatedCard from "./RelatedCard";
 import FAQAccordion from "./FAQAccordion";
 import FinalCTA from "../../FinalCTA";
+import SolutionDetailSkeleton from "./SolutionSkeleton";
 import { useTranslations } from "../../../[locale]/use-translations";
 import type { SolutionData } from "../../../solutions/[slug]/data";
 
 interface Props {
-  solution: SolutionData;
-  related: SolutionData[];
+  solution?: SolutionData;
+  related?: SolutionData[];
 }
 
 interface ApiSolutionItem {
@@ -33,24 +34,35 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
   const t = useTranslations();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
 
-  const [activeSolution, setActiveSolution] = useState<SolutionData>(initialSolution);
+  const [activeSolution, setActiveSolution] = useState<SolutionData | null>(initialSolution || null);
   const [otherSolutions, setOtherSolutions] = useState<SolutionData[]>(
-    initialRelated.filter((r) => r.slug !== initialSolution.slug)
+    initialRelated && initialSolution ? initialRelated.filter((r) => r.slug !== initialSolution.slug) : []
   );
+  const [loading, setLoading] = useState(!initialSolution);
 
   useEffect(() => {
+    if (initialSolution) {
+      setActiveSolution(initialSolution);
+      setOtherSolutions(initialRelated ? initialRelated.filter((r) => r.slug !== initialSolution.slug) : []);
+      setLoading(false);
+    }
+  }, [initialSolution, initialRelated]);
+
+  useEffect(() => {
+    let isMounted = true;
+
     async function fetchDatabaseSolutions() {
       try {
         const res = await fetch("/api/solutions");
-        if (res.ok) {
+        if (res.ok && isMounted) {
           const apiData: ApiSolutionItem[] = await res.json();
           if (Array.isArray(apiData) && apiData.length > 0) {
             const published = apiData.filter((s) => !s.status || s.status === "Published");
 
             // Match current solution from DB
             const dbMatch = published.find((s) => s.slug === initialSolution.slug);
-            if (dbMatch) {
-              const langContent = dbMatch.translations?.[currentLocale] || dbMatch.translations?.en;
+            if (dbMatch && isMounted) {
+              const langContent = dbMatch.translations?.[currentLocale] || dbMatch.translations?.en || dbMatch.translations?.fr || dbMatch.translations?.ar;
               const enContent = dbMatch.translations?.en;
 
               if (langContent) {
@@ -80,9 +92,9 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
                   title: langContent.title || langContent.name || initialSolution.title,
                   description: langContent.description?.length ? langContent.description : initialSolution.description,
                   highlights: langContent.highlights?.length ? langContent.highlights : initialSolution.highlights,
-                  features: finalFeatures,
-                  benefits: finalBenefits,
-                  faqs: finalFaqs,
+                  features: finalFeatures || [],
+                  benefits: finalBenefits || [],
+                  faqs: finalFaqs || [],
                   illustration: initialSolution.illustration,
                 });
               }
@@ -92,14 +104,14 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
             const dbOthers = published
               .filter((s) => s.slug !== initialSolution.slug)
               .map((s) => {
-                const lang = s.translations?.[currentLocale] || s.translations?.en;
+                const lang = s.translations?.[currentLocale] || s.translations?.en || s.translations?.fr || s.translations?.ar;
                 return {
                   slug: s.slug,
                   name: lang?.name || s.slug,
                   shortName: lang?.shortName || lang?.name || s.slug,
                   badge: lang?.badge || "",
                   title: lang?.title || lang?.name || s.slug,
-                  description: lang?.description?.length ? lang.description : ["Distribution Solution"],
+                  description: Array.isArray(lang?.description) ? lang.description : [lang?.description || "Distribution Solution"],
                   features: lang?.features || [],
                   benefits: lang?.benefits || [],
                   faqs: lang?.faqs || [],
@@ -107,18 +119,26 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
                 };
               });
 
-            if (dbOthers.length > 0) {
+            if (dbOthers.length > 0 && isMounted) {
               setOtherSolutions(dbOthers);
             }
           }
         }
       } catch {
-        // Fallback to static props
+        // Keep initial
       }
     }
 
     fetchDatabaseSolutions();
-  }, [initialSolution.slug, currentLocale]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialSolution?.slug, currentLocale]);
+
+  if (loading || !activeSolution) {
+    return <SolutionDetailSkeleton />;
+  }
 
   return (
     <main>

@@ -3,40 +3,135 @@ import { notFound } from "next/navigation";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 import SolutionLayout from "../../../components/solutions/detail/SolutionLayout";
-import { solutions, getSolutionBySlug, getRelatedSolutions } from "./data";
+import { getSolutionBySlug, getRelatedSolutions } from "./data";
+import { fetchFromBackend } from "../../../api/backend-helper";
+import type { SolutionData } from "./data";
+
+export const dynamic = "force-dynamic";
+
+function getIllustrationType(slug: string): "recharge" | "sim" | "wholesale" | "retail" | "partnership" | "support" {
+  const s = slug.toLowerCase();
+  if (s.includes("sim") || s.includes("card")) return "sim";
+  if (s.includes("wholesale") || s.includes("bulk") || s.includes("gros")) return "wholesale";
+  if (s.includes("retail") || s.includes("pos") || s.includes("point")) return "retail";
+  if (s.includes("partner") || s.includes("business") || s.includes("b2b")) return "partnership";
+  if (s.includes("support") || s.includes("help") || s.includes("service")) return "support";
+  return "recharge";
+}
+
+async function fetchSolutionFromApi(slug: string, locale: string = "en"): Promise<SolutionData | undefined> {
+  try {
+    const res = await fetchFromBackend(`/solutions/${encodeURIComponent(slug)}`, { cache: "no-store" }, 8000);
+    if (res && res.ok) {
+      const data = await res.json().catch(() => null);
+      if (data && (data.slug || data.id)) {
+        const trans = data.translations?.[locale] || data.translations?.en || data.translations?.fr || data.translations?.ar || {};
+        const enTrans = data.translations?.en || {};
+
+        const rawDesc = trans.description || enTrans.description || data.description;
+        const description: string[] = Array.isArray(rawDesc)
+          ? rawDesc
+          : typeof rawDesc === "string" && rawDesc.trim()
+          ? [rawDesc]
+          : ["Official STI Ooredoo Distribution Solution across Algeria."];
+
+        const rawHighlights = trans.highlights || enTrans.highlights || data.highlights;
+        const highlights: string[] | undefined = Array.isArray(rawHighlights) && rawHighlights.length > 0
+          ? rawHighlights
+          : undefined;
+
+        const rawFeatures = trans.features || enTrans.features || data.features;
+        const features = Array.isArray(rawFeatures) && rawFeatures.length > 0 ? rawFeatures : [];
+
+        const rawBenefits = trans.benefits || enTrans.benefits || data.benefits;
+        const benefits = Array.isArray(rawBenefits) && rawBenefits.length > 0 ? rawBenefits : [];
+
+        const rawFaqs = trans.faqs || enTrans.faqs || data.faqs;
+        const faqs = Array.isArray(rawFaqs) && rawFaqs.length > 0 ? rawFaqs : [];
+
+        return {
+          slug: data.slug,
+          name: trans.name || data.name || data.slug,
+          shortName: trans.shortName || trans.name || data.name || data.slug,
+          badge: trans.badge || "Official Ooredoo Solution",
+          title: trans.title || trans.name || data.name || data.slug,
+          description,
+          highlights,
+          features,
+          benefits,
+          faqs,
+          illustration: getIllustrationType(data.slug),
+        };
+      }
+    }
+  } catch {}
+
+  const fallback = getSolutionBySlug(slug);
+  return fallback;
+}
+
+async function fetchRelatedSolutions(currentSlug: string, locale: string = "en"): Promise<SolutionData[]> {
+  try {
+    const res = await fetchFromBackend("/solutions", { cache: "no-store" }, 8000);
+    if (res && res.ok) {
+      const data = await res.json().catch(() => null);
+      if (Array.isArray(data) && data.length > 0) {
+        const published = data.filter((s: any) => (!s.status || s.status === "Published") && s.slug !== currentSlug);
+        if (published.length > 0) {
+          return published.map((s: any) => {
+            const trans = s.translations?.[locale] || s.translations?.en || s.translations?.fr || s.translations?.ar || {};
+            const rawDesc = trans.description || s.description;
+            const description: string[] = Array.isArray(rawDesc)
+              ? rawDesc
+              : typeof rawDesc === "string" && rawDesc.trim()
+              ? [rawDesc]
+              : ["Official STI Ooredoo Distribution Solution"];
+
+            return {
+              slug: s.slug,
+              name: trans.name || s.slug,
+              shortName: trans.shortName || trans.name || s.slug,
+              badge: trans.badge || "",
+              title: trans.title || trans.name || s.slug,
+              description,
+              features: trans.features || [],
+              benefits: trans.benefits || [],
+              faqs: trans.faqs || [],
+              illustration: getIllustrationType(s.slug),
+            };
+          });
+        }
+      }
+    }
+  } catch {}
+
+  return getRelatedSolutions(currentSlug);
+}
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-const LOCALES = ["en", "fr", "ar"];
-
-export function generateStaticParams() {
-  return LOCALES.flatMap((locale) =>
-    solutions.map((s) => ({ locale, slug: s.slug }))
-  );
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const solution = getSolutionBySlug(slug);
-  if (!solution) return {};
+  const { locale, slug } = await params;
+  const solution = await fetchSolutionFromApi(slug, locale);
+  if (!solution) return { title: "Solution Not Found" };
 
   return {
     title: `${solution.name} | STI Official Ooredoo Distributor Algeria`,
-    description: `Learn about STI's ${solution.name} for retailers, wholesalers, and business partners across Algeria. Official Ooredoo distributor providing reliable telecom products and professional support.`,
-    alternates: { canonical: `/solutions/${slug}` },
+    description: solution.description?.[0] || `Learn about STI's ${solution.name} across Algeria.`,
+    alternates: { canonical: `/${locale}/solutions/${slug}` },
     openGraph: {
       title: `${solution.name} | STI Official Ooredoo Distributor Algeria`,
-      description: `Learn about STI's ${solution.name} for retailers, wholesalers, and business partners across Algeria. Official Ooredoo distributor providing reliable telecom products and professional support.`,
+      description: solution.description?.[0] || `Learn about STI's ${solution.name} across Algeria.`,
       type: "website",
-      locale: "en_US",
+      locale: locale === "ar" ? "ar_DZ" : locale === "fr" ? "fr_DZ" : "en_US",
       siteName: "STI - Smart Technologie Innovation",
     },
     twitter: {
       card: "summary_large_image",
       title: `${solution.name} | STI Official Ooredoo Distributor Algeria`,
-      description: `Learn about STI's ${solution.name} for retailers, wholesalers, and business partners across Algeria. Official Ooredoo distributor providing reliable telecom products and professional support.`,
+      description: solution.description?.[0] || `Learn about STI's ${solution.name} across Algeria.`,
     },
     keywords: [
       solution.name,
@@ -53,17 +148,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function SolutionPage({ params }: PageProps) {
-  const { slug } = await params;
-  const solution = getSolutionBySlug(slug);
+  const { locale, slug } = await params;
+  const solution = await fetchSolutionFromApi(slug, locale);
   if (!solution) notFound();
 
-  const related = getRelatedSolutions(slug);
+  const related = await fetchRelatedSolutions(slug, locale);
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
     name: solution.name,
-    description: solution.description[0],
+    description: solution.description?.[0] || "",
     provider: {
       "@type": "Organization",
       name: "SARL Smart Technologie Innovation (STI)",
@@ -74,7 +169,7 @@ export default async function SolutionPage({ params }: PageProps) {
       "@type": "Country",
       name: "Algeria",
     },
-    url: `/solutions/${slug}`,
+    url: `https://sti-dz.com/${locale}/solutions/${slug}`,
   };
 
   return (
