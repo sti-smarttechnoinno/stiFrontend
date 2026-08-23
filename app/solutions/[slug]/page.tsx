@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import SolutionLayout from "../../components/solutions/detail/SolutionLayout";
-import { getSolutionBySlug, getRelatedSolutions } from "./data";
 import { fetchFromBackend } from "../../api/backend-helper";
 import type { SolutionData } from "./data";
 
@@ -59,12 +58,13 @@ async function fetchSolutionFromApi(slug: string): Promise<SolutionData | undefi
           benefits,
           faqs,
           illustration: getIllustrationType(data.slug),
+          translations: data.translations,
         };
       }
     }
   } catch {}
 
-  return getSolutionBySlug(slug);
+  return undefined;
 }
 
 async function fetchRelatedSolutions(currentSlug: string): Promise<SolutionData[]> {
@@ -95,6 +95,7 @@ async function fetchRelatedSolutions(currentSlug: string): Promise<SolutionData[
               benefits: trans.benefits || [],
               faqs: trans.faqs || [],
               illustration: getIllustrationType(s.slug),
+              translations: s.translations,
             };
           });
         }
@@ -102,7 +103,7 @@ async function fetchRelatedSolutions(currentSlug: string): Promise<SolutionData[
     }
   } catch {}
 
-  return getRelatedSolutions(currentSlug);
+  return [];
 }
 
 interface PageProps {
