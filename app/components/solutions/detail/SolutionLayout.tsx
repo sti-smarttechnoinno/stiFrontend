@@ -59,8 +59,10 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
           if (Array.isArray(apiData) && apiData.length > 0) {
             const published = apiData.filter((s) => !s.status || s.status === "Published");
 
+            const currentSlug = initialSolution?.slug || pathname.split("/").pop();
+
             // Match current solution from DB
-            const dbMatch = published.find((s) => s.slug === initialSolution.slug);
+            const dbMatch = published.find((s) => s.slug === currentSlug);
             if (dbMatch && isMounted) {
               const langContent = dbMatch.translations?.[currentLocale] || dbMatch.translations?.en || dbMatch.translations?.fr || dbMatch.translations?.ar;
               const enContent = dbMatch.translations?.en;
@@ -70,39 +72,39 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
                   ? langContent.features
                   : (enContent?.features && enContent.features.length > 0)
                   ? enContent.features
-                  : initialSolution.features;
+                  : initialSolution?.features;
 
                 const finalBenefits = (langContent.benefits && langContent.benefits.length > 0)
                   ? langContent.benefits
                   : (enContent?.benefits && enContent.benefits.length > 0)
                   ? enContent.benefits
-                  : initialSolution.benefits;
+                  : initialSolution?.benefits;
 
                 const finalFaqs = (langContent.faqs && langContent.faqs.length > 0)
                   ? langContent.faqs
                   : (enContent?.faqs && enContent.faqs.length > 0)
                   ? enContent.faqs
-                  : initialSolution.faqs;
+                  : initialSolution?.faqs;
 
                 setActiveSolution({
                   slug: dbMatch.slug,
-                  name: langContent.name || initialSolution.name,
-                  shortName: langContent.shortName || initialSolution.shortName,
-                  badge: langContent.badge || initialSolution.badge,
-                  title: langContent.title || langContent.name || initialSolution.title,
-                  description: langContent.description?.length ? langContent.description : initialSolution.description,
-                  highlights: langContent.highlights?.length ? langContent.highlights : initialSolution.highlights,
+                  name: langContent.name || initialSolution?.name || dbMatch.slug,
+                  shortName: langContent.shortName || initialSolution?.shortName || dbMatch.slug,
+                  badge: langContent.badge || initialSolution?.badge || "Official Ooredoo Solution",
+                  title: langContent.title || langContent.name || initialSolution?.title || dbMatch.slug,
+                  description: langContent.description?.length ? langContent.description : (initialSolution?.description || ["Official STI Ooredoo Distribution Solution"]),
+                  highlights: langContent.highlights?.length ? langContent.highlights : initialSolution?.highlights,
                   features: finalFeatures || [],
                   benefits: finalBenefits || [],
                   faqs: finalFaqs || [],
-                  illustration: initialSolution.illustration,
+                  illustration: initialSolution?.illustration || "recharge",
                 });
               }
             }
 
             // Exclude current solution and convert all remaining solutions for Related cards
             const dbOthers = published
-              .filter((s) => s.slug !== initialSolution.slug)
+              .filter((s) => s.slug !== currentSlug)
               .map((s) => {
                 const lang = s.translations?.[currentLocale] || s.translations?.en || s.translations?.fr || s.translations?.ar;
                 return {
@@ -115,7 +117,7 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
                   features: lang?.features || [],
                   benefits: lang?.benefits || [],
                   faqs: lang?.faqs || [],
-                  illustration: initialSolution.illustration,
+                  illustration: (initialSolution?.illustration || "recharge") as SolutionData["illustration"],
                 };
               });
 
@@ -134,7 +136,7 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
     return () => {
       isMounted = false;
     };
-  }, [initialSolution?.slug, currentLocale]);
+  }, [initialSolution?.slug, currentLocale, pathname]);
 
   if (loading || !activeSolution) {
     return <SolutionDetailSkeleton />;
