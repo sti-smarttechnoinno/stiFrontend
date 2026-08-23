@@ -77,9 +77,9 @@ export default function ProductOverview({ product }: { product: Product }) {
     "Distributors": { en: "Distributors", ar: "الموزعين", fr: "Distributeurs" },
   };
 
-  const translatedSuitableFor = product.suitableFor
+  const translatedSuitableFor = Array.isArray(product.suitableFor)
     ? product.suitableFor.map((item) => suitableForMap[item]?.[currentLocale] || item).join(", ")
-    : suitableForText;
+    : (typeof product.suitableFor === "string" ? (suitableForMap[product.suitableFor]?.[currentLocale] || product.suitableFor) : "");
 
   const rawDesc = description || shortDescription || "";
   const descParagraphs = typeof rawDesc === "string"
