@@ -52,14 +52,15 @@ export async function fetchFromBackend(endpoint: string, options: RequestInit = 
       });
       clearTimeout(timer);
 
-      if (res.ok) {
-        // Cache the active working URL to bypass timeout delays on future requests
-        cachedWorkingBaseUrl = baseUrl;
-        lastCheckTime = Date.now();
+      if (res && res.status < 500) {
+        if (res.status !== 404) {
+          cachedWorkingBaseUrl = baseUrl;
+          lastCheckTime = Date.now();
+        }
         return res;
       }
     } catch (err) {
-      // Clear cached URL if it fails, then try next fallback
+      // Clear cached URL if network connection failed
       if (cachedWorkingBaseUrl === baseUrl) {
         cachedWorkingBaseUrl = null;
       }

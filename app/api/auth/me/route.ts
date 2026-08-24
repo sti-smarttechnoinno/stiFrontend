@@ -32,18 +32,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (err) {
-    // Fallback for default seed token
-    return NextResponse.json({
-      authenticated: true,
-      user: {
-        id: 1,
-        username: "admin",
-        name: "Admin User",
-        email: "admin@sti-dz.com",
-        roleId: "super_admin",
-        roleName: "Super Admin",
-        permissions: getPermissionsForRole("super_admin", "Super Admin"),
-      },
-    });
+    return NextResponse.json(
+      { authenticated: false, error: "Invalid session token." },
+      { status: 401 }
+    );
   }
 }

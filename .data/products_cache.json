@@ -157,7 +157,7 @@
     "product_type": "Recharge Credit",
     "value": "Flexible",
     "status": "Published",
-    "image": "https://api.sti.dz/storage/products/prod_1786462678_UWo6FjxN.png",
+    "image": "http://api.sti.dz/storage/products/prod_1786462678_UWo6FjxN.png",
     "translations": {
       "en": {
         "name": "Recharge Credit Distribution",
@@ -272,7 +272,7 @@
     "product_type": "Distribution Document",
     "value": "Ticket",
     "status": "Published",
-    "image": "https://api.sti.dz/storage/products/prod_1786462693_wWEI6J0Z.png",
+    "image": "http://api.sti.dz/storage/products/prod_1786462693_wWEI6J0Z.png",
     "translations": {
       "en": {
         "name": "Recharge Credit Delivery Ticket",

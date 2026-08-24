@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { fetchFromBackend } from "../../backend-helper";
 import { getPermissionsForRole } from "../../roles/roles-store";
-import { getMemoryUsers, setMemoryUsers, UserItem } from "../../users/users-store";
+import { getMemoryUsers, UserItem } from "../../users/users-store";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -16,106 +16,88 @@ export async function POST(request: NextRequest) {
 
     const { username, password, rememberMe } = body;
 
-    const rawInput = (username || "").toString().toLowerCase().trim();
-    const cleanUsername = rawInput.replace(/^@/, "");
+    const rawInput = (username || body.email || "").toString().trim();
+    const cleanUsername = rawInput.toLowerCase().replace(/^@/, "");
+    const inputPassword = String(password || "").trim();
 
-    if (!cleanUsername || !password) {
+    if (!cleanUsername || !inputPassword) {
       return NextResponse.json({ error: "Username and Password are required." }, { status: 400 });
     }
 
-    let authenticatedUser: any = null;
+    let dbUser: any = null;
+    let backendToken: string | undefined = undefined;
 
-    // 1. Verify username & password against Laravel Backend DB
+    // 1. Authenticate user against Backend DB API if reachable and healthy
     try {
       const backendRes = await fetchFromBackend("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: cleanUsername,
-          password: String(password),
+          email: rawInput,
+          password: inputPassword,
         }),
-      }, 5000);
+      }, 2500).catch(() => null);
 
       if (backendRes && backendRes.ok) {
         const backendData = await backendRes.json().catch(() => null);
-        if (backendData && backendData.user) {
-          authenticatedUser = backendData.user;
+        if (backendData?.user) {
+          dbUser = backendData.user;
+          backendToken = backendData.token;
         }
       }
-    } catch (backendErr) {
-      console.warn("Backend auth fetch skipped:", backendErr);
+    } catch {
+      // Backend error, ignore and fallback to local user store
     }
 
-    // 2. Fallback to local memory users store matching username
-    if (!authenticatedUser) {
+    // 2. If backend service is down/unreachable or user not authenticated on backend, query local user records
+    if (!dbUser) {
       const users = getMemoryUsers();
-      const localUser = users.find(
-        (u: UserItem) => {
-          const uName = (u?.username || "").toLowerCase().trim().replace(/^@/, "");
-          return uName && uName === cleanUsername;
-        }
-      );
+      const inputLower = cleanUsername.toLowerCase();
+      const rawLower = rawInput.toLowerCase();
 
-      const isMasterAdmin = (cleanUsername === "admin");
-      const isMasterPass = (password === "Sti@2026#AdminSecured!987" || password === "password" || password === "admin123");
+      const localUser = users.find((u: UserItem) => {
+        const uName = (u?.username || "").toLowerCase().trim().replace(/^@/, "");
+        const uEmail = (u?.email || "").toLowerCase().trim();
+        const uDisplayName = (u?.name || "").toLowerCase().trim();
+        return (
+          (uName && (uName === inputLower || uName === rawLower)) ||
+          (uEmail && (uEmail === inputLower || uEmail === rawLower)) ||
+          (uDisplayName && (uDisplayName === inputLower || uDisplayName === rawLower))
+        );
+      });
 
-      if (isMasterAdmin && isMasterPass) {
-        authenticatedUser = localUser || {
-          id: 1,
-          name: "Admin User",
-          username: "admin",
-          email: "admin@sti-dz.com",
-          roleId: "super_admin",
-          roleName: "Super Admin",
-          status: "Active",
-        };
-      } else if (localUser) {
-        const expectedPassword = localUser.password || "password";
-        if (expectedPassword === password || isMasterPass) {
-          authenticatedUser = localUser;
-        }
+      if (!localUser || localUser.password !== inputPassword) {
+        return NextResponse.json(
+          { error: "Invalid login credentials." },
+          { status: 401 }
+        );
       }
+
+      dbUser = localUser;
     }
 
-    if (!authenticatedUser) {
-      return NextResponse.json(
-        { error: "Invalid username or password." },
-        { status: 401 }
-      );
-    }
-
-    if (authenticatedUser.status === "Inactive") {
+    if (dbUser.status === "Inactive") {
       return NextResponse.json(
         { error: "Your account is currently inactive. Please contact an Administrator." },
         { status: 403 }
       );
     }
 
-    const roleId = authenticatedUser.role_id || authenticatedUser.roleId || "super_admin";
-    const roleName = authenticatedUser.role_name || authenticatedUser.roleName || "Super Admin";
+    const roleId = dbUser.role_id || dbUser.roleId || "viewer";
+    const roleName = dbUser.role_name || dbUser.roleName || "Viewer";
     const permissions = getPermissionsForRole(roleId, roleName);
 
     const sessionUser = {
-      id: authenticatedUser.id || Date.now(),
-      name: authenticatedUser.name || "Admin User",
-      username: (authenticatedUser.username || cleanUsername).toLowerCase().replace(/^@/, ""),
-      email: authenticatedUser.email || "",
+      id: dbUser.id,
+      name: dbUser.name,
+      username: (dbUser.username || cleanUsername).toLowerCase().replace(/^@/, ""),
+      email: dbUser.email || "",
       roleId,
       roleName,
       permissions,
+      backendToken,
     };
-
-    // Update local memory users store password cache safely
-    try {
-      const currentMemory = getMemoryUsers();
-      const idx = currentMemory.findIndex(
-        (u) => String(u.id) === String(sessionUser.id) || (u.username && u.username.toLowerCase().replace(/^@/, "") === sessionUser.username)
-      );
-      if (idx !== -1) {
-        currentMemory[idx].password = String(password);
-        setMemoryUsers(currentMemory);
-      }
-    } catch {}
 
     const tokenPayload = Buffer.from(JSON.stringify(sessionUser)).toString("base64");
     const token = `sti_sess_${Date.now()}_${tokenPayload}`;

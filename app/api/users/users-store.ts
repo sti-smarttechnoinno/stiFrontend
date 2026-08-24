@@ -26,14 +26,14 @@ export function readUsersDiskCache(): UserItem[] {
       const raw = fs.readFileSync(CACHE_FILE, "utf-8");
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        return parsed.map((u) => ({ ...u, password: u.password || "password" }));
+        return parsed;
       }
     }
     if (fs.existsSync(OLD_MEMBERS_CACHE)) {
       const raw = fs.readFileSync(OLD_MEMBERS_CACHE, "utf-8");
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        return parsed.map((u) => ({ ...u, password: u.password || "password" }));
+        return parsed;
       }
     }
   } catch {}
@@ -46,8 +46,7 @@ export function writeUsersDiskCache(data: UserItem[]): void {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    const withPasswords = data.map((u) => ({ ...u, password: u.password || "password" }));
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(withPasswords, null, 2), "utf-8");
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
   } catch (err) {
     console.error("Failed to write users disk cache:", err);
   }
@@ -61,6 +60,6 @@ export function getMemoryUsers(): UserItem[] {
 }
 
 export function setMemoryUsers(users: UserItem[]): void {
-  memoryUsers = users.map((u) => ({ ...u, password: u.password || "password" }));
+  memoryUsers = users;
   writeUsersDiskCache(memoryUsers);
 }
