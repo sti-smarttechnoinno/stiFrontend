@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Check, ChevronRight, Phone, CreditCard, Package } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Phone, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "../../[locale]/use-translations";
@@ -40,12 +40,12 @@ export default function ProductHero({ product }: { product: Product }) {
   };
 
   return (
-    <section className="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-20 lg:pt-40 lg:pb-24 bg-gradient-to-b from-gray-50 via-white to-white">
+    <section className="relative min-h-screen flex items-center overflow-hidden pt-28 pb-16 sm:pt-32 sm:pb-20 bg-gradient-to-b from-gray-50 via-white to-white">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-primary/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-primary/3 rounded-full blur-2xl pointer-events-none" />
 
-      <div className="relative mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <motion.nav
           initial={{ opacity: 0, y: -10 }}
@@ -68,17 +68,6 @@ export default function ProductHero({ product }: { product: Product }) {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Column — Text Content */}
           <div>
-            {/* Category badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-primary/10 text-red-primary text-xs font-semibold uppercase tracking-wider mb-6"
-            >
-              <Package size={14} />
-              <span>{product.category || staticT.badge}</span>
-            </motion.div>
-
             {/* Title */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
