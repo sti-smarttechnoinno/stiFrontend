@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Smartphone, Building2, Zap, Wallet, ShieldCheck, Headphones, Users, Package } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "../../[locale]/use-translations";
+import { useAppSelector, useAppDispatch } from "../../lib/store/hooks";
+import { selectAllSolutions, selectSolutionsLoading, setSolutions, setSolutionsLoading } from "../../lib/store/features/solutionsSlice";
 
 const iconMap: Record<string, React.ReactNode> = {
   Wallet: <Wallet size={24} />,
@@ -35,45 +37,37 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
-interface ApiSolutionItem {
-  id: number;
-  slug: string;
-  status?: string;
-  image?: string;
-  translations?: {
-    en?: { name: string; shortName: string; badge: string; description: string[] };
-    ar?: { name: string; shortName: string; badge: string; description: string[] };
-    fr?: { name: string; shortName: string; badge: string; description: string[] };
-  };
-}
-
 export default function SolutionsGrid() {
   const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
 
-  const [apiSolutions, setApiSolutions] = useState<ApiSolutionItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const apiSolutions = useAppSelector(selectAllSolutions);
+  const loading = useAppSelector(selectSolutionsLoading);
 
   useEffect(() => {
-    async function fetchApiSolutions() {
-      try {
-        const res = await fetch("/api/solutions");
-        if (res.ok) {
-          const data = await res.json();
-          const publishedOnly = Array.isArray(data)
-            ? data.filter((s) => !s.status || s.status === "Published")
-            : [];
-          setApiSolutions(publishedOnly);
+    // If store is empty, fetch once and populate Redux
+    if (apiSolutions.length === 0) {
+      async function fetchApiSolutions() {
+        try {
+          dispatch(setSolutionsLoading(true));
+          const res = await fetch("/api/solutions");
+          if (res.ok) {
+            const data = await res.json();
+            const publishedOnly = Array.isArray(data)
+              ? data.filter((s) => !s.status || s.status === "Published")
+              : [];
+            dispatch(setSolutions(publishedOnly));
+          }
+        } catch {
+        } finally {
+          dispatch(setSolutionsLoading(false));
         }
-      } catch {
-        // Fallback
-      } finally {
-        setLoading(false);
       }
+      fetchApiSolutions();
     }
-    fetchApiSolutions();
-  }, []);
+  }, [apiSolutions.length, dispatch]);
 
   const gridT = t.solutionsPage?.grid || {
     badge: "Our Solutions",
@@ -82,27 +76,17 @@ export default function SolutionsGrid() {
     learn_more: "Learn More",
   };
 
-  // Convert fetched API solutions into grid card items
-  const displayItems: { slug: string; title: string; description: string; icon?: React.ReactNode }[] = apiSolutions.length > 0
-    ? apiSolutions.map((sol) => {
-        const langData = sol.translations?.[currentLocale] || sol.translations?.en;
-        const title = langData?.shortName || langData?.name || sol.slug;
-        const description = langData?.description?.[0] || langData?.name || "Official STI Ooredoo Distribution Solution";
-        return {
-          slug: sol.slug,
-          title,
-          description,
-          icon: iconMap[sol.slug] || null,
-        };
-      })
-    : [
-        { slug: "mobile-recharge-credit", title: "Mobile Recharge Credit", description: "Ooredoo mobile recharge credit in multiple denominations.", icon: null },
-        { slug: "prepaid-sim-cards", title: "SIM Card Distribution", description: "Prepaid SIM cards for retailers and sales partners.", icon: null },
-        { slug: "wholesale-recharge", title: "Wholesale Solutions", description: "Bulk purchasing options for resellers and wholesalers.", icon: null },
-        { slug: "partner-services", title: "Partner Services", description: "Dedicated support for orders and product availability.", icon: null },
-        { slug: "business-partnership", title: "Business Partnership", description: "Strategic distribution partnership for companies in Algeria.", icon: null },
-        { slug: "customer-support", title: "Customer Support", description: "Professional helpline and digital support for business partners.", icon: null },
-      ];
+  const displayItems = apiSolutions.map((sol) => {
+    const langData = sol.translations?.[currentLocale] || sol.translations?.en;
+    const title = langData?.shortName || langData?.name || sol.slug;
+    const description = langData?.description?.[0] || langData?.name || "Official STI Ooredoo Distribution Solution";
+    return {
+      slug: sol.slug,
+      title,
+      description,
+      icon: iconMap[sol.slug] || null,
+    };
+  });
 
   return (
     <section id="solutions-grid" className="py-28 lg:py-36 bg-white">

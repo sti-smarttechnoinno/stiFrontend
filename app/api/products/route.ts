@@ -18,7 +18,7 @@ export async function GET() {
     const res = await fetchFromBackend("/products", { cache: "no-store" }, 10000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         const mapped = data.map((p: any) => ({
           ...p,
           productType: p.productType || p.product_type || "SIM Card",
@@ -32,7 +32,7 @@ export async function GET() {
   } catch {}
 
   const currentMemory = getMemoryProducts();
-  return NextResponse.json(currentMemory.length > 0 ? currentMemory : defaultProductsData);
+  return NextResponse.json(currentMemory);
 }
 
 export async function POST(req: Request) {

@@ -6,6 +6,9 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useScrollReveal } from "../hooks";
 import { useTranslations } from "../[locale]/use-translations";
+import { useAppSelector, useAppDispatch } from "../lib/store/hooks";
+import { selectAllProducts, selectProductsLoading, setProducts, setProductsLoading } from "../lib/store/features/productsSlice";
+import type { ApiProductItem } from "../api/products/route";
 
 interface DynamicProductItem {
   id: string | number;
@@ -106,28 +109,32 @@ export default function Products() {
   const pathname = usePathname();
   const currentLocale = pathname.split("/")[1] || "en";
 
-  const [products, setProducts] = useState<DynamicProductItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const products = useAppSelector(selectAllProducts);
+  const loading = useAppSelector(selectProductsLoading);
 
   useEffect(() => {
-    async function loadProducts() {
-      try {
-        const res = await fetch("/api/products");
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            const published = data.filter((p) => !p.status || p.status === "Published");
-            setProducts(published);
+    if (products.length === 0) {
+      async function loadProducts() {
+        try {
+          dispatch(setProductsLoading(true));
+          const res = await fetch("/api/products");
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data)) {
+              const published = data.filter((p) => !p.status || p.status === "Published");
+              dispatch(setProducts(published));
+            }
           }
+        } catch (err) {
+          console.error("Failed to load products on homepage", err);
+        } finally {
+          dispatch(setProductsLoading(false));
         }
-      } catch (err) {
-        console.error("Failed to load products on homepage", err);
-      } finally {
-        setLoading(false);
       }
+      loadProducts();
     }
-    loadProducts();
-  }, []);
+  }, [products.length, dispatch]);
 
   return (
     <section id="products" className="py-20 sm:py-28 lg:py-36 bg-gray-50">
@@ -156,10 +163,11 @@ export default function Products() {
         ) : products.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((p, i) => {
-              const lang = p.translations?.[currentLocale] || p.translations?.en || {};
+              const loc = (currentLocale as "en" | "ar" | "fr") || "en";
+              const lang = p.translations?.[loc] || p.translations?.en || {};
               const title = lang.name || p.slug;
               const desc = lang.shortDescription || (Array.isArray(lang.description) ? lang.description[0] : (lang.description || ""));
-              const imageSrc = p.image || getProductIllustration(p.productType);
+              const imageSrc = p.image || getProductIllustration(p.productType || p.product_type || "");
               
               return (
                 <ProductCard

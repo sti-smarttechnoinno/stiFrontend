@@ -1,115 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
 import { fetchFromBackend } from "../backend-helper";
 import { ALL_PERMISSIONS, type RoleItem } from "../../types/roles";
+import { DEFAULT_ROLES, getMemoryRoles, setMemoryRoles } from "./roles-store";
 
 export { ALL_PERMISSIONS, type RoleItem };
-
-const DEFAULT_ROLES: RoleItem[] = [
-  {
-    id: "super_admin",
-    name: "Super Admin",
-    description: "Full access to all console features, security settings, and user management",
-    isSystem: true,
-    permissions: ALL_PERMISSIONS.map((p) => p.id),
-  },
-  {
-    id: "content_manager",
-    name: "Content Manager",
-    description: "Manage solutions, product catalog, news articles, and company information",
-    isSystem: false,
-    permissions: [
-      "dashboard:view",
-      "solutions:view",
-      "solutions:manage",
-      "products:view",
-      "products:manage",
-      "news:view",
-      "news:manage",
-      "company:view",
-      "company:manage",
-    ],
-  },
-  {
-    id: "recruitment_manager",
-    name: "Recruitment Manager",
-    description: "Manage career job openings and candidate application submissions",
-    isSystem: false,
-    permissions: [
-      "dashboard:view",
-      "openings:view",
-      "openings:manage",
-      "submissions:view",
-      "submissions:manage",
-    ],
-  },
-  {
-    id: "sales_manager",
-    name: "Sales Manager",
-    description: "Manage client messages and wholesale quotation requests",
-    isSystem: false,
-    permissions: [
-      "dashboard:view",
-      "mailbox:view",
-      "mailbox:manage",
-      "requests:view",
-      "requests:manage",
-    ],
-  },
-  {
-    id: "viewer",
-    name: "Viewer",
-    description: "Read-only view access across dashboard and non-sensitive management reports",
-    isSystem: false,
-    permissions: [
-      "dashboard:view",
-      "solutions:view",
-      "products:view",
-      "news:view",
-      "openings:view",
-      "submissions:view",
-      "mailbox:view",
-      "requests:view",
-      "company:view",
-    ],
-  },
-];
-
-let memoryRoles: RoleItem[] | null = null;
-const CACHE_FILE = path.join(process.cwd(), ".data", "roles_cache.json");
-
-function readDiskCache(): RoleItem[] {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {}
-  return DEFAULT_ROLES;
-}
-
-function writeDiskCache(data: RoleItem[]): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Failed to write roles disk cache:", err);
-  }
-}
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
-  if (!memoryRoles) {
-    memoryRoles = readDiskCache();
-  }
+  let memoryRoles = getMemoryRoles();
 
   try {
     const backendRes = await fetchFromBackend("/roles", { cache: "no-store" }, 10000);
@@ -131,7 +32,7 @@ export async function GET() {
         }
 
         memoryRoles = Array.from(localMap.values());
-        writeDiskCache(memoryRoles);
+        setMemoryRoles(memoryRoles);
       }
     }
   } catch {}
@@ -148,9 +49,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Role name is required." }, { status: 400 });
     }
 
-    if (!memoryRoles) {
-      memoryRoles = readDiskCache();
-    }
+    const memoryRoles = getMemoryRoles();
 
     const id = name.toLowerCase().replace(/[^a-z0-9]/g, "_") + "_" + Date.now();
     const newRole: RoleItem = {
@@ -163,7 +62,7 @@ export async function POST(request: NextRequest) {
     };
 
     memoryRoles.push(newRole);
-    writeDiskCache(memoryRoles);
+    setMemoryRoles(memoryRoles);
 
     fetchFromBackend("/roles", {
       method: "POST",
@@ -186,9 +85,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Role ID is required." }, { status: 400 });
     }
 
-    if (!memoryRoles) {
-      memoryRoles = readDiskCache();
-    }
+    const memoryRoles = getMemoryRoles();
 
     const index = memoryRoles.findIndex((r) => String(r.id) === String(id));
     if (index === -1) {
@@ -204,7 +101,7 @@ export async function PUT(request: NextRequest) {
     };
 
     memoryRoles[index] = updatedRole;
-    writeDiskCache(memoryRoles);
+    setMemoryRoles(memoryRoles);
 
     fetchFromBackend(`/roles/${id}`, {
       method: "PUT",
@@ -227,9 +124,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Role ID is required." }, { status: 400 });
     }
 
-    if (!memoryRoles) {
-      memoryRoles = readDiskCache();
-    }
+    let memoryRoles = getMemoryRoles();
 
     const roleToDelete = memoryRoles.find((r) => String(r.id) === String(id));
     if (roleToDelete && roleToDelete.isSystem) {
@@ -237,7 +132,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     memoryRoles = memoryRoles.filter((r) => String(r.id) !== String(id));
-    writeDiskCache(memoryRoles);
+    setMemoryRoles(memoryRoles);
 
     fetchFromBackend(`/roles/${id}`, {
       method: "DELETE",

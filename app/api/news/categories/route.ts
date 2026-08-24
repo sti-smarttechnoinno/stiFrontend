@@ -11,7 +11,7 @@ export interface ApiCategoryItem {
   translations: CategoryTranslation;
 }
 
-let newsCategories: ApiCategoryItem[] = [
+const defaultCategories: ApiCategoryItem[] = [
   {
     id: "company-news",
     translations: {
@@ -54,8 +54,19 @@ let newsCategories: ApiCategoryItem[] = [
   },
 ];
 
+let memoryCategories: ApiCategoryItem[] | null = null;
+
+function getCategories(): ApiCategoryItem[] {
+  if (!memoryCategories) {
+    memoryCategories = [...defaultCategories];
+  }
+  return memoryCategories;
+}
+
 export async function GET() {
-  return NextResponse.json(newsCategories);
+  return NextResponse.json(getCategories(), {
+    headers: { "Cache-Control": "no-store, max-age=0" },
+  });
 }
 
 export async function POST(req: Request) {
@@ -69,9 +80,10 @@ export async function POST(req: Request) {
 
     const id = en.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+    const cats = getCategories();
     // Check if category already exists
-    if (!newsCategories.some((c) => c.id === id)) {
-      newsCategories.push({
+    if (!cats.some((c) => c.id === id)) {
+      cats.push({
         id,
         translations: {
           en: en.trim(),
@@ -80,7 +92,10 @@ export async function POST(req: Request) {
         },
       });
     }
-    return NextResponse.json(newsCategories, { status: 201 });
+    return NextResponse.json(cats, {
+      status: 201,
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    });
   } catch {
     return NextResponse.json({ error: "Failed to add category" }, { status: 400 });
   }
@@ -91,9 +106,11 @@ export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     if (id) {
-      newsCategories = newsCategories.filter((c) => c.id !== id);
+      memoryCategories = getCategories().filter((c) => c.id !== id);
     }
-    return NextResponse.json(newsCategories);
+    return NextResponse.json(memoryCategories || defaultCategories, {
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    });
   } catch {
     return NextResponse.json({ error: "Failed to delete category" }, { status: 400 });
   }

@@ -1,36 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
 import type { ApiNewsItem } from "../route";
 import { fetchFromBackend } from "../../backend-helper";
-import { newsArticles } from "../../../data/news-articles";
 
 interface Params {
   params: Promise<{ id: string }>;
-}
-
-const CACHE_FILE = path.join(process.cwd(), ".data", "news_cache.json");
-
-function readDiskCache(): ApiNewsItem[] {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {}
-  return [];
-}
-
-function writeDiskCache(data: ApiNewsItem[]): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
-  } catch {}
 }
 
 function normalizeArticle(item: any): ApiNewsItem {
@@ -45,26 +19,14 @@ function normalizeArticle(item: any): ApiNewsItem {
 export async function GET(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const res = await fetchFromBackend(`/news/${id}`, { cache: "no-store" }, 10000);
+    const res = await fetchFromBackend(`/news/${encodeURIComponent(id)}`, { cache: "no-store" }, 10000);
     if (res && res.ok) {
       const data = await res.json();
-      if (data && data.id) {
+      if (data && (data.id || data.slug)) {
         return NextResponse.json(normalizeArticle(data));
       }
     }
   } catch {}
-
-  const disk = readDiskCache();
-  const match = disk.find((a) => String(a.id) === String(id) || a.slug === id);
-
-  if (match) {
-    return NextResponse.json(normalizeArticle(match));
-  }
-
-  const staticMatch = newsArticles.find((a) => String(a.id) === String(id) || a.slug === id);
-  if (staticMatch) {
-    return NextResponse.json(normalizeArticle(staticMatch));
-  }
 
   return NextResponse.json({ error: "Article not found" }, { status: 404 });
 }
@@ -74,40 +36,17 @@ export async function PUT(request: NextRequest, { params }: Params) {
   try {
     const body = await request.json();
 
-    const disk = readDiskCache();
-    const index = disk.findIndex((a) => String(a.id) === String(id) || a.slug === id);
+    const res = await fetchFromBackend(`/news/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }, 10000);
 
-    let updatedItem: ApiNewsItem | null = null;
-    if (index !== -1) {
-      disk[index] = normalizeArticle({ ...disk[index], ...body });
-      updatedItem = disk[index];
-      writeDiskCache(disk);
-    }
-
-    try {
-      const res = await fetchFromBackend(`/news/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      }, 10000);
-
-      if (res && res.ok) {
-        const data = await res.json();
-        if (data && data.id) {
-          const normalized = normalizeArticle(data);
-          if (index !== -1) {
-            disk[index] = normalized;
-            writeDiskCache(disk);
-          }
-          return NextResponse.json(normalized);
-        }
+    if (res && res.ok) {
+      const data = await res.json();
+      if (data && data.id) {
+        return NextResponse.json(normalizeArticle(data));
       }
-    } catch (err) {
-      console.error("Backend PUT error for news:", err);
-    }
-
-    if (updatedItem) {
-      return NextResponse.json(updatedItem);
     }
 
     return NextResponse.json({ success: true, message: "Updated article" });
@@ -119,16 +58,12 @@ export async function PUT(request: NextRequest, { params }: Params) {
 export async function DELETE(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const disk = readDiskCache();
-    const filtered = disk.filter((a) => String(a.id) !== String(id) && a.slug !== id);
-    writeDiskCache(filtered);
+    const res = await fetchFromBackend(`/news/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    }, 10000);
 
-    try {
-      await fetchFromBackend(`/news/${id}`, {
-        method: "DELETE",
-      }, 10000);
-    } catch (err) {
-      console.error("Backend DELETE error for news:", err);
+    if (res && res.ok) {
+      return NextResponse.json({ success: true, message: "Deleted article" });
     }
 
     return NextResponse.json({ success: true, message: "Deleted article" });

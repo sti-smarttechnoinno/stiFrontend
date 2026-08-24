@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import { ALL_PERMISSIONS, type RoleItem } from "../../types/roles";
 
 export const DEFAULT_ROLES: RoleItem[] = [
@@ -73,41 +71,16 @@ export const DEFAULT_ROLES: RoleItem[] = [
 ];
 
 let memoryRoles: RoleItem[] | null = null;
-const CACHE_FILE = path.join(process.cwd(), ".data", "roles_cache.json");
-
-export function readRolesDiskCache(): RoleItem[] {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {}
-  return [...DEFAULT_ROLES];
-}
-
-export function writeRolesDiskCache(data: RoleItem[]): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Failed to write roles disk cache:", err);
-  }
-}
 
 export function getMemoryRoles(): RoleItem[] {
   if (!memoryRoles) {
-    memoryRoles = readRolesDiskCache();
+    memoryRoles = [...DEFAULT_ROLES];
   }
   return memoryRoles;
 }
 
 export function setMemoryRoles(roles: RoleItem[]): void {
   memoryRoles = roles;
-  writeRolesDiskCache(roles);
 }
 
 export function getPermissionsForRole(roleId: string, roleName: string): string[] {

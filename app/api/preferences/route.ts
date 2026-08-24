@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
 import { fetchFromBackend } from "../backend-helper";
 
 export interface DayHours {
@@ -62,8 +60,6 @@ export interface CompanyPreferences {
 
 let memoryPreferences: CompanyPreferences | null = null;
 
-const CACHE_FILE = path.join(process.cwd(), ".data", "preferences_cache.json");
-
 const defaultPreferences: CompanyPreferences = {
   phone: "",
   whatsapp: "",
@@ -123,29 +119,7 @@ function cleanMerge(target: any, source: any): any {
   return result;
 }
 
-function readDiskCache(): CompanyPreferences | null {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object") return parsed;
-    }
-  } catch {}
-  return null;
-}
-
-function writeDiskCache(data: CompanyPreferences): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
-  } catch {}
-}
-
 export async function GET() {
-  // 1. Try backend fetch using fetchFromBackend (auto HTTP/HTTPS/localhost fallback)
   try {
     const res = await fetchFromBackend("/preferences", { cache: "no-store" }, 10000);
     if (res && res.ok) {
@@ -153,7 +127,6 @@ export async function GET() {
       if (data && typeof data === "object" && Object.keys(data).length > 0) {
         const merged = cleanMerge(defaultPreferences, data);
         memoryPreferences = merged;
-        writeDiskCache(merged);
         return NextResponse.json(merged);
       }
     }
@@ -161,19 +134,10 @@ export async function GET() {
     console.error("Backend fetch error for preferences:", err);
   }
 
-  // 2. Check memory cache
   if (memoryPreferences) {
     return NextResponse.json(memoryPreferences);
   }
 
-  // 3. Check disk cache
-  const diskData = readDiskCache();
-  if (diskData) {
-    memoryPreferences = diskData;
-    return NextResponse.json(diskData);
-  }
-
-  // 4. Default fallback
   return NextResponse.json(defaultPreferences);
 }
 
@@ -182,11 +146,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const incomingPrefs = body.preferences || body;
 
-    const current = memoryPreferences || readDiskCache() || defaultPreferences;
+    const current = memoryPreferences || defaultPreferences;
     const updated = cleanMerge(current, incomingPrefs);
 
     memoryPreferences = updated;
-    writeDiskCache(updated);
 
     try {
       const res = await fetchFromBackend("/preferences", {
@@ -202,7 +165,6 @@ export async function POST(request: NextRequest) {
           if (prefData && typeof prefData === "object") {
             const merged = cleanMerge(updated, prefData);
             memoryPreferences = merged;
-            writeDiskCache(merged);
           }
         }
       }
@@ -212,7 +174,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, preferences: memoryPreferences });
   } catch (err) {
-    const fallback = memoryPreferences || readDiskCache() || defaultPreferences;
+    const fallback = memoryPreferences || defaultPreferences;
     return NextResponse.json({ success: true, preferences: fallback });
   }
 }

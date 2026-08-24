@@ -1,33 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, CreditCard, CardSim, FileCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "../../[locale]/use-translations";
-import { products as initialStaticProducts } from "../../data/products";
-import type { ApiProductItem } from "../../api/products/route";
+import { useAppSelector, useAppDispatch } from "../../lib/store/hooks";
+import { selectAllProducts, setProducts, setProductsLoading } from "../../lib/store/features/productsSlice";
+import type { ApiProductItem } from "../../data/products-server";
 
 function getProductIcon(category: string, type: string) {
-  if (category.toLowerCase().includes("sim") || type.toLowerCase().includes("sim")) {
+  if ((category || "").toLowerCase().includes("sim") || (type || "").toLowerCase().includes("sim")) {
     return CardSim;
   }
-  if (type.toLowerCase().includes("document") || category.toLowerCase().includes("ticket")) {
+  if ((type || "").toLowerCase().includes("document") || (category || "").toLowerCase().includes("ticket")) {
     return FileCheck;
   }
   return CreditCard;
-}
-
-interface DisplayProduct {
-  id: string;
-  slug: string;
-  name: string;
-  shortDescription: string;
-  category: string;
-  productType: string;
-  value: string;
-  image?: string;
 }
 
 export default function FeaturedProductsGrid() {
@@ -35,52 +25,45 @@ export default function FeaturedProductsGrid() {
   const pathname = usePathname();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
 
-  const [displayProducts, setDisplayProducts] = useState<DisplayProduct[]>(() => {
-    return initialStaticProducts.map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      name: p.name,
-      shortDescription: p.shortDescription || p.description,
-      category: p.category,
-      productType: p.productType,
-      value: p.value,
-      image: (p as any).image,
-    }));
-  });
+  const dispatch = useAppDispatch();
+  const apiProducts = useAppSelector(selectAllProducts);
 
   useEffect(() => {
-    async function loadApiProducts() {
-      try {
-        const res = await fetch("/api/products");
-        if (res.ok) {
-          const apiData: ApiProductItem[] = await res.json();
-          if (Array.isArray(apiData) && apiData.length > 0) {
-            const published = apiData.filter((s) => !s.status || s.status === "Published");
-            const mapped = published.map((s) => {
-              const lang = s.translations?.[currentLocale] || s.translations?.en || {};
-              const desc = lang.shortDescription || (Array.isArray(lang.description) ? lang.description[0] : (lang.description || ""));
-              return {
-                id: String(s.id),
-                slug: s.slug,
-                name: lang.name || s.slug,
-                shortDescription: desc,
-                category: s.category || "Recharge Credit",
-                productType: s.productType || "Recharge",
-                value: s.value || "Available",
-                image: s.image,
-              };
-            });
-
-            if (mapped.length > 0) {
-              setDisplayProducts(mapped);
+    if (apiProducts.length === 0) {
+      async function loadApiProducts() {
+        try {
+          dispatch(setProductsLoading(true));
+          const res = await fetch("/api/products");
+          if (res.ok) {
+            const apiData: ApiProductItem[] = await res.json();
+            if (Array.isArray(apiData)) {
+              const published = apiData.filter((s) => !s.status || s.status === "Published");
+              dispatch(setProducts(published));
             }
           }
+        } catch {
+        } finally {
+          dispatch(setProductsLoading(false));
         }
-      } catch {}
+      }
+      loadApiProducts();
     }
+  }, [apiProducts.length, dispatch]);
 
-    loadApiProducts();
-  }, [currentLocale]);
+  const displayProducts = apiProducts.map((s) => {
+    const lang = s.translations?.[currentLocale] || s.translations?.en || (s as any).translations || {};
+    const desc = lang.shortDescription || (Array.isArray(lang.description) ? lang.description[0] : (lang.description || ""));
+    return {
+      id: String(s.id),
+      slug: s.slug,
+      name: lang.name || s.slug,
+      shortDescription: desc,
+      category: s.category || "Recharge Credit",
+      productType: s.productType || (s as any).product_type || "Recharge",
+      value: s.value || "Available",
+      image: s.image,
+    };
+  });
 
   const featT = t.productsPage?.featured || {
     badge: "Featured Range",

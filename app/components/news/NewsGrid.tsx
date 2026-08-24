@@ -5,9 +5,18 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import NewsCard from "./NewsCard";
 import { useTranslations } from "../../[locale]/use-translations";
-import { Loader2 } from "lucide-react";
-import type { ApiNewsItem } from "../../api/news/route";
-import type { ApiCategoryItem } from "../../api/news/categories/route";
+import { useAppSelector, useAppDispatch } from "../../lib/store/hooks";
+import {
+  selectAllNews,
+  selectNewsLoading,
+  selectFeaturedArticleId,
+  selectNewsCategories,
+  setNews,
+  setFeaturedArticleId,
+  setNewsCategories,
+  setNewsLoading,
+} from "../../lib/store/features/newsSlice";
+import { convertApiItemToNewsArticle } from "../../data/news-articles";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -36,11 +45,12 @@ export default function NewsGrid() {
   const pathname = usePathname();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
 
-  const [articles, setArticles] = useState<ApiNewsItem[]>([]);
-  const [categories, setCategories] = useState<ApiCategoryItem[]>([]);
-  const [featuredId, setFeaturedId] = useState<string | number | null>(null);
+  const dispatch = useAppDispatch();
+  const articles = useAppSelector(selectAllNews);
+  const categories = useAppSelector(selectNewsCategories);
+  const featuredId = useAppSelector(selectFeaturedArticleId);
+
   const [activeCategory, setActiveCategory] = useState("All");
-  const [loading, setLoading] = useState(true);
 
   const gridT = t.newsPage?.grid || {
     badge: "Recent News",
@@ -49,45 +59,43 @@ export default function NewsGrid() {
   };
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const [newsRes, catRes, featRes] = await Promise.all([
-          fetch("/api/news"),
-          fetch("/api/news/categories"),
-          fetch("/api/news/featured"),
-        ]);
+    if (articles.length === 0) {
+      async function loadData() {
+        try {
+          dispatch(setNewsLoading(true));
+          const [newsRes, catRes, featRes] = await Promise.all([
+            fetch("/api/news", { cache: "no-store" }),
+            fetch("/api/news/categories", { cache: "no-store" }),
+            fetch("/api/news/featured", { cache: "no-store" }),
+          ]);
 
-        if (newsRes.ok) {
-          const newsList = await newsRes.json();
-          setArticles(newsList);
+          if (newsRes.ok) {
+            const newsList = await newsRes.json();
+            if (Array.isArray(newsList)) {
+              dispatch(setNews(newsList.map((item: any) => convertApiItemToNewsArticle(item, currentLocale))));
+            }
+          }
+          if (catRes.ok) {
+            const catList = await catRes.json();
+            if (Array.isArray(catList)) {
+              dispatch(setNewsCategories(catList));
+            }
+          }
+          if (featRes.ok) {
+            const featData = await featRes.json();
+            dispatch(setFeaturedArticleId(featData.featuredId));
+          }
+        } catch (err) {
+          console.error("Failed to load news page components data", err);
+        } finally {
+          dispatch(setNewsLoading(false));
         }
-        if (catRes.ok) {
-          const catList = await catRes.json();
-          setCategories(catList);
-        }
-        if (featRes.ok) {
-          const featData = await featRes.json();
-          setFeaturedId(featData.featuredId);
-        }
-      } catch (err) {
-        console.error("Failed to load news page components data", err);
-      } finally {
-        setLoading(false);
       }
+      loadData();
     }
-    loadData();
-  }, []);
+  }, [articles.length, currentLocale, dispatch]);
 
-  if (loading) {
-    return (
-      <div className="py-24 text-center text-gray-400 flex flex-col items-center justify-center gap-2">
-        <Loader2 size={24} className="animate-spin text-red-primary" />
-      </div>
-    );
-  }
-
-  // Filter 1: Must be Published
-  const publishedArticles = articles.filter((a) => a.status === "Published");
+  const loading = useAppSelector(selectNewsLoading);
 
   const isCategoryMatch = (articleCat: string, targetCatId: string) => {
     if (targetCatId === "All") return true;
@@ -113,31 +121,32 @@ export default function NewsGrid() {
     );
   };
 
-  // Filter categories to only those containing at least one published article
+  // Filter categories to only those containing at least one article
   const activeCategories = categories.filter((cat) =>
-    publishedArticles.some((a) => isCategoryMatch(a.category, cat.id))
+    articles.some((a) => isCategoryMatch(a.category, cat.id))
   );
 
-  // Category Filter Match: If "All" is active, exclude top featured article to avoid duplication.
-  // If a specific category pill is selected, include all articles matching that category.
+  const isTopFeatured = (a: any) =>
+    (featuredId !== null && featuredId !== undefined && (String(a.id) === String(featuredId) || a.slug === String(featuredId))) ||
+    (featuredId === null && (a.featured || articles[0]?.id === a.id));
+
   const candidateArticles =
     activeCategory === "All"
-      ? publishedArticles.filter((a) => String(a.id) !== String(featuredId))
-      : publishedArticles;
+      ? articles.filter((a) => !isTopFeatured(a))
+      : articles;
 
   const filteredArticles = candidateArticles.filter((a) => isCategoryMatch(a.category, activeCategory));
 
   // Map to local format for card
   const displayCards = filteredArticles.map((art) => {
-    const translation = art.translations?.[currentLocale] || art.translations?.en || {};
     const categoryItem = categories.find((c) => isCategoryMatch(art.category, c.id));
     const categoryLabel = categoryItem?.translations?.[currentLocale] || categoryItem?.translations?.en || art.category;
 
     return {
       id: art.id,
       slug: art.slug,
-      title: translation.title || art.slug,
-      description: translation.excerpt || "",
+      title: art.title || art.slug,
+      description: art.excerpt || "",
       category: categoryLabel,
       date: art.publishedAt,
       image: art.heroImage,

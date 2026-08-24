@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Providers from "./providers";
 import DirSetter from "./dir-setter";
+import { getAllSolutionsServer } from "../data/solutions-server";
+import { getAllProductsServer } from "../data/products-server";
+import { getAllPublishedArticlesServer, getFeaturedArticleServer } from "../data/news-server";
 
 export const metadata: Metadata = {
   title: "STI - Smart Technologie Innovation | Official Ooredoo Distributor Algeria",
@@ -40,12 +43,28 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const dir = locale === "ar" ? "rtl" : "ltr";
   
+  // Fetch initial datasets in parallel on the server from DB
+  const [solutions, products, news, featuredArticle] = await Promise.all([
+    getAllSolutionsServer(locale).catch(() => []),
+    getAllProductsServer(locale).catch(() => []),
+    getAllPublishedArticlesServer(locale).catch(() => []),
+    getFeaturedArticleServer(locale).catch(() => null),
+  ]);
+
+  const initialData = {
+    solutions,
+    products,
+    news,
+    featuredArticleId: featuredArticle ? featuredArticle.id : null,
+  };
+
   return (
     <>
       <DirSetter locale={locale} />
-      <Providers locale={locale}>{children}</Providers>
+      <Providers locale={locale} initialData={initialData}>
+        {children}
+      </Providers>
     </>
   );
 }

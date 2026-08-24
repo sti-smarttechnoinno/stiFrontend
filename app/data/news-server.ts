@@ -1,74 +1,27 @@
-import fs from "fs";
-import path from "path";
 import { fetchFromBackend } from "../api/backend-helper";
 import type { ApiNewsItem } from "../api/news/route";
-import { newsArticles, convertApiItemToNewsArticle, type NewsArticle } from "./news-articles";
+import { convertApiItemToNewsArticle, type NewsArticle } from "./news-articles";
 
 export async function getAllPublishedArticlesServer(locale: string = "en"): Promise<NewsArticle[]> {
-  const articlesMap = new Map<string, ApiNewsItem>();
-
-  // 1. Read disk cache
-  try {
-    const cacheFile = path.join(process.cwd(), ".data", "news_cache.json");
-    if (fs.existsSync(cacheFile)) {
-      const raw = fs.readFileSync(cacheFile, "utf-8");
-      const list: ApiNewsItem[] = JSON.parse(raw);
-      if (Array.isArray(list)) {
-        list.forEach((item) => {
-          const key = String(item.slug || item.id);
-          articlesMap.set(key, item);
-        });
-      }
-    }
-  } catch (err) {
-    console.error("Disk cache read error in getAllPublishedArticlesServer:", err);
-  }
-
-  // 2. Fetch from backend if available
   try {
     const res = await fetchFromBackend("/news", { cache: "no-store" }, 8000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data)) {
-        data.forEach((item: ApiNewsItem) => {
-          const key = String(item.slug || item.id);
-          articlesMap.set(key, item);
-        });
+        return data
+          .filter((item: ApiNewsItem) => !item.status || item.status === "Published")
+          .map((item: ApiNewsItem) => convertApiItemToNewsArticle(item, locale));
       }
     }
   } catch (err) {
     console.error("Backend fetch error in getAllPublishedArticlesServer:", err);
   }
 
-  const items = Array.from(articlesMap.values());
-  if (items.length > 0) {
-    return items
-      .filter((item) => !item.status || item.status === "Published")
-      .map((item) => convertApiItemToNewsArticle(item, locale));
-  }
-
-  // Fallback to static articles
-  return newsArticles;
+  return [];
 }
 
 export async function getArticleBySlugServer(slug: string, locale: string = "en"): Promise<NewsArticle | undefined> {
   const decodedSlug = decodeURIComponent(slug);
-  const staticMatch = newsArticles.find((a) => a.slug === decodedSlug || a.id === decodedSlug);
-  if (staticMatch) return staticMatch;
-
-  try {
-    const cacheFile = path.join(process.cwd(), ".data", "news_cache.json");
-    if (fs.existsSync(cacheFile)) {
-      const raw = fs.readFileSync(cacheFile, "utf-8");
-      const list: ApiNewsItem[] = JSON.parse(raw);
-      const item = list.find((a) => a.slug === decodedSlug || String(a.id) === decodedSlug || a.slug === slug || String(a.id) === slug);
-      if (item) {
-        return convertApiItemToNewsArticle(item, locale);
-      }
-    }
-  } catch (err) {
-    console.error("Disk cache read error:", err);
-  }
 
   try {
     const res = await fetchFromBackend(`/news/${encodeURIComponent(decodedSlug)}`, { cache: "no-store" }, 8000);
@@ -81,6 +34,13 @@ export async function getArticleBySlugServer(slug: string, locale: string = "en"
   } catch (err) {
     console.error("Backend fetch error in getArticleBySlugServer:", err);
   }
+
+  // Fallback to searching all published articles if single lookup returned 404 or failed
+  try {
+    const all = await getAllPublishedArticlesServer(locale);
+    const found = all.find((a) => a.slug === decodedSlug || String(a.id) === decodedSlug || a.slug === slug || String(a.id) === slug);
+    if (found) return found;
+  } catch {}
 
   return undefined;
 }
@@ -136,4 +96,30 @@ export async function getArticlePageDataServer(slug: string, locale: string = "e
     prev,
     next,
   };
+}
+
+export async function getFeaturedArticleServer(locale: string = "en"): Promise<NewsArticle | null> {
+  let featId: string | number | null = null;
+  try {
+    const res = await fetchFromBackend("/news/featured", { cache: "no-store" }, 5000);
+    if (res && res.ok) {
+      const data = await res.json().catch(() => null);
+      if (data && data.featuredId !== undefined) {
+        featId = data.featuredId;
+      }
+    }
+  } catch {}
+
+  const all = await getAllPublishedArticlesServer(locale);
+  if (all.length === 0) return null;
+
+  if (featId !== null) {
+    const matched = all.find((a) => String(a.id) === String(featId) || a.slug === String(featId));
+    if (matched) return matched;
+  }
+
+  const flagged = all.find((a) => a.featured === true);
+  if (flagged) return flagged;
+
+  return all[0];
 }

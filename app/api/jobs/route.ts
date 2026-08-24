@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setMemoryJobs(data);
         return NextResponse.json(data);
       }

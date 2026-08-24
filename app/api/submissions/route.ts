@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
 import { fetchFromBackend } from "../backend-helper";
 
 export interface FileAttachment {
@@ -55,55 +53,21 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-const CACHE_FILE = path.join(process.cwd(), ".data", "submissions_cache.json");
 let memorySubmissions: SubmissionItem[] | null = null;
 
-function readDiskCache(): SubmissionItem[] {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {}
-  return [];
-}
-
-function writeDiskCache(data: SubmissionItem[]): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
-  } catch {}
-}
-
 export async function GET() {
-  const disk = readDiskCache();
-
   try {
     const res = await fetchFromBackend("/submissions", { cache: "no-store" }, 10000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data)) {
-        // Merge backend data with local disk cache so newly posted local submissions are never lost
-        const combined = [...data, ...disk, ...(memorySubmissions || [])];
-        const uniqueMap = new Map();
-        for (const item of combined) {
-          const idKey = String(item.id);
-          if (!uniqueMap.has(idKey)) {
-            uniqueMap.set(idKey, item);
-          }
-        }
-        const normalized = Array.from(uniqueMap.values()).map((item: any) => ({
+        const normalized = data.map((item: any) => ({
           ...item,
           candidate: item.candidate_name || item.candidate || "Unknown Candidate",
           candidate_name: item.candidate_name || item.candidate || "Unknown Candidate",
           submitted: item.created_at ? new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : item.submitted || "Just now",
         }));
         memorySubmissions = normalized;
-        writeDiskCache(normalized);
         return NextResponse.json(normalized);
       }
     }
@@ -111,11 +75,7 @@ export async function GET() {
     console.error("Backend fetch error for submissions:", err);
   }
 
-  if (!memorySubmissions || memorySubmissions.length === 0) {
-    memorySubmissions = disk;
-  }
-
-  return NextResponse.json(memorySubmissions);
+  return NextResponse.json(memorySubmissions || []);
 }
 
 export async function POST(req: NextRequest) {
@@ -181,12 +141,10 @@ export async function POST(req: NextRequest) {
       submitted: formattedDate,
     };
 
-    // Save locally to memory & disk cache
     if (!memorySubmissions) {
-      memorySubmissions = readDiskCache();
+      memorySubmissions = [];
     }
     memorySubmissions.unshift(submissionData);
-    writeDiskCache(memorySubmissions);
 
     // 4. Save to Backend Database
     try {
@@ -195,7 +153,6 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...submissionData,
-          // Format attachment objects as JSON strings or names for DB storage if DB text column is limited
           cv_file: typeof submissionData.cv_file === "object" ? JSON.stringify(submissionData.cv_file) : submissionData.cv_file,
           cover_file: typeof submissionData.cover_file === "object" ? JSON.stringify(submissionData.cover_file) : submissionData.cover_file,
           cert_file: typeof submissionData.cert_file === "object" ? JSON.stringify(submissionData.cert_file) : submissionData.cert_file,
@@ -212,7 +169,6 @@ export async function POST(req: NextRequest) {
         const toEmail = process.env.RESEND_TO_EMAIL || "administration@sti.dz";
         const fromEmail = process.env.RESEND_FROM_EMAIL || "STI Recruitment <onboarding@resend.dev>";
 
-        // Build attachments array for Resend
         const emailAttachments: Array<{ filename: string; content: string }> = [];
 
         const extractResendAttachment = (fileObj: any, defaultName: string) => {
@@ -341,15 +297,13 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Missing id or status" }, { status: 400 });
     }
 
-    // Update in memory & disk cache
     if (!memorySubmissions) {
-      memorySubmissions = readDiskCache();
+      memorySubmissions = [];
     }
 
     const index = memorySubmissions.findIndex((s) => String(s.id) === String(id));
     if (index !== -1) {
       memorySubmissions[index].status = status;
-      writeDiskCache(memorySubmissions);
     }
 
     // Update in backend DB
@@ -364,5 +318,32 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ success: true, submission: memorySubmissions[index] || null });
   } catch {
     return NextResponse.json({ error: "Failed to update submission status" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    }
+
+    if (!memorySubmissions) {
+      memorySubmissions = [];
+    }
+
+    memorySubmissions = memorySubmissions.filter((s) => String(s.id) !== String(id));
+
+    try {
+      await fetchFromBackend(`/submissions/${id}`, {
+        method: "DELETE",
+      }, 10000);
+    } catch {}
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Failed to delete submission" }, { status: 500 });
   }
 }

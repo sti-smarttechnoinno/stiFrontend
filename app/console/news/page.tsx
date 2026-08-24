@@ -42,22 +42,28 @@ export default function NewsManagementPage() {
     setLoading(true);
     try {
       const [artRes, catRes, featRes] = await Promise.all([
-        fetch("/api/news"),
-        fetch("/api/news/categories"),
-        fetch("/api/news/featured"),
+        fetch("/api/news", { cache: "no-store" }),
+        fetch("/api/news/categories", { cache: "no-store" }),
+        fetch("/api/news/featured", { cache: "no-store" }),
       ]);
 
+      let currentFeatId: string | number | null = null;
+      if (featRes.ok) {
+        const featData = await featRes.json();
+        currentFeatId = featData.featuredId;
+        setFeaturedId(currentFeatId);
+      }
       if (artRes.ok) {
         const data = await artRes.json();
         setArticles(data);
+        if (currentFeatId === null && Array.isArray(data) && data.length > 0) {
+          const found = data.find((a: ApiNewsItem) => a.featured);
+          if (found) setFeaturedId(found.id);
+        }
       }
       if (catRes.ok) {
         const catData = await catRes.json();
         setCategories(catData);
-      }
-      if (featRes.ok) {
-        const featData = await featRes.json();
-        setFeaturedId(featData.featuredId);
       }
     } catch {
       // Keep state
@@ -101,6 +107,15 @@ export default function NewsManagementPage() {
   };
 
   const handleMakeFeatured = async (id: string | number) => {
+    const prevId = featuredId;
+    setFeaturedId(id);
+    setArticles((prev) =>
+      prev.map((a) => ({
+        ...a,
+        featured: String(a.id) === String(id),
+      }))
+    );
+
     try {
       const res = await fetch("/api/news/featured", {
         method: "POST",
@@ -109,10 +124,14 @@ export default function NewsManagementPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setFeaturedId(data.featuredId);
+        if (data.featuredId !== undefined) {
+          setFeaturedId(data.featuredId);
+        }
+      } else {
+        setFeaturedId(prevId);
       }
     } catch {
-      // Keep state
+      setFeaturedId(prevId);
     }
   };
 

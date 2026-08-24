@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
 import { fetchFromBackend } from "../backend-helper";
 
 export interface ContactMessageItem {
@@ -39,54 +37,20 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-const CACHE_FILE = path.join(process.cwd(), ".data", "messages_cache.json");
-let memoryMessages: ContactMessageItem[] | null = null;
-
-function readDiskCache(): ContactMessageItem[] {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {}
-  return [];
-}
-
-function writeDiskCache(data: ContactMessageItem[]): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
-  } catch {}
-}
+let memoryMessages: ContactMessageItem[] = [];
 
 export async function GET() {
-  const disk = readDiskCache();
-
   try {
     const res = await fetchFromBackend("/messages", { cache: "no-store" }, 10000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data)) {
-        // Merge backend data with local disk cache so local messages are preserved
-        const combined = [...data, ...disk, ...(memoryMessages || [])];
-        const uniqueMap = new Map();
-        for (const item of combined) {
-          const idKey = String(item.id);
-          if (!uniqueMap.has(idKey)) {
-            uniqueMap.set(idKey, item);
-          }
-        }
-        const normalized = Array.from(uniqueMap.values()).map((item: any) => ({
+        const normalized = data.map((item: any) => ({
           ...item,
           name: item.name || "Anonymous Sender",
           date: item.created_at ? new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : item.date || "Just now",
         }));
         memoryMessages = normalized;
-        writeDiskCache(normalized);
         return NextResponse.json(normalized);
       }
     }
@@ -94,11 +58,7 @@ export async function GET() {
     console.error("Backend fetch error for contact messages:", err);
   }
 
-  if (!memoryMessages || memoryMessages.length === 0) {
-    memoryMessages = disk;
-  }
-
-  return NextResponse.json(memoryMessages);
+  return NextResponse.json(memoryMessages || []);
 }
 
 export async function POST(req: NextRequest) {
@@ -153,12 +113,11 @@ export async function POST(req: NextRequest) {
       date: formattedDate,
     };
 
-    // Save locally to memory & disk cache
+    // Save in memory
     if (!memoryMessages) {
-      memoryMessages = readDiskCache();
+      memoryMessages = [];
     }
     memoryMessages.unshift(messageData);
-    writeDiskCache(memoryMessages);
 
     // 4. Save to Backend Database
     try {
@@ -241,15 +200,13 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Missing id or status" }, { status: 400 });
     }
 
-    // Update in memory & disk cache
     if (!memoryMessages) {
-      memoryMessages = readDiskCache();
+      memoryMessages = [];
     }
 
     const index = memoryMessages.findIndex((m) => String(m.id) === String(id));
     if (index !== -1) {
       memoryMessages[index].status = status;
-      writeDiskCache(memoryMessages);
     }
 
     // Update in backend DB
@@ -277,11 +234,10 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (!memoryMessages) {
-      memoryMessages = readDiskCache();
+      memoryMessages = [];
     }
 
     memoryMessages = memoryMessages.filter((m) => String(m.id) !== String(id));
-    writeDiskCache(memoryMessages);
 
     try {
       await fetchFromBackend(`/messages/${id}`, {

@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
 import { fetchFromBackend } from "../backend-helper";
 
 export interface QuoteRequestItem {
@@ -42,69 +40,38 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-const CACHE_FILE = path.join(process.cwd(), ".data", "requests_cache.json");
 let memoryRequests: QuoteRequestItem[] | null = null;
 
-function readDiskCache(): QuoteRequestItem[] {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {}
-  return [];
-}
-
-function writeDiskCache(data: QuoteRequestItem[]): void {
-  try {
-    const dir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), "utf-8");
-  } catch {}
-}
-
 export async function GET() {
-  const disk = readDiskCache();
-
   try {
     const res = await fetchFromBackend("/requests", { cache: "no-store" }, 10000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (Array.isArray(data)) {
-        // Merge backend data with local disk cache so local quote requests are preserved
-        const combined = [...data, ...disk, ...(memoryRequests || [])];
-        const uniqueMap = new Map();
-        for (const item of combined) {
-          const idKey = String(item.id);
-          if (!uniqueMap.has(idKey)) {
-            let productsArr: string[] = [];
-            if (Array.isArray(item.products)) {
-              productsArr = item.products;
-            } else if (typeof item.products === "string") {
-              try {
-                productsArr = JSON.parse(item.products);
-              } catch {
-                productsArr = [item.products];
-              }
+        const normalized = data.map((item: any) => {
+          let productsArr: string[] = [];
+          if (Array.isArray(item.products)) {
+            productsArr = item.products;
+          } else if (typeof item.products === "string") {
+            try {
+              productsArr = JSON.parse(item.products);
+            } catch {
+              productsArr = [item.products];
             }
-            uniqueMap.set(idKey, { ...item, products: productsArr });
           }
-        }
-        const normalized = Array.from(uniqueMap.values()).map((item: any) => ({
-          ...item,
-          business_name: item.business_name || item.businessName || "Unknown Business",
-          contact_person: item.contact_person || item.contactPerson || item.name || "N/A",
-          business_type: item.business_type || item.businessType || "N/A",
-          contact_method: item.contact_method || item.contactMethod || "Email",
-          date: item.created_at
-            ? new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-            : item.date || "Just now",
-        }));
+          return {
+            ...item,
+            products: productsArr,
+            business_name: item.business_name || item.businessName || "Unknown Business",
+            contact_person: item.contact_person || item.contactPerson || item.name || "N/A",
+            business_type: item.business_type || item.businessType || "N/A",
+            contact_method: item.contact_method || item.contactMethod || "Email",
+            date: item.created_at
+              ? new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+              : item.date || "Just now",
+          };
+        });
         memoryRequests = normalized;
-        writeDiskCache(normalized);
         return NextResponse.json(normalized);
       }
     }
@@ -112,11 +79,7 @@ export async function GET() {
     console.error("Backend fetch error for quote requests:", err);
   }
 
-  if (!memoryRequests || memoryRequests.length === 0) {
-    memoryRequests = disk;
-  }
-
-  return NextResponse.json(memoryRequests);
+  return NextResponse.json(memoryRequests || []);
 }
 
 export async function POST(req: NextRequest) {
@@ -183,12 +146,11 @@ export async function POST(req: NextRequest) {
       date: formattedDate,
     };
 
-    // Save locally to memory & disk cache
+    // Save in memory
     if (!memoryRequests) {
-      memoryRequests = readDiskCache();
+      memoryRequests = [];
     }
     memoryRequests.unshift(quoteData);
-    writeDiskCache(memoryRequests);
 
     // 4. Save to Backend Database (if available)
     try {
@@ -288,13 +250,12 @@ export async function PUT(req: NextRequest) {
     }
 
     if (!memoryRequests) {
-      memoryRequests = readDiskCache();
+      memoryRequests = [];
     }
 
     const index = memoryRequests.findIndex((q) => String(q.id) === String(id));
     if (index !== -1) {
       memoryRequests[index].status = status;
-      writeDiskCache(memoryRequests);
     }
 
     try {
@@ -321,11 +282,10 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (!memoryRequests) {
-      memoryRequests = readDiskCache();
+      memoryRequests = [];
     }
 
     memoryRequests = memoryRequests.filter((q) => String(q.id) !== String(id));
-    writeDiskCache(memoryRequests);
 
     try {
       await fetchFromBackend(`/requests/${id}`, {
