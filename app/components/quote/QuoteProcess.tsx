@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ClipboardList, FileText, BadgeDollarSign, Handshake } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const stepIcons = [ClipboardList, FileText, BadgeDollarSign, Handshake];
 

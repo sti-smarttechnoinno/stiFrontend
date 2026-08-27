@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { ArrowRight, Check, ChevronRight, Phone, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "../../[locale]/use-translations";
-import type { Product } from "../../data/products";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import type { Product } from '@/app/data/products';
 
 export default function ProductHero({ product }: { product: Product }) {
   const t = useTranslations();
@@ -40,7 +40,7 @@ export default function ProductHero({ product }: { product: Product }) {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden pt-28 pb-16 sm:pt-32 sm:pb-20 bg-gradient-to-b from-gray-50 via-white to-white">
+    <section className="relative min-h-screen flex items-center overflow-hidden pt-36 pb-16 sm:pt-40 sm:pb-20 bg-gradient-to-b from-gray-50 via-white to-white">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-primary/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-primary/3 rounded-full blur-2xl pointer-events-none" />

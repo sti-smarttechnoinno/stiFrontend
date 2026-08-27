@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { ArrowRight, Check } from "lucide-react";
 import { useScrollReveal } from "../hooks";
-import { useTranslations } from "../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 export default function Enterprise() {
   const { ref, visible } = useScrollReveal();

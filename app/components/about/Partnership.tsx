@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, Award, Globe, Building2 } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const certIcons = [
   <ShieldCheck key="1" size={24} />,

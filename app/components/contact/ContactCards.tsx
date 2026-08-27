@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
-import type { CompanyPreferences } from "../../api/preferences/route";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import type { CompanyPreferences } from '@/app/api/preferences/route';
 
 import { formatBusinessHours, formatClosedDays } from "../../utils/formatHours";
 

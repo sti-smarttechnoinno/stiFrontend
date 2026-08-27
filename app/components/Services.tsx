@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, Smartphone, CreditCard, Truck, Coins, Handshake, Building2 } from "lucide-react";
 import { useScrollReveal } from "../hooks";
-import { useTranslations } from "../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 // Map of icons for fallback/dynamic selection
 const iconsMap = [
@@ -63,14 +63,17 @@ function ServiceCard({
       <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-primary/8 text-red-primary transition-colors group-hover:bg-red-primary group-hover:text-white shrink-0">
         {icon}
       </div>
-      <h3 className="mb-3 text-lg font-bold text-gray-900" style={{ fontFamily: "var(--font-display)" }}>
-        {title}
-      </h3>
+
+      <Link href={`/${currentLocale}/ooredoo/solutions/${slug}`} className="hover:text-red-primary transition-colors">
+        <h3 className="mb-3 text-lg font-bold text-gray-900 transition-colors group-hover:text-red-primary" style={{ fontFamily: "var(--font-display)" }}>
+          {title}
+        </h3>
+      </Link>
       <p className="mb-8 text-sm leading-relaxed text-gray-500 line-clamp-4">
         {description}
       </p>
       <Link
-        href={`/${currentLocale}/solutions/${slug}`}
+        href={`/${currentLocale}/ooredoo/solutions/${slug}`}
         className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-red-primary transition-colors hover:text-red-accent"
       >
         {ctaText}

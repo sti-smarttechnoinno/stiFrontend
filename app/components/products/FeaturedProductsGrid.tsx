@@ -5,10 +5,10 @@ import { motion } from "framer-motion";
 import { ArrowRight, CreditCard, CardSim, FileCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 import { useAppSelector, useAppDispatch } from "../../lib/store/hooks";
 import { selectAllProducts, setProducts, setProductsLoading } from "../../lib/store/features/productsSlice";
-import type { ApiProductItem } from "../../data/products-server";
+import type { ApiProductItem } from '@/app/data/products-server';
 
 function getProductIcon(category: string, type: string) {
   if ((category || "").toLowerCase().includes("sim") || (type || "").toLowerCase().includes("sim")) {

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { ApiSolutionItem } from "../../../data/solutions-server";
+import type { ApiSolutionItem } from '@/app/data/solutions-server';
 import type { RootState } from "../store";
 
 export interface SolutionsState {

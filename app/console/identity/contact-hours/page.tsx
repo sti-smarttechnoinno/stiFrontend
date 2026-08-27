@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Save, Phone, Clock, CheckCircle2 } from "lucide-react";
-import type { CompanyPreferences, DayHours } from "../../../api/preferences/route";
+import type { CompanyPreferences, DayHours } from '@/app/api/preferences/route';
 
 const defaultHours = [
   { day: "Saturday", open: "08:00", close: "17:00", closed: false },

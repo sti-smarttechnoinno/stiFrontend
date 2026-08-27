@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import JobForm, { MultilingualJobFormValues } from "../../../../components/admin/openings/JobForm";
+import JobForm, { MultilingualJobFormValues } from '@/app/components/admin/openings/JobForm';
 import { Loader2 } from "lucide-react";
 
 export default function EditJobPage() {

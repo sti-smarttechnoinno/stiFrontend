@@ -14,7 +14,7 @@ import {
   Lock,
 } from "lucide-react";
 import { ALL_PERMISSIONS, type RoleItem } from "../../types/roles";
-import type { MemberItem } from "../../api/members/route";
+import type { MemberItem } from '@/app/api/members/route';
 import { useAuth } from "../../hooks/useAuth";
 
 export default function RolesPage() {

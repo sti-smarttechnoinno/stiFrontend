@@ -2,7 +2,7 @@
 
 import { ClipboardList, FileCheck, Boxes, Package, Handshake } from "lucide-react";
 import { useScrollReveal } from "../../hooks";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const stepIcons = [
   <ClipboardList size={22} />,

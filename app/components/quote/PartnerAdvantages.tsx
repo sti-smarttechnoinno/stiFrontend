@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Award, Truck, Tag, Users } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const advantageIcons = [Award, Truck, Tag, Users];
 

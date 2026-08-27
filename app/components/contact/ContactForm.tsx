@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { Send, CheckCircle } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 import { useScrollReveal } from "../../hooks";
 
 export default function ContactForm() {

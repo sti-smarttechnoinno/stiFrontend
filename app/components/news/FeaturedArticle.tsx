@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, Clock, User, ArrowRight, BadgeCheck } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 import { useAppSelector } from "../../lib/store/hooks";
 import { selectFeaturedArticle, selectNewsCategories, selectNewsLoading } from "../../lib/store/features/newsSlice";
 

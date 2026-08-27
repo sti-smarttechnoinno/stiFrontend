@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, ZoomIn, FileText } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
-import type { ApiNewsItem } from "../../api/news/route";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import type { ApiNewsItem } from '@/app/api/news/route';
 
 interface GalleryImageItem {
   src: string;

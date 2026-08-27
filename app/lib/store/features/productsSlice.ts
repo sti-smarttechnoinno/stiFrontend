@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { ApiProductItem } from "../../../data/products-server";
+import type { ApiProductItem } from '@/app/data/products-server';
 import type { RootState } from "../store";
 
 export interface ProductsState {

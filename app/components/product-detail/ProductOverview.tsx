@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { CreditCard, Tag, Package, Users, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { Product } from "../../data/products";
+import type { Product } from '@/app/data/products';
 
 export default function ProductOverview({ product }: { product: Product }) {
   const pathname = usePathname();

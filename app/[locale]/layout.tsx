@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Providers from "./providers";
 import DirSetter from "./dir-setter";
-import { getAllSolutionsServer } from "../data/solutions-server";
-import { getAllProductsServer } from "../data/products-server";
-import { getAllPublishedArticlesServer, getFeaturedArticleServer } from "../data/news-server";
+import AnnouncementBar from "@/app/components/AnnouncementBar";
+import { getAllSolutionsServer } from '@/app/data/solutions-server';
+import { getAllProductsServer } from '@/app/data/products-server';
+import { getAllPublishedArticlesServer, getFeaturedArticleServer } from '@/app/data/news-server';
 
 export const metadata: Metadata = {
   title: "STI - Smart Technologie Innovation | Official Ooredoo Distributor Algeria",
@@ -63,8 +64,9 @@ export default async function LocaleLayout({
     <>
       <DirSetter locale={locale} />
       <Providers locale={locale} initialData={initialData}>
+        <AnnouncementBar />
         {children}
       </Providers>
     </>
   );
-}
+}

@@ -11,7 +11,7 @@ import {
   Globe2,
   Calendar,
 } from "lucide-react";
-import type { CompanyPreferences, DayHours } from "../../api/preferences/route";
+import type { CompanyPreferences, DayHours } from '@/app/api/preferences/route';
 
 const FacebookIcon = ({ className, size = 16 }: { className?: string; size?: number }) => (
   <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

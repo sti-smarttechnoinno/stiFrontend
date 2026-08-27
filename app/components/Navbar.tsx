@@ -17,8 +17,8 @@ import {
   Package,
   ArrowRight,
 } from "lucide-react";
-import { useTranslations } from "../[locale]/use-translations";
-import { usePreferences } from "../[locale]/preferences-context";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import { usePreferences } from '@/app/[locale]/preferences-context';
 import { formatBusinessHours } from "../utils/formatHours";
 
 const languages = ["en", "fr", "ar"];
@@ -45,12 +45,12 @@ export default function Navbar() {
   const { phone: ctxPhone, activeWorkingHours, workingHoursObj: ctxWorkingHoursObj } = usePreferences();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
   const [dbSolutions, setDbSolutions] = useState<Array<{ icon: React.ReactNode; title: string; description: string; href: string }>>([]);
   const [loadingSolutions, setLoadingSolutions] = useState(true);
 
-  const currentLocale = pathname.split("/")[1] || "en";
+  const segments = pathname.split("/").filter(Boolean);
+  const currentLocale = segments.find((s) => languages.includes(s)) || "fr";
   const phone = ctxPhone;
   const workingHoursObj = ctxWorkingHoursObj;
 
@@ -70,7 +70,7 @@ export default function Navbar() {
                 icon: getSolutionIcon(s.slug),
                 title: lang.shortName || lang.name || s.slug,
                 description: desc,
-                href: `/${currentLocale}/solutions/${s.slug}`,
+                href: `/${currentLocale}/ooredoo/solutions/${s.slug}`,
               };
             });
             if (top4.length > 0) {
@@ -92,42 +92,42 @@ export default function Navbar() {
       icon: <Smartphone size={20} />,
       title: t.nav.solutions_sub.mobile_recharge,
       description: t.nav.solutions_sub.mobile_recharge_desc,
-      href: `/${currentLocale}/solutions/mobile-recharge-credit`,
+      href: `/${currentLocale}/ooredoo/solutions/mobile-recharge-credit`,
     },
     {
       icon: <CardSim size={20} />,
       title: t.nav.solutions_sub.sim_cards,
       description: t.nav.solutions_sub.sim_cards_desc,
-      href: `/${currentLocale}/solutions/prepaid-sim-cards`,
+      href: `/${currentLocale}/ooredoo/solutions/prepaid-sim-cards`,
     },
     {
       icon: <Building2 size={20} />,
       title: t.nav.solutions_sub.wholesale,
       description: t.nav.solutions_sub.wholesale_desc,
-      href: `/${currentLocale}/solutions/wholesale-recharge`,
+      href: `/${currentLocale}/ooredoo/solutions/wholesale-recharge`,
     },
     {
       icon: <Zap size={20} />,
       title: t.nav.solutions_sub.partner,
       description: t.nav.solutions_sub.partner_desc,
-      href: `/${currentLocale}/solutions/partner-services`,
+      href: `/${currentLocale}/ooredoo/solutions/partner-services`,
     },
   ];
 
   const solutionChildren = dbSolutions.length > 0 ? dbSolutions : defaultSolutionChildren;
 
   const navItems = [
-    { label: t.nav.home, href: `/${currentLocale}` },
-    { label: t.nav.about, href: `/${currentLocale}/about` },
+    { label: t.nav.home, href: `/${currentLocale}/ooredoo` },
+    { label: t.nav.about, href: `/${currentLocale}/ooredoo/about` },
     {
       label: t.nav.solutions,
-      href: `/${currentLocale}/solutions`,
+      href: `/${currentLocale}/ooredoo/solutions`,
       isSolutions: true,
       children: solutionChildren,
     },
-    { label: t.nav.products, href: `/${currentLocale}/products` },
-    { label: t.nav.news, href: `/${currentLocale}/news` },
-    { label: t.nav.contact, href: `/${currentLocale}/contact` },
+    { label: t.nav.products, href: `/${currentLocale}/ooredoo/products` },
+    { label: t.nav.news, href: `/${currentLocale}/ooredoo/news` },
+    { label: t.nav.contact, href: `/${currentLocale}/ooredoo/contact` },
   ];
 
   useEffect(() => {
@@ -136,28 +136,26 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    if (!langOpen) return;
-    const onClick = () => setLangOpen(false);
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
-  }, [langOpen]);
-
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
     setExpandedMobile(null);
   }, []);
 
-  const switchLocale = (locale: string) => {
-    const segments = pathname.split("/");
-    segments[1] = locale;
-    router.push(segments.join("/"));
+  const switchLocale = (newLocale: string) => {
+    const parts = pathname.split("/").filter(Boolean);
+    const localeIndex = parts.findIndex((s) => languages.includes(s));
+    if (localeIndex !== -1) {
+      parts[localeIndex] = newLocale;
+      router.push("/" + parts.join("/"));
+    } else {
+      router.push(`/${newLocale}`);
+    }
   };
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-9 left-0 right-0 z-40 transition-all duration-300 ${
           scrolled
             ? "bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
             : "bg-transparent"
@@ -166,7 +164,7 @@ export default function Navbar() {
       >
         <div className="mx-auto flex h-full max-w-[1320px] items-center justify-between px-6 lg:px-8">
           {/* Logo */}
-          <Link href={`/${currentLocale}`} className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.05]">
+          <Link href={`/${currentLocale}/ooredoo`} className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.05]">
             <Image
               src="/assets/logo.png"
               alt="STI - Smart Technologie Innovation"
@@ -231,7 +229,7 @@ export default function Navbar() {
 
                       <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-end">
                         <Link
-                          href={`/${currentLocale}/solutions`}
+                          href={`/${currentLocale}/ooredoo/solutions`}
                           className="inline-flex items-center gap-1.5 text-[12px] font-bold text-red-primary transition-colors hover:text-red-accent group"
                         >
                           <span>{t.nav.view_all_solutions || "View All Solutions"}</span>
@@ -247,58 +245,6 @@ export default function Navbar() {
 
           {/* Right Controls */}
           <div className="flex items-center gap-3">
-            {/* Language Switcher */}
-            <div className="relative" onClick={(e) => e.stopPropagation()}>
-              <button
-                onClick={() => setLangOpen(!langOpen)}
-                className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50/80 px-2.5 py-1 text-[11px] font-semibold text-gray-700 transition-all hover:bg-gray-100"
-              >
-                <Globe size={14} />
-                {currentLocale.toUpperCase()}
-                <ChevronDown size={12} className={`transition-transform ${langOpen ? "rotate-180" : ""}`} />
-              </button>
-              {langOpen && (
-                <div className="absolute top-full right-0 rtl:right-auto rtl:left-0 mt-2 w-28 rounded-xl border border-gray-100 bg-white py-1 shadow-[0_10px_40px_rgba(0,0,0,0.1)]">
-                  {languages.map((l) => (
-                    <button
-                      key={l}
-                      onClick={() => {
-                        switchLocale(l);
-                        setLangOpen(false);
-                      }}
-                      className={`flex w-full items-center px-3 py-1.5 text-[12px] font-medium transition-colors hover:bg-gray-50 ${
-                        currentLocale === l ? "text-red-primary" : "text-gray-700"
-                      }`}
-                    >
-                      {l.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Phone & Working Hours */}
-            {phone && (
-              <a
-                href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
-                itemProp="telephone"
-                aria-label={`Call STI Ooredoo distributor at ${phone}`}
-                className="hidden xl:flex items-center gap-2 text-gray-600 transition-colors hover:text-red-primary"
-              >
-                <Phone size={15} className="shrink-0 text-red-primary" aria-hidden="true" />
-                <div className="text-start">
-                  <div className="text-[12px] font-bold leading-tight tracking-tight text-gray-900">
-                    <bdo dir="ltr" className="inline-block">{phone}</bdo>
-                  </div>
-                  {activeWorkingHours && (
-                    <div className="text-[9px] font-medium text-gray-500" itemProp="openingHours">
-                      {activeWorkingHours}
-                    </div>
-                  )}
-                </div>
-              </a>
-            )}
-
             {/* Mobile Toggle */}
             <button
               aria-label="Toggle menu"
@@ -383,7 +329,7 @@ export default function Navbar() {
                       ))
                     )}
                     <Link
-                      href={`/${currentLocale}/solutions`}
+                      href={`/${currentLocale}/ooredoo/solutions`}
                       onClick={closeMobile}
                       className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 px-3 py-2 text-[12px] font-bold text-red-primary"
                     >

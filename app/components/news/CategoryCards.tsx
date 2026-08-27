@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Building2, CreditCard, Users, Megaphone } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const categoryIcons = [Building2, CreditCard, Users, Megaphone];
 

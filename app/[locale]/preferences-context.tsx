@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { CompanyPreferences } from "../api/preferences/route";
-import { formatBusinessHours } from "../utils/formatHours";
+import { CompanyPreferences } from '@/app/api/preferences/route';
+import { formatBusinessHours } from "@/app/utils/formatHours";
 
 interface PreferencesContextType {
   preferences: CompanyPreferences | null;

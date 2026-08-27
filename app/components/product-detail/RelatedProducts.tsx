@@ -5,9 +5,9 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, CreditCard } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "../../[locale]/use-translations";
-import type { Product } from "../../data/products";
-import type { ApiProductItem } from "../../api/products/route";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import type { Product } from '@/app/data/products';
+import type { ApiProductItem } from '@/app/api/products/route';
 
 interface RelatedProductsProps {
   products: Product[];

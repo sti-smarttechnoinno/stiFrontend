@@ -2,7 +2,7 @@
 
 import { Star, Quote } from "lucide-react";
 import { useScrollReveal } from "../hooks";
-import { useTranslations } from "../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 function TestimonialCard({ review, index }: { review: string; index: number }) {
   const { ref, visible } = useScrollReveal(0.2);

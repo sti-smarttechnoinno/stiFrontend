@@ -4,7 +4,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ShieldCheck, Users, Globe, Award } from "lucide-react";
 import { useScrollReveal } from "../hooks";
-import { useTranslations } from "../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 export default function Partnership() {
   const { ref, visible } = useScrollReveal();

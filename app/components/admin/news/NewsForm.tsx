@@ -20,7 +20,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import type { ApiCategoryItem } from "../../../api/news/categories/route";
+import type { ApiCategoryItem } from '@/app/api/news/categories/route';
 
 export interface NewsLanguageContent {
   title: string;

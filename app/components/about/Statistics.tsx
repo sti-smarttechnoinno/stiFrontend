@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Briefcase, Users, Handshake, MapPin, ThumbsUp } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const statIcons = [
   <Briefcase key="1" size={24} />,

@@ -17,7 +17,7 @@ import {
   User as UserIcon,
   Key,
 } from "lucide-react";
-import type { UserItem } from "../../api/users/route";
+import type { UserItem } from '@/app/api/users/route';
 import type { RoleItem } from "../../types/roles";
 import { useAuth } from "../../hooks/useAuth";
 

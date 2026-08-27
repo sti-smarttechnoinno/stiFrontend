@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useScrollReveal } from "../hooks";
-import { useTranslations } from "../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 import { useAppSelector, useAppDispatch } from "../lib/store/hooks";
 import { selectAllProducts, selectProductsLoading, setProducts, setProductsLoading } from "../lib/store/features/productsSlice";
-import type { ApiProductItem } from "../api/products/route";
+import type { ApiProductItem } from '@/app/api/products/route';
 
 interface DynamicProductItem {
   id: string | number;

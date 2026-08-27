@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 import { LocaleProvider } from "./locale-context";
 import { PreferencesProvider } from "./preferences-context";
-import StoreProvider, { type InitialData } from "../lib/store/StoreProvider";
+import StoreProvider, { type InitialData } from "@/app/lib/store/StoreProvider";
 
 export default function Providers({
   locale,

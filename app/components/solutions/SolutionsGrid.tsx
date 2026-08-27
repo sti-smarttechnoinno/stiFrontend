@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Smartphone, Building2, Zap, Wallet, ShieldCheck, Headphones, Users, Package } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 import { useAppSelector, useAppDispatch } from "../../lib/store/hooks";
 import { selectAllSolutions, selectSolutionsLoading, setSolutions, setSolutionsLoading } from "../../lib/store/features/solutionsSlice";
 
@@ -148,9 +148,11 @@ export default function SolutionsGrid() {
                   {s.icon || defaultIcons[idx % defaultIcons.length]}
                 </div>
 
-                <h3 className="mb-3 text-lg font-bold text-gray-900" style={{ fontFamily: "var(--font-display)" }}>
-                  {s.title}
-                </h3>
+                <Link href={`/${currentLocale}/ooredoo/solutions/${s.slug}`} className="hover:text-red-primary transition-colors">
+                  <h3 className="mb-3 text-lg font-bold text-gray-900 transition-colors group-hover:text-red-primary" style={{ fontFamily: "var(--font-display)" }}>
+                    {s.title}
+                  </h3>
+                </Link>
 
                 <p
                   className="mb-6 text-sm leading-relaxed text-gray-500 line-clamp-3 overflow-hidden"
@@ -165,7 +167,7 @@ export default function SolutionsGrid() {
                 </p>
 
                 <Link
-                  href={`/${currentLocale}/solutions/${s.slug}`}
+                  href={`/${currentLocale}/ooredoo/solutions/${s.slug}`}
                   className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-red-primary transition-colors hover:text-red-accent"
                 >
                   {gridT.learn_more || "Learn More"}

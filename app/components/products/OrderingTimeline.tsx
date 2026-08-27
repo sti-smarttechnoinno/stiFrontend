@@ -3,7 +3,7 @@
 import { ClipboardList, FileText, CheckCircle, Package } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useScrollReveal } from "../../hooks";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const stepIcons = [
   <ClipboardList size={22} />,

@@ -944,5 +944,182 @@
       "button": "Subscribe Now",
       "success_message": "Thank you for subscribing to STI News!"
     }
+  },
+  "stiHome": {
+    "hero": {
+      "tagline": "SMART TECHNOLOGY INNOVATION",
+      "headline": "Two worlds. One expertise.",
+      "subheadline": "Direct access to our Ooredoo and VIVO products and solutions.",
+      "scrollCue": "SCROLL TO DISCOVER",
+      "ariaLabel": "Two STI worlds: Ooredoo and VIVO"
+    },
+    "ooredooPanel": {
+      "title": "Ooredoo Space",
+      "badge": "Authorized Distribution",
+      "description": "Recharge your credit and get your SIM card easily.",
+      "cta": "Discover Ooredoo Products",
+      "infoTitle": "Recharge & SIM Available",
+      "infoSub": "Official distribution & instant activation",
+      "recharge": "Credit Recharge",
+      "sim": "SIM Card",
+      "ticket": "Recharge Voucher"
+    },
+    "vivoPanel": {
+      "title": "VIVO Space",
+      "badge": "Production & Distribution",
+      "description": "V Series, Y Series smartphones & new releases.",
+      "cta": "Explore VIVO Space",
+      "infoTitle": "Performance & Design",
+      "infoSub": "VIVO Certified Smartphones",
+      "smartphones": "Smartphones",
+      "news": "New Releases"
+    },
+    "trust": {
+      "badge": "Network & Commitments",
+      "title": "STI expertise powering two technology worlds",
+      "subtitle": "Robust infrastructure and certified support for Ooredoo and VIVO ecosystems across Algeria.",
+      "items": [
+        { "title": "Official Partner", "text": "Direct partnerships with global market leaders." },
+        { "title": "Nationwide Distribution", "text": "Extensive network covering all Algerian provinces." },
+        { "title": "After-Sales Service", "text": "Responsive support and quality commitment." },
+        { "title": "Proven Expertise", "text": "A dedicated team delivering high-performance solutions." }
+      ]
+    },
+    "ooredooSection": {
+      "badge": "Authorized Distribution",
+      "title": "Available Ooredoo Products",
+      "description": "Find all Ooredoo mobile essentials with STI: communication credit, SIM cards, and recharge vouchers.",
+      "cta": "View Ooredoo Products",
+      "cards": [
+        { "title": "Credit Recharge", "text": "Fast and convenient recharge for all mobile plans." },
+        { "title": "SIM Cards", "text": "Instant activation of new mobile lines." },
+        { "title": "Recharge Vouchers", "text": "Vouchers available at authorized retail points." }
+      ]
+    },
+    "vivoSection": {
+      "badge": "Production & Distribution",
+      "title": "VIVO: Smartphones & Mobile Technology",
+      "description": "Discover VIVO smartphones and the latest mobile innovations available through STI.",
+      "cta": "Explore VIVO Range",
+      "cards": [
+        { "title": "Smartphones", "text": "Innovative models with sleek and premium design." },
+        { "title": "New Releases", "text": "The latest VIVO series and mobile technology." }
+      ]
+    },
+    "services": {
+      "badge": "Ooredoo Solutions & Services",
+      "title": "Our Distribution Services & Solutions",
+      "subtitle": "From mobile distribution to enterprise network solutions, STI delivers comprehensive telecom services across Algeria.",
+      "learnMore": "Learn more",
+      "items": [
+        {
+          "title": "Mobile Credit Recharge",
+          "text": "Nationwide distribution of Ooredoo mobile recharge credit for authorized retailers, wholesalers, and resellers.",
+          "slug": "mobile-recharge-credit"
+        },
+        {
+          "title": "SIM Card Distribution",
+          "text": "Distribution of prepaid and postpaid Ooredoo SIM cards with instant activation and guaranteed availability.",
+          "slug": "prepaid-sim-cards"
+        },
+        {
+          "title": "Wholesale Solutions",
+          "text": "Bulk supply of telecom products and recharge credit for wholesalers and large distribution networks.",
+          "slug": "wholesale-recharge"
+        },
+        {
+          "title": "Partner Services",
+          "text": "Dedicated operational support, order management, tracking, and continuous assistance across Algeria.",
+          "slug": "partner-services"
+        }
+      ]
+    },
+    "whySti": {
+      "badge": "Commitment & Proximity",
+      "title": "Why Choose STI?",
+      "subtitle": "Over 15 years of proven expertise and strong partnerships powering the Algerian tech ecosystem.",
+      "items": [
+        { "title": "Nationwide Presence", "text": "An expansive, responsive distribution network close to your business needs across Algeria." },
+        { "title": "Industry-Leading Brands", "text": "Official partner and authorized distributor of world leaders Ooredoo and VIVO." },
+        { "title": "Long-Term Partnership", "text": "A relationship built on trust, dedicated technical support, and continuous quality." }
+      ]
+    },
+    "spaces": {
+      "badge": "Our Universes",
+      "title": "Explore Our Dedicated Spaces",
+      "subtitle": "Direct access to official Ooredoo and VIVO universes managed by STI in Algeria.",
+      "ooredooBadge": "Telecoms Space",
+      "ooredooTitle": "Ooredoo Space",
+      "ooredooDesc": "Communication credit · SIM Cards · Official recharge vouchers.",
+      "ooredooCta": "View Ooredoo Products",
+      "vivoBadge": "Smartphones Space",
+      "vivoTitle": "VIVO Space",
+      "vivoDesc": "Smartphones Série V et Série Y · Garantie constructeur STI.",
+      "vivoCta": "Discover VIVO Range"
+    },
+    "faq": {
+      "badge": "FAQ & Assistance",
+      "title": "Frequently Asked Questions",
+      "subtitle": "Find clear answers regarding distribution, products, and STI support.",
+      "supportTitle": "Need More Information?",
+      "supportDesc": "Our commercial and technical team is here to assist and guide you.",
+      "supportCta": "Contact Us",
+      "items": [
+        {
+          "q": "What Ooredoo products does STI distribute?",
+          "a": "STI distributes essential Ooredoo mobile products: communication credit, SIM cards, and recharge vouchers nationwide."
+        },
+        {
+          "q": "How to purchase an Ooredoo SIM card?",
+          "a": "Ooredoo SIM cards are available through STI and its partner network for immediate new line activation."
+        },
+        {
+          "q": "Where to find Ooredoo recharge vouchers?",
+          "a": "Ooredoo recharge vouchers are available at authorized retail points across STI's distribution network."
+        },
+        {
+          "q": "How to perform a mobile credit recharge?",
+          "a": "Ooredoo credit recharge is fast, simple, and secure via STI platforms and point-of-sale solutions."
+        },
+        {
+          "q": "Which VIVO smartphones are available?",
+          "a": "STI officially distributes VIVO smartphones (V Series and Y Series) with official manufacturer warranty in Algeria."
+        },
+        {
+          "q": "Where does STI operate in Algeria?",
+          "a": "STI operates from Setif, Algiers, and an extensive dealer network covering all 58 Algerian provinces."
+        }
+      ]
+    },
+    "contactCta": {
+      "badge": "Partnership & Contact",
+      "title": "Let's discuss your next project",
+      "description": "Our team assists you with reliable and high-performance telecom and mobile solutions across Algeria.",
+      "cta": "Contact STI"
+    },
+    "footer": {
+      "distributorDesc": "Authorized Ooredoo Distributor in Algeria & VIVO Production and Distribution.",
+      "navigation": "Navigation",
+      "ooredooSpace": "Ooredoo Space",
+      "vivoSpace": "VIVO Space",
+      "navHome": "Home",
+      "navAbout": "About",
+      "navSpaces": "Our Universes",
+      "navServices": "Our Services",
+      "navContact": "Contact",
+      "ooredooHome": "Ooredoo Home",
+      "ooredooSolutions": "Distribution Solutions",
+      "ooredooProducts": "Products & SIM Cards",
+      "ooredooAbout": "About Partnership",
+      "ooredooNews": "News & Insights",
+      "ooredooContact": "Contact Team",
+      "vivoHome": "VIVO Home",
+      "vivoProducts": "All Smartphones",
+      "vivoVSeries": "V Series Smartphones",
+      "vivoYSeries": "Y Series Smartphones",
+      "vivoStore": "Find a Store",
+      "vivoAbout": "About VIVO Algeria",
+      "rights": "All rights reserved."
+    }
   }
 }

@@ -19,8 +19,8 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import type { ApiNewsItem } from "../../api/news/route";
-import type { ApiCategoryItem } from "../../api/news/categories/route";
+import type { ApiNewsItem } from '@/app/api/news/route';
+import type { ApiCategoryItem } from '@/app/api/news/categories/route';
 
 export default function NewsManagementPage() {
   const [articles, setArticles] = useState<ApiNewsItem[]>([]);

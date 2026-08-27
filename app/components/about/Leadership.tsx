@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "../../[locale]/use-translations";
-import type { TeamMember } from "../../api/team/route";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import type { TeamMember } from '@/app/api/team/route';
 
 const LinkedinIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

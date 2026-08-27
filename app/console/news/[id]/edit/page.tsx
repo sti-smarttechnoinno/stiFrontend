@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import NewsForm, { MultilingualNewsFormValues } from "../../../../components/admin/news/NewsForm";
+import NewsForm, { MultilingualNewsFormValues } from '@/app/components/admin/news/NewsForm';
 import { Loader2 } from "lucide-react";
 
 export default function EditNewsPage() {

@@ -28,7 +28,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import type { CompanyPreferences } from "../api/preferences/route";
+import type { CompanyPreferences } from '@/app/api/preferences/route';
 
 const defaultContactInfo = [
   { icon: Phone, label: "Phone", value: "0552 02 35 36" },

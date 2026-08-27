@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Save, Users, Award, Plus, Trash2, Edit2, Upload, CheckCircle2, UserCheck, X, Link as LinkIcon } from "lucide-react";
-import type { TeamMember } from "../../api/team/route";
+import type { TeamMember } from '@/app/api/team/route';
 
 export default function CompanyPage() {
   const [members, setMembers] = useState<TeamMember[]>([]);

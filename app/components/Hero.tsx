@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { useTranslations } from "../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 export default function Hero() {
   const t = useTranslations();
@@ -21,8 +21,8 @@ export default function Hero() {
       <div className="absolute top-20 left-10 rtl:left-auto rtl:right-10 w-96 h-96 bg-red-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 rtl:right-auto rtl:left-10 w-80 h-80 bg-red-accent/3 rounded-full blur-3xl" />
 
-      <div className="relative mx-auto w-full max-w-[1320px] px-6 lg:px-8 pt-32 pb-20 lg:pt-0 lg:pb-0">
-        <div className="relative grid lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[calc(100vh-176px)]">
+      <div className="relative mx-auto w-full max-w-[1320px] px-6 lg:px-8 pt-36 pb-20 lg:pt-36 lg:pb-16">
+        <div className="relative grid lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[calc(100vh-180px)]">
           {/* Text Content */}
           <header className="max-w-[600px] relative z-10">
             {/* Badge */}

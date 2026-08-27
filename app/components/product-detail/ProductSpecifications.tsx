@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import type { Product } from "../../data/products";
+import type { Product } from '@/app/data/products';
 
 export default function ProductSpecifications({ product }: { product: Product }) {
   const pathname = usePathname();

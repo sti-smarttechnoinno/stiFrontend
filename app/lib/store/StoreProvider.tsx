@@ -6,9 +6,9 @@ import { makeStore, AppStore } from "./store";
 import { setSolutions } from "./features/solutionsSlice";
 import { setProducts } from "./features/productsSlice";
 import { setNews, setFeaturedArticleId } from "./features/newsSlice";
-import type { ApiSolutionItem } from "../../data/solutions-server";
-import type { ApiProductItem } from "../../data/products-server";
-import type { NewsArticle } from "../../data/news-articles";
+import type { ApiSolutionItem } from '@/app/data/solutions-server';
+import type { ApiProductItem } from '@/app/data/products-server';
+import type { NewsArticle } from '@/app/data/news-articles';
 
 export interface InitialData {
   solutions?: ApiSolutionItem[];

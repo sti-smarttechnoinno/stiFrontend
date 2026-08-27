@@ -1,6 +1,6 @@
 "use client";
 
-import SolutionForm from "../../../components/admin/solutions/SolutionForm";
+import SolutionForm from '@/app/components/admin/solutions/SolutionForm';
 
 export default function CreateSolutionPage() {
   return (

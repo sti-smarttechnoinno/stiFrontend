@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import LoginBranding from "../../components/admin/auth/LoginBranding";
-import LoginForm from "../../components/admin/auth/LoginForm";
+import LoginBranding from '@/app/components/admin/auth/LoginBranding';
+import LoginForm from '@/app/components/admin/auth/LoginForm';
 
 export default function AdminLoginPage() {
   const router = useRouter();

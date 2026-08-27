@@ -1,4 +1,4 @@
-import { fetchFromBackend } from "../api/backend-helper";
+import { fetchFromBackend } from '@/app/api/backend-helper';
 
 export interface SolutionTranslation {
   name?: string;

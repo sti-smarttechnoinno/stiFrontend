@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Phone, Mail, MapPin } from "lucide-react";
-import { useTranslations } from "../[locale]/use-translations";
-import { usePreferences } from "../[locale]/preferences-context";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import { usePreferences } from '@/app/[locale]/preferences-context';
 
 const LinkedinIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -37,7 +37,8 @@ const YoutubeIcon = () => (
 export default function Footer() {
   const t = useTranslations();
   const pathname = usePathname();
-  const currentLocale = pathname.split("/")[1] || "en";
+  const segments = pathname.split("/").filter(Boolean);
+  const currentLocale = segments.find((s) => ["en", "fr", "ar"].includes(s)) || "en";
   const { phone, email, socialMedia, locationObj, workingHoursObj, activeWorkingHours: ctxWorkingHours } = usePreferences();
 
   const activeWorkingHours = ctxWorkingHours || workingHoursObj[currentLocale] || workingHoursObj.en || "";
@@ -92,25 +93,25 @@ export default function Footer() {
     {
       title: t.footer.company,
       links: [
-        { label: linkLabels.about, href: `/${currentLocale}/about` },
-        { label: linkLabels.careers, href: `/${currentLocale}/careers` },
-        { label: linkLabels.news, href: `/${currentLocale}/news` },
-        { label: linkLabels.contact, href: `/${currentLocale}/contact` },
+        { label: linkLabels.about, href: `/${currentLocale}/ooredoo/about` },
+        { label: linkLabels.careers, href: `/${currentLocale}/ooredoo/careers` },
+        { label: linkLabels.news, href: `/${currentLocale}/ooredoo/news` },
+        { label: linkLabels.contact, href: `/${currentLocale}/ooredoo/contact` },
       ],
     },
     {
       title: t.footer.solutions,
       links: [
-        { label: linkLabels.solutions, href: `/${currentLocale}/solutions` },
-        { label: linkLabels.products, href: `/${currentLocale}/products` },
-        { label: linkLabels.quote, href: `/${currentLocale}/quote` },
+        { label: linkLabels.solutions, href: `/${currentLocale}/ooredoo/solutions` },
+        { label: linkLabels.products, href: `/${currentLocale}/ooredoo/products` },
+        { label: linkLabels.quote, href: `/${currentLocale}/ooredoo/quote` },
       ],
     },
     {
       title: t.footer.resources,
       links: [
-        { label: linkLabels.contact, href: `/${currentLocale}/contact` },
-        { label: linkLabels.quote, href: `/${currentLocale}/quote` },
+        { label: linkLabels.contact, href: `/${currentLocale}/ooredoo/contact` },
+        { label: linkLabels.quote, href: `/${currentLocale}/ooredoo/quote` },
       ],
     },
   ];
@@ -122,7 +123,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="mb-5 flex items-center gap-2.5">
-              <Link href={`/${currentLocale}`}>
+              <Link href={`/${currentLocale}/ooredoo`}>
                 <Image
                   src="/assets/logo.png"
                   alt="STI - Smart Technologie Innovation"

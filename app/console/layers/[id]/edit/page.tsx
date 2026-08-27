@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import SolutionForm, { MultilingualSolutionFormValues } from "../../../../components/admin/solutions/SolutionForm";
+import SolutionForm, { MultilingualSolutionFormValues } from '@/app/components/admin/solutions/SolutionForm';
 import { Loader2 } from "lucide-react";
 
 interface EditSolutionPageProps {

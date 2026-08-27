@@ -3,8 +3,8 @@
 import { motion } from "framer-motion";
 import { CardSim, CreditCard, FileCheck } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "../../[locale]/use-translations";
-import { productCategories } from "../../data/products";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import { productCategories } from '@/app/data/products';
 
 const categoryIcons: Record<string, React.ElementType> = {
   "sim-cards": CardSim,

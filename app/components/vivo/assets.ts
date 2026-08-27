@@ -1,0 +1,16 @@
+export const VIVO_ASSETS = {
+  hero: "/assets/vivo-smartphones.png",
+  productsHero: "/assets/vivo/products-hero.webp",
+  camera: "/assets/vivo/vivo-algeria-camera-detail.webp",
+  lifestyle: "/assets/vivo/vivo-algeria-lifestyle.webp",
+  v70fe: "/assets/vivo/vivo v70fe.webp",
+  vSeries: "/assets/vivo/v-series.webp",
+  y21d: "/assets/vivo/vivo y21d.webp",
+  y21dHero: "/assets/vivo/y21d-hero.webp",
+  y21dDetails: "/assets/vivo/y21d-details.webp",
+  y05Hero: "/assets/vivo/y05-hero.webp",
+  y05Details: "/assets/vivo/y05-details.webp",
+  ySeriesHero: "/assets/vivo/y-series-hero.webp",
+  mark: "/assets/vivo-logo.svg",
+  logo: "/assets/vivo-logo.svg",
+};

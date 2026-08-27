@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { MapPin, ExternalLink } from "lucide-react";
-import { usePreferences } from "../../[locale]/preferences-context";
+import { usePreferences } from '@/app/[locale]/preferences-context';
 
 const DEFAULT_EMBED_URL =
   "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3220.1233568508337!2d5.4240589120880305!3d36.18788167231293!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f315007983d29b%3A0xb969c549a0ef2f09!2sSARL%20Smart%20Technologie%20Innovation%20-%20STI!5e0!3m2!1sfr!2sdz!4v1786524577700!5m2!1sfr!2sdz";

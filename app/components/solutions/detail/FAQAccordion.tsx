@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
-import { useTranslations } from "../../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 interface Props {
   faqs: { question: string; answer: string }[];

@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useScrollReveal } from "../hooks";
-import { useTranslations } from "../[locale]/use-translations";
-import type { ApiNewsItem } from "../api/news/route";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import type { ApiNewsItem } from '@/app/api/news/route';
 
 function ArticleCard({
   image,

@@ -1,5 +1,5 @@
-import { fetchFromBackend } from "../api/backend-helper";
-import type { ApiNewsItem } from "../api/news/route";
+import { fetchFromBackend } from '@/app/api/backend-helper';
+import type { ApiNewsItem } from '@/app/api/news/route';
 import { convertApiItemToNewsArticle, type NewsArticle } from "./news-articles";
 
 export async function getAllPublishedArticlesServer(locale: string = "en"): Promise<NewsArticle[]> {

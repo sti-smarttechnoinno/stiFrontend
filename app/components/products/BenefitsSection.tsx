@@ -11,7 +11,7 @@ import {
   HeadphonesIcon,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const benefitIcons = [ShieldCheck, Tag, Package, Zap, Truck, HeadphonesIcon];
 

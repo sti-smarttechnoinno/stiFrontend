@@ -1,6 +1,6 @@
 "use client";
 
-import JobForm from "../../../components/admin/openings/JobForm";
+import JobForm from '@/app/components/admin/openings/JobForm';
 
 export default function CreateJobPage() {
   return (

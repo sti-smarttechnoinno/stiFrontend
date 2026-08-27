@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { MessageSquare, Search, Rocket, LifeBuoy } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const stepIcons = [
   <MessageSquare key="1" size={22} />,

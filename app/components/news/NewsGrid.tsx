@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import NewsCard from "./NewsCard";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 import { useAppSelector, useAppDispatch } from "../../lib/store/hooks";
 import {
   selectAllNews,
@@ -16,7 +16,7 @@ import {
   setNewsCategories,
   setNewsLoading,
 } from "../../lib/store/features/newsSlice";
-import { convertApiItemToNewsArticle } from "../../data/news-articles";
+import { convertApiItemToNewsArticle } from '@/app/data/news-articles';
 
 const containerVariants = {
   hidden: { opacity: 0 },

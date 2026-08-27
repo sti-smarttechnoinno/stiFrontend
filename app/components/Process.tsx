@@ -2,7 +2,7 @@
 
 import { Handshake, Package, Truck, Headphones } from "lucide-react";
 import { useScrollReveal } from "../hooks";
-import { useTranslations } from "../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const icons = [<Handshake size={22} />, <Package size={22} />, <Truck size={22} />, <Headphones size={22} />];
 

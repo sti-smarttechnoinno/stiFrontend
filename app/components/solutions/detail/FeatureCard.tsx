@@ -7,7 +7,7 @@ import {
   RefreshCw, Smartphone, CheckCircle, Star, Award, Globe,
   Phone, Mail, MessageSquare
 } from "lucide-react";
-import { useTranslations } from "../../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const iconMap: Record<string, React.ReactNode> = {
   CreditCard: <CreditCard size={28} />,

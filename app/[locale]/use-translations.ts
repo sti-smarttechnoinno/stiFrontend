@@ -1,9 +1,9 @@
 "use client";
 
 import { useLocale } from "./locale-context";
-import en from "../../messages/en.json";
-import fr from "../../messages/fr.json";
-import ar from "../../messages/ar.json";
+import en from '@/messages/en.json';
+import fr from '@/messages/fr.json';
+import ar from '@/messages/ar.json';
 
 const dictionaries = { en, fr, ar };
 

@@ -45,14 +45,67 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const pathnameHasLocale = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  // Handle root "/" -> redirect to detected locale e.g. /fr
+  if (pathname === "/" || pathname === "") {
+    const locale = getLocale(request);
+    request.nextUrl.pathname = `/${locale}`;
+    return NextResponse.redirect(request.nextUrl);
+  }
+
+  // If path already starts with a valid locale prefix e.g. /fr, /ar, /en, /fr/ooredoo, etc.
+  const hasValidLocalePrefix = locales.some(
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
   );
 
-  if (pathnameHasLocale) return NextResponse.next();
+  if (hasValidLocalePrefix) {
+    return NextResponse.next();
+  }
 
+  // Handle old /ooredoo paths e.g. /ooredoo, /ooredoo/fr/about, /ooredoo/products
+  if (pathname === "/ooredoo" || pathname.startsWith("/ooredoo/")) {
+    const afterOoredoo = pathname.slice("/ooredoo".length); // e.g. "", "/fr", "/fr/about", "/products"
+    
+    // Check if it has /fr, /en, /ar after /ooredoo e.g. /ooredoo/fr/about
+    const matchedLocaleInPath = locales.find(
+      (l) => afterOoredoo === `/${l}` || afterOoredoo.startsWith(`/${l}/`)
+    );
+
+    if (matchedLocaleInPath) {
+      const rest = afterOoredoo.slice(`/${matchedLocaleInPath}`.length);
+      request.nextUrl.pathname = `/${matchedLocaleInPath}/ooredoo${rest}`;
+      return NextResponse.redirect(request.nextUrl);
+    }
+
+    const locale = getLocale(request);
+    const cleanSubPath = afterOoredoo.startsWith("/") ? afterOoredoo : `/${afterOoredoo}`;
+    request.nextUrl.pathname = `/${locale}/ooredoo${cleanSubPath === "/" ? "" : cleanSubPath}`;
+    return NextResponse.redirect(request.nextUrl);
+  }
+
+  // Handle /vivo paths e.g. /vivo, /vivo/fr/about, /vivo/products
+  if (pathname === "/vivo" || pathname.startsWith("/vivo/")) {
+    const afterVivo = pathname.slice("/vivo".length); // e.g. "", "/fr", "/fr/about", "/products"
+    
+    // Check if it has /fr, /en, /ar after /vivo e.g. /vivo/fr/about
+    const matchedLocaleInPath = locales.find(
+      (l) => afterVivo === `/${l}` || afterVivo.startsWith(`/${l}/`)
+    );
+
+    if (matchedLocaleInPath) {
+      const rest = afterVivo.slice(`/${matchedLocaleInPath}`.length);
+      request.nextUrl.pathname = `/${matchedLocaleInPath}/vivo${rest}`;
+      return NextResponse.redirect(request.nextUrl);
+    }
+
+    const locale = getLocale(request);
+    const cleanSubPath = afterVivo.startsWith("/") ? afterVivo : `/${afterVivo}`;
+    request.nextUrl.pathname = `/${locale}/vivo${cleanSubPath === "/" ? "" : cleanSubPath}`;
+    return NextResponse.redirect(request.nextUrl);
+  }
+
+  // Any other legacy unlocalized path e.g. /about, /products -> redirect to /${locale}/ooredoo/...
   const locale = getLocale(request);
-  request.nextUrl.pathname = `/${locale}${pathname}`;
+  request.nextUrl.pathname = `/${locale}/ooredoo${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
   return NextResponse.redirect(request.nextUrl);
 }
 

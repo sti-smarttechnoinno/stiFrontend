@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import ProductForm, { MultilingualProductFormValues } from "../../../../components/admin/products/ProductForm";
+import ProductForm, { MultilingualProductFormValues } from '@/app/components/admin/products/ProductForm';
 import { Loader2 } from "lucide-react";
 
 export default function EditProductPage() {

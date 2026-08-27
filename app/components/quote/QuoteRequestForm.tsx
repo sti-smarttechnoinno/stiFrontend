@@ -13,7 +13,7 @@ import {
   Send,
   Loader2,
 } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const benefitIcons = [Clock, DollarSign, ShieldCheck, HeadphonesIcon, Package, UserCheck];
 

@@ -2,7 +2,7 @@
 
 import { ShieldCheck, Package, Truck, Percent, Handshake, Headphones } from "lucide-react";
 import { useScrollReveal } from "../hooks";
-import { useTranslations } from "../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const icons = [<ShieldCheck size={24} />, <Package size={24} />, <Truck size={24} />, <Percent size={24} />, <Handshake size={24} />, <Headphones size={24} />];
 

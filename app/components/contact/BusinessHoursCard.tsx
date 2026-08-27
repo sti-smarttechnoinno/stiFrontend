@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Clock } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
-import type { CompanyPreferences } from "../../api/preferences/route";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import type { CompanyPreferences } from '@/app/api/preferences/route';
 
 const daysList = [
   { key: "saturday", en: "Saturday", ar: "السبت", fr: "Samedi" },

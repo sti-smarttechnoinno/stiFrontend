@@ -5,7 +5,7 @@ import { ArrowRight, ChevronRight, Phone } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 export default function HeroContact() {
   const t = useTranslations();

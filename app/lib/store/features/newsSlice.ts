@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { NewsArticle } from "../../../data/news-articles";
+import type { NewsArticle } from '@/app/data/news-articles';
 import type { RootState } from "../store";
 
 export interface NewsCategory {

@@ -10,8 +10,8 @@ import RelatedCard from "./RelatedCard";
 import FAQAccordion from "./FAQAccordion";
 import FinalCTA from "../../FinalCTA";
 import SolutionDetailSkeleton from "./SolutionSkeleton";
-import { useTranslations } from "../../../[locale]/use-translations";
-import type { SolutionData } from "../../../solutions/[slug]/data";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import type { SolutionData } from "@/app/[locale]/ooredoo/solutions/[slug]/data";
 
 interface Props {
   solution?: SolutionData;
@@ -169,7 +169,7 @@ export default function SolutionLayout({ solution: initialSolution, related: ini
           The solution you are looking for does not exist or has been moved.
         </p>
         <Link
-          href={`/${currentLocale}/solutions`}
+          href={`/${currentLocale}/ooredoo/solutions`}
           className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-red-primary text-white font-medium hover:bg-red-700 transition"
         >
           Explore All Solutions

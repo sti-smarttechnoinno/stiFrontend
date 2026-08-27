@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Briefcase, Users, Handshake, MapPin, ThumbsUp } from "lucide-react";
 import { useScrollReveal } from "../hooks";
-import { useTranslations } from "../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const icons = [<Briefcase size={24} key="b" />, <Users size={24} key="u" />, <Handshake size={24} key="h" />, <MapPin size={24} key="m" />, <ThumbsUp size={24} key="t" />];
 

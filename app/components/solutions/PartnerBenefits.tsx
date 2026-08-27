@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TrendingUp, ShieldCheck, Rocket, Package, Users, Handshake } from "lucide-react";
-import { useTranslations } from "../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const benefitIcons = [
   <TrendingUp key="1" size={24} />,

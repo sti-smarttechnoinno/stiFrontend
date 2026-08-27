@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ClipboardList, FileCheck, Boxes, Package, Handshake } from "lucide-react";
-import { useTranslations } from "../../../[locale]/use-translations";
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const stepIcons = [
   <ClipboardList key="1" size={22} />,
