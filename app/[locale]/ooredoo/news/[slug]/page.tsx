@@ -32,9 +32,9 @@ export async function generateMetadata({
     openGraph: {
       title: seo?.title || article.title,
       description: seo?.description || article.excerpt,
-      images: [article.heroImage || "/assets/hero.png"],
+      images: [article.heroImage || "/assets/hero.webp"],
       type: "article",
-      url: `https://sti-dz.com/${locale}/ooredoo/news/${article.slug}`,
+      url: `https://sti.dz/${locale}/ooredoo/news/${article.slug}`,
       publishedTime: article.publishedAt,
       authors: [article.author],
     },
@@ -42,14 +42,14 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: seo?.title || article.title,
       description: seo?.description || article.excerpt,
-      images: [article.heroImage || "/assets/hero.png"],
+      images: [article.heroImage || "/assets/hero.webp"],
     },
     robots: {
       index: true,
       follow: true,
     },
     alternates: {
-      canonical: `https://sti-dz.com/${locale}/ooredoo/news/${article.slug}`,
+      canonical: `https://sti.dz/${locale}/ooredoo/news/${article.slug}`,
     },
   };
 }
@@ -83,12 +83,12 @@ export default async function NewsArticlePage({
       name: "SARL Smart Technologie Innovation",
       logo: {
         "@type": "ImageObject",
-        url: "https://sti-dz.com/logo.png",
+        url: "https://sti.dz/logo.png",
       },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://sti-dz.com/${locale}/ooredoo/news/${article.slug}`,
+      "@id": `https://sti.dz/${locale}/ooredoo/news/${article.slug}`,
     },
   };
 

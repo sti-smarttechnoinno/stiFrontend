@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/console/", "/gate/"],
       },
     ],
-    sitemap: "https://sti-dz.com/sitemap.xml",
+    sitemap: "https://sti.dz/sitemap.xml",
   };
 }

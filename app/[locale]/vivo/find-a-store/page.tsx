@@ -85,7 +85,7 @@ export async function generateMetadata({
   const loc = (locale as "en" | "ar" | "fr") || "fr";
   const seo = SEO_CONTENT[loc] || SEO_CONTENT.fr;
 
-  const siteUrl = "https://sti-dz.com";
+  const siteUrl = "https://sti.dz";
   const canonicalUrl = `${siteUrl}/${loc}/vivo/find-a-store`;
 
   return {
@@ -137,7 +137,7 @@ export default async function VivoFindAStorePage({
 }) {
   const { locale } = await params;
   const loc = (locale as "en" | "ar" | "fr") || "fr";
-  const siteUrl = "https://sti-dz.com";
+  const siteUrl = "https://sti.dz";
 
   const localBusinessSchema = {
     "@context": "https://schema.org",

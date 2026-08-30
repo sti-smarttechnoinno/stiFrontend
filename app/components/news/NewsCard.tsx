@@ -32,7 +32,7 @@ export default function NewsCard({ article }: { article: Article }) {
       {/* Image */}
       <div className="relative overflow-hidden">
         <img
-          src={article.image || "/assets/hero.png"}
+          src={article.image || "/assets/hero.webp"}
           alt={article.title}
           className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />

@@ -74,7 +74,7 @@ export default function Expertise() {
           >
             <div className="relative w-full max-w-[580px] aspect-square mx-auto">
               <Image
-                src="/assets/Expertise.png"
+                src="/assets/Expertise.webp"
                 alt="STI Expertise"
                 fill
                 className="object-contain"

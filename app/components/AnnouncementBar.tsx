@@ -62,11 +62,16 @@ export default function AnnouncementBar() {
     >
       <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 sm:px-8">
         {/* Announcement Message */}
-        <p className="text-[11px] sm:text-xs text-neutral-200 truncate font-semibold flex items-center gap-1.5">
-          <span className="font-bold text-white">{item.company}</span>
-          <span className="text-neutral-500 select-none">—</span>
-          <span className="font-medium text-neutral-300">{item.details}</span>
-        </p>
+        <div className="min-w-0 flex-1 me-3 overflow-hidden">
+          <p className="text-[11px] sm:text-xs text-neutral-200 truncate font-semibold flex items-center gap-1.5">
+            <span className="font-bold text-white shrink-0">
+              <span className="hidden sm:inline">{item.company}</span>
+              <span className="sm:hidden">{currentLocale === "ar" ? "STI" : "STI"}</span>
+            </span>
+            <span className="text-neutral-500 select-none shrink-0">—</span>
+            <span className="font-medium text-neutral-300 truncate">{item.details}</span>
+          </p>
+        </div>
 
         {/* Right Controls: Working Hours + Phone + Minimal Language Switcher */}
         <div className="flex items-center gap-4 sm:gap-5 shrink-0">

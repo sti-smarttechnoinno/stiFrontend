@@ -101,7 +101,7 @@ export default function Hero() {
           {/* Background Image */}
           <div className="absolute right-0 rtl:right-auto rtl:left-0 top-0 bottom-0 w-[65%] hidden lg:block">
             <img
-              src="/assets/hero.png"
+              src="/assets/hero.webp"
               alt="STI Telecom Solutions"
               className="w-full h-full object-contain object-right rtl:object-left"
             />

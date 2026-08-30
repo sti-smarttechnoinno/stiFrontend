@@ -83,7 +83,7 @@ export function OoredooSection() {
         {/* Visual */}
         <div className="relative overflow-hidden rounded-[24px] border border-gray-100 bg-gray-950 shadow-[0_8px_40px_rgba(0,0,0,0.12)]">
           <Image
-            src="/assets/ooredoo-recharge.png"
+            src="/assets/ooredoo-recharge.webp"
             alt="Smartphone affichant une recharge de crédit Ooredoo réussie, carte SIM et ticket de recharge"
             width={800}
             height={800}

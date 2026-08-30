@@ -17,7 +17,7 @@ export async function generateMetadata({
   const series = getSeriesData(rawSeries) || VIVO_SERIES_DATA["y-series"];
   const seriesName = series?.name || "VIVO Series";
 
-  const siteUrl = "https://sti-dz.com";
+  const siteUrl = "https://sti.dz";
   const canonicalUrl = `${siteUrl}/${loc}/vivo/products/${rawSeries}`;
 
   const titles = {
@@ -121,7 +121,7 @@ export default async function DynamicVivoSeriesPage({
   const { locale, series: rawSeries } = await params;
   const loc = (locale as "en" | "ar" | "fr") || "fr";
   const series = getSeriesData(rawSeries) || VIVO_SERIES_DATA["y-series"];
-  const siteUrl = "https://sti-dz.com";
+  const siteUrl = "https://sti.dz";
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",

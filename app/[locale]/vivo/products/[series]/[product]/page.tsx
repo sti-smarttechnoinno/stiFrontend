@@ -26,7 +26,7 @@ export async function generateMetadata({
   const productName = product?.name || "VIVO Smartphone";
   const seriesName = series?.name || "VIVO";
 
-  const siteUrl = "https://sti-dz.com";
+  const siteUrl = "https://sti.dz";
   const canonicalUrl = `${siteUrl}/${loc}/vivo/products/${rawSeries}/${rawProduct}`;
 
   const titles = {
@@ -139,7 +139,7 @@ export default async function DynamicVivoProductDetailPage({
   const loc = (locale as "en" | "ar" | "fr") || "fr";
   const product = getProductData(rawProduct) || VIVO_PRODUCTS_DATA["y21d"];
   const series = getSeriesData(rawSeries) || getSeriesData(product.seriesSlug) || VIVO_SERIES_DATA["y-series"];
-  const siteUrl = "https://sti-dz.com";
+  const siteUrl = "https://sti.dz";
 
   const productSchema = {
     "@context": "https://schema.org",

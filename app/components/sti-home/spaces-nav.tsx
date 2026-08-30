@@ -35,7 +35,7 @@ export function SpacesNav() {
           <article className="group relative overflow-hidden rounded-2xl border border-border bg-charcoal shadow-lg">
             <div className="relative h-56 w-full overflow-hidden sm:h-64">
               <Image
-                src="/assets/ooredoo-recharge.png"
+                src="/assets/ooredoo-recharge.webp"
                 alt="Produits Ooredoo : téléphone, carte SIM et ticket de recharge"
                 width={800}
                 height={500}

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     title: "Telecom Distribution Solutions | STI",
     description:
       "Official Ooredoo mobile recharge credit & prepaid SIM card distribution across Algeria. Partner solutions for retailers and wholesalers.",
-    images: ["/assets/hero.png"],
+    images: ["/assets/hero.webp"],
     type: "website",
     siteName: "STI - Smart Technologie Innovation",
   },
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     title: "Telecom Distribution Solutions | STI",
     description:
       "Official Ooredoo mobile recharge credit & SIM card distribution solutions across Algeria.",
-    images: ["/assets/hero.png"],
+    images: ["/assets/hero.webp"],
   },
 };
 

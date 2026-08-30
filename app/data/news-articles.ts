@@ -34,7 +34,7 @@ export const FALLBACK_NEWS_ITEMS: any[] = [
     reading_time: "5 min de lecture",
     status: "Published",
     featured: true,
-    hero_image: "/assets/hero.png",
+    hero_image: "/assets/hero.webp",
     translations: {
       fr: {
         title: "STI Étend ses Services de Distribution à Travers l'Algérie",
@@ -67,7 +67,7 @@ export const FALLBACK_NEWS_ITEMS: any[] = [
     reading_time: "4 min de lecture",
     status: "Published",
     featured: false,
-    hero_image: "/assets/hero.png",
+    hero_image: "/assets/hero.webp",
     translations: {
       fr: {
         title: "Nouvelles Solutions de Recharge & Cartes SIM Ooredoo pour les Détaillants",
@@ -100,7 +100,7 @@ export const FALLBACK_NEWS_ITEMS: any[] = [
     reading_time: "4 min de lecture",
     status: "Published",
     featured: false,
-    hero_image: "/assets/hero.png",
+    hero_image: "/assets/hero.webp",
     translations: {
       fr: {
         title: "Croissance du Réseau Partenaires STI sur les 58 Wilayas",
@@ -185,7 +185,7 @@ export function convertApiItemToNewsArticle(item: any, locale: string = "en", ca
   const content = tr.content || item?.content || "";
   const tags = Array.isArray(tr.tags) && tr.tags.length > 0 ? tr.tags : Array.isArray(item?.tags) ? item.tags : ["STI", "News"];
   const heroImageRaw = item?.hero_image || item?.heroImage;
-  const heroImage = heroImageRaw && typeof heroImageRaw === "string" && heroImageRaw.trim() !== "" ? heroImageRaw : "/assets/hero.png";
+  const heroImage = heroImageRaw && typeof heroImageRaw === "string" && heroImageRaw.trim() !== "" ? heroImageRaw : "/assets/hero.webp";
 
   const defaultAuthor = loc === "ar" ? "فريق الاتصال STI" : loc === "fr" ? "Équipe de Communication STI" : "STI Communications Team";
   const defaultRole = loc === "ar" ? "سمارت تكنولوجي إنوفايشن" : loc === "fr" ? "SARL Smart Technologie Innovation" : "Smart Technologie Innovation";

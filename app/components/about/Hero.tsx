@@ -79,7 +79,7 @@ export default function Hero() {
           >
             <div className="relative w-full max-w-[650px] aspect-square mx-auto lg:mx-0 lg:-ml-6">
               <Image
-                src="/assets/about.png"
+                src="/assets/about.webp"
                 alt="About STI"
                 fill
                 className="object-contain"

@@ -98,7 +98,7 @@ export default function CompanyCulture() {
           >
             <div className="relative w-full max-w-[650px] aspect-square mx-auto lg:mx-0">
               <Image
-                src="/assets/company-culture.png"
+                src="/assets/company-culture.webp"
                 alt="Life at STI - Company Culture"
                 fill
                 className="object-contain"

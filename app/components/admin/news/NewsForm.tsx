@@ -143,7 +143,7 @@ export default function NewsForm({
     publishedAt: initialValues?.publishedAt || "May 20, 2026",
     readingTime: initialValues?.readingTime || "1 min read",
     status: initialValues?.status || "Published",
-    heroImage: initialValues?.heroImage || "/assets/hero.png",
+    heroImage: initialValues?.heroImage || "/assets/hero.webp",
     translations: {
       en: initialValues?.translations?.en || defaultLanguageContent,
       ar: initialValues?.translations?.ar || defaultLanguageContent,

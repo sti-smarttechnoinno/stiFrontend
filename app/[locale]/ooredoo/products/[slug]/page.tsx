@@ -150,7 +150,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${product.name} | STI Official Ooredoo Distributor`,
       description: product.description,
-      images: [product.image || "/assets/hero.png"],
+      images: [product.image || "/assets/hero.webp"],
       type: "website",
     },
     robots: {
@@ -178,16 +178,16 @@ export default async function ProductDetailPage({
   const productImageUrl = product.image
     ? product.image.startsWith("http")
       ? product.image
-      : `https://sti-dz.com${product.image}`
-    : "https://sti-dz.com/assets/hero.png";
+      : `https://sti.dz${product.image}`
+    : "https://sti.dz/assets/hero.webp";
 
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "SARL Smart Technologie Innovation",
     alternateName: "STI",
-    url: "https://sti-dz.com",
-    logo: "https://sti-dz.com/logo.png",
+    url: "https://sti.dz",
+    logo: "https://sti.dz/logo.png",
   };
 
   const productSchema = {
@@ -203,7 +203,7 @@ export default async function ProductDetailPage({
     },
     offers: {
       "@type": "Offer",
-      url: `https://sti-dz.com/${locale || "fr"}/ooredoo/products/${product.slug}`,
+      url: `https://sti.dz/${locale || "fr"}/ooredoo/products/${product.slug}`,
       priceCurrency: "DZD",
       price: "0.00",
       priceValidUntil: "2026-12-31",
@@ -289,19 +289,19 @@ export default async function ProductDetailPage({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://sti-dz.com",
+        item: "https://sti.dz",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Products",
-        item: "https://sti-dz.com/ooredoo/products",
+        item: "https://sti.dz/ooredoo/products",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: product.name,
-        item: `https://sti-dz.com/ooredoo/products/${product.slug}`,
+        item: `https://sti.dz/ooredoo/products/${product.slug}`,
       },
     ],
   };

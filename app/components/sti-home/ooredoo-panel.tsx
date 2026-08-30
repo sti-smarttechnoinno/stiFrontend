@@ -37,7 +37,7 @@ export function OoredooPanel({ state, expanded }: { state: PanelState; expanded:
       {/* Background visual */}
       <div className="absolute inset-0">
         <Image
-          src="/assets/ooredoo-recharge.png"
+          src="/assets/ooredoo-recharge.webp"
           alt="Produits Ooredoo : téléphone, carte SIM et ticket de recharge"
           fill
           priority

@@ -16,11 +16,11 @@ interface GalleryImageItem {
 }
 
 const fallbackImages: GalleryImageItem[] = [
-  { src: "/assets/hero.png", alt: "STI Office Space", title: "SARL STI Distribution Hub", category: "Company Infrastructure", span: "col-span-1 row-span-2" },
+  { src: "/assets/hero.webp", alt: "STI Office Space", title: "SARL STI Distribution Hub", category: "Company Infrastructure", span: "col-span-1 row-span-2" },
   { src: "/assets/logo.png", alt: "STI Executive Team", title: "Official Ooredoo Partnership", category: "Corporate News", span: "col-span-1 row-span-1" },
-  { src: "/assets/hero.png", alt: "Commercial Support", title: "Commercial Operations", category: "Distribution", span: "col-span-1 row-span-1" },
+  { src: "/assets/hero.webp", alt: "Commercial Support", title: "Commercial Operations", category: "Distribution", span: "col-span-1 row-span-1" },
   { src: "/assets/logo.png", alt: "Logistics Center", title: "National Logistics Center", category: "Supply Chain", span: "col-span-1 row-span-2" },
-  { src: "/assets/hero.png", alt: "Telecom Network", title: "Enterprise Solutions & Recharge", category: "Services", span: "col-span-1 row-span-1" },
+  { src: "/assets/hero.webp", alt: "Telecom Network", title: "Enterprise Solutions & Recharge", category: "Services", span: "col-span-1 row-span-1" },
   { src: "/assets/logo.png", alt: "Customer Support", title: "Partner & Customer Helpdesk", category: "Support", span: "col-span-1 row-span-1" },
 ];
 

@@ -246,10 +246,11 @@
   .contact-meta { grid-column: 2; justify-self: start; text-align: left; }
 }
 @media (max-width: 680px) {
-  .content-container, .nav-wrap, .announcement-inner { width: min(100% - 36px, 520px); }
-  .announcement-bar { height: 28px; font-size: 8px; letter-spacing: .08em; }
-  .announcement-inner a { font-size: 0; }
-  .announcement-inner a svg { width: 13px; }
+  .content-container, .nav-wrap { width: min(100% - 36px, 520px); }
+  .announcement-bar { height: 28px; font-size: 9px; letter-spacing: .03em; }
+  .announcement-inner { width: min(100% - 24px, 520px); justify-content: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .announcement-inner span:nth-of-type(2) { overflow: hidden; text-overflow: ellipsis; }
+  .announcement-inner a { font-size: 9px; color: #5f8dff; font-weight: 700; flex-shrink: 0; text-decoration: underline; text-underline-offset: 2px; }
   .site-header { top: 28px; }
   .nav-wrap { height: 66px; }
   .desktop-nav { display: none; }

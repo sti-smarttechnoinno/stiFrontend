@@ -43,7 +43,7 @@ function normalizeArticle(item: any): ApiNewsItem {
     ...item,
     publishedAt: item.published_at || item.publishedAt || new Date().toISOString().split("T")[0],
     readingTime: item.reading_time || item.readingTime || "3 min read",
-    heroImage: item.hero_image || item.heroImage || "/assets/hero.png",
+    heroImage: item.hero_image || item.heroImage || "/assets/hero.webp",
   };
 }
 
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
       publishedAt: body.publishedAt || body.published_at || new Date().toISOString().split("T")[0],
       readingTime: body.readingTime || body.reading_time || "3 min read",
       status: body.status || "Published",
-      heroImage: body.heroImage || body.hero_image || "/assets/hero.png",
+      heroImage: body.heroImage || body.hero_image || "/assets/hero.webp",
       translations: body.translations || {
         en: { title: body.title || slug, excerpt: body.excerpt || "", content: body.content || "", tags: [] },
         ar: { title: body.title || slug, excerpt: body.excerpt || "", content: body.content || "", tags: [] },

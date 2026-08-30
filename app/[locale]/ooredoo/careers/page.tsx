@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     title: "Careers | Join STI Official Ooredoo Distributor Algeria",
     description:
       "Explore career opportunities at SARL Smart Technologie Innovation (STI). Join our growing team and build your future with an official Ooredoo distributor.",
-    images: ["/assets/hero.png"],
+    images: ["/assets/hero.webp"],
     type: "website",
   },
   twitter: {
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: "https://sti-dz.com/careers",
+    canonical: "https://sti.dz/careers",
   },
 };
 
@@ -97,8 +97,8 @@ const organizationSchema = {
   "@type": "Organization",
   name: "SARL Smart Technologie Innovation",
   alternateName: "STI",
-  url: "https://sti-dz.com",
-  logo: "https://sti-dz.com/logo.png",
+  url: "https://sti.dz",
+  logo: "https://sti.dz/logo.png",
   description:
     "Official Ooredoo distributor specializing in mobile recharge credit and prepaid SIM card distribution across Algeria.",
   address: {
@@ -151,8 +151,8 @@ export default async function CareersPage() {
       hiringOrganization: {
         "@type": "Organization",
         name: "SARL Smart Technologie Innovation",
-        sameAs: "https://sti-dz.com",
-        logo: "https://sti-dz.com/logo.png",
+        sameAs: "https://sti.dz",
+        logo: "https://sti.dz/logo.png",
       },
       jobLocation: {
         "@type": "Place",

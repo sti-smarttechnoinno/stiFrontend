@@ -210,7 +210,7 @@ export default function CareerHero() {
           >
             <div className="relative w-full max-w-[780px] aspect-square mx-auto lg:mx-0 lg:-ml-12 lg:scale-110 rtl:lg:-ml-0 rtl:lg:-mr-12">
               <Image
-                src="/assets/careers.png"
+                src="/assets/careers.webp"
                 alt="STI Careers"
                 fill
                 className="object-contain"

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     title: "About STI",
     description:
       "Learn more about SARL Smart Technologie Innovation (STI), official Ooredoo distributor providing innovative telecommunications throughout Algeria.",
-    images: ["/assets/hero.png"],
+    images: ["/assets/hero.webp"],
   },
 };
 

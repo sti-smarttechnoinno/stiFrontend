@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     title: "Official Ooredoo Products | STI Algeria",
     description:
       "Browse official Ooredoo mobile recharge credit, prepaid SIM cards, and wholesale telecom products from STI Algeria.",
-    images: ["/assets/hero.png"],
+    images: ["/assets/hero.webp"],
     type: "website",
   },
   robots: {
@@ -43,8 +43,8 @@ const organizationSchema = {
   "@type": "Organization",
   name: "SARL Smart Technologie Innovation",
   alternateName: "STI",
-  url: "https://sti-dz.com",
-  logo: "https://sti-dz.com/logo.png",
+  url: "https://sti.dz",
+  logo: "https://sti.dz/logo.png",
   description:
     "Official Ooredoo distributor specializing in mobile recharge credit and prepaid SIM card distribution across Algeria.",
   address: {
@@ -104,7 +104,7 @@ const productSchema = {
         "@type": "Product",
         name: "Ooredoo Recharge 200 DA",
         description: "Official mobile recharge credit for prepaid subscribers.",
-        image: ["https://sti-dz.com/assets/recharge-card.png"],
+        image: ["https://sti.dz/assets/recharge-card.png"],
         brand: {
           "@type": "Brand",
           name: "Ooredoo",
@@ -133,7 +133,7 @@ const productSchema = {
         "@type": "Product",
         name: "Ooredoo Recharge 500 DA",
         description: "Official mobile recharge credit for prepaid subscribers.",
-        image: ["https://sti-dz.com/assets/recharge-card.png"],
+        image: ["https://sti.dz/assets/recharge-card.png"],
         brand: {
           "@type": "Brand",
           name: "Ooredoo",
@@ -162,7 +162,7 @@ const productSchema = {
         "@type": "Product",
         name: "Ooredoo Recharge 1000 DA",
         description: "Official mobile recharge credit for prepaid subscribers.",
-        image: ["https://sti-dz.com/assets/recharge-card.png"],
+        image: ["https://sti.dz/assets/recharge-card.png"],
         brand: {
           "@type": "Brand",
           name: "Ooredoo",
@@ -191,7 +191,7 @@ const productSchema = {
         "@type": "Product",
         name: "Ooredoo Prepaid SIM",
         description: "Official prepaid SIM card ready for activation and resale.",
-        image: ["https://sti-dz.com/assets/sim-card.png"],
+        image: ["https://sti.dz/assets/sim-card.png"],
         brand: {
           "@type": "Brand",
           name: "Ooredoo",

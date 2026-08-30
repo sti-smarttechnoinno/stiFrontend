@@ -219,7 +219,7 @@ export default function ArticlePageClient({
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
   const shareText = encodeURIComponent(article?.title || "");
 
-  const safeHeroImage = article?.heroImage && article.heroImage.trim() !== "" ? article.heroImage : "/assets/hero.png";
+  const safeHeroImage = article?.heroImage && article.heroImage.trim() !== "" ? article.heroImage : "/assets/hero.webp";
   const safeTags = Array.isArray(article?.tags) ? article.tags : [];
 
   const publishedDateFormatted = formatPublishedDate(article?.publishedAt, currentLocale);
@@ -749,7 +749,7 @@ export default function ArticlePageClient({
                   <div>
                     <div className="relative h-48 overflow-hidden bg-gray-100">
                       <img
-                        src={rel.heroImage && rel.heroImage.trim() !== "" ? rel.heroImage : "/assets/hero.png"}
+                        src={rel.heroImage && rel.heroImage.trim() !== "" ? rel.heroImage : "/assets/hero.webp"}
                         alt={rel.title}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />

@@ -23,7 +23,7 @@ export default function CompanyStory() {
           <div className="relative">
             <div className="relative overflow-hidden rounded-3xl w-full h-[280px] sm:h-[400px] lg:h-[500px]">
               <Image
-                src="/assets/hero.png"
+                src="/assets/hero.webp"
                 alt="STI office and team"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"

@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: "Request a Quote | STI Official Ooredoo Distributor Algeria",
     description:
       "Request a personalized quotation from SARL Smart Technologie Innovation (STI), the official Ooredoo distributor in Algeria.",
-    images: ["/assets/hero.png"],
+    images: ["/assets/hero.webp"],
     type: "website",
   },
   robots: {

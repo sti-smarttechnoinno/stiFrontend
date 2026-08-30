@@ -46,8 +46,8 @@ export default function ContactPage() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "SARL Smart Technologie Innovation (STI)",
-    url: "https://sti-dz.com",
-    logo: "https://sti-dz.com/assets/logo.png",
+    url: "https://sti.dz",
+    logo: "https://sti.dz/assets/logo.png",
     contactPoint: {
       "@type": "ContactPoint",
       telephone: "+213-XXX-XX-XX-XX",

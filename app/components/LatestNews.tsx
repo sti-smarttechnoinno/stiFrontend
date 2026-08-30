@@ -42,7 +42,7 @@ function ArticleCard({
     >
       <div className="relative overflow-hidden">
         <img
-          src={image || "/assets/hero.png"}
+          src={image || "/assets/hero.webp"}
           alt={title}
           className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -127,7 +127,7 @@ export default function LatestNews() {
                 return (
                   <ArticleCard
                     key={art.id || art.slug || i}
-                    image={art.heroImage || "/assets/hero.png"}
+                    image={art.heroImage || "/assets/hero.webp"}
                     category={art.category}
                     title={trans.title || art.slug}
                     excerpt={trans.excerpt || ""}
@@ -142,7 +142,7 @@ export default function LatestNews() {
             : fallbackArticles.map((a, i) => (
                 <ArticleCard
                   key={a.title}
-                  image="/assets/hero.png"
+                  image="/assets/hero.webp"
                   {...a}
                   index={i}
                   ctaText={t.latestNews?.cta || "Read More"}

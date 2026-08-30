@@ -68,7 +68,7 @@ export function WhySti() {
 
         <div className="relative aspect-[4/3] sm:aspect-[16/11] lg:h-[450px] w-full overflow-hidden rounded-[24px] border border-gray-200/80 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)]">
           <Image
-            src="/assets/algeria-distribution.png"
+            src="/assets/algeria-distribution.webp"
             alt="Carte conceptuelle de l'Algérie illustrant le réseau de distribution STI"
             fill
             className="object-cover"

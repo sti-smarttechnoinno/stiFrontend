@@ -125,7 +125,7 @@ export async function generateMetadata({
   const loc = (locale as "en" | "ar" | "fr") || "fr";
   const seo = SEO_CONTENT[loc] || SEO_CONTENT.fr;
 
-  const siteUrl = "https://sti-dz.com";
+  const siteUrl = "https://sti.dz";
   const canonicalUrl = `${siteUrl}/${loc}`;
 
   return {
@@ -184,7 +184,7 @@ export default async function LocalizedHomePage({
 }) {
   const { locale } = await params;
   const loc = (locale as "en" | "ar" | "fr") || "fr";
-  const siteUrl = "https://sti-dz.com";
+  const siteUrl = "https://sti.dz";
 
   const organizationSchema = {
     "@context": "https://schema.org",

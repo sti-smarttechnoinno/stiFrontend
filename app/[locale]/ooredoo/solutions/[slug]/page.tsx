@@ -177,14 +177,14 @@ export default async function SolutionPage({ params }: PageProps) {
     provider: {
       "@type": "Organization",
       name: "SARL Smart Technologie Innovation (STI)",
-      url: "https://sti-dz.com",
+      url: "https://sti.dz",
     },
     serviceType: "Telecom Distribution",
     areaServed: {
       "@type": "Country",
       name: "Algeria",
     },
-    url: `https://sti-dz.com/${locale}/solutions/${slug}`,
+    url: `https://sti.dz/${locale}/solutions/${slug}`,
   };
 
   return (

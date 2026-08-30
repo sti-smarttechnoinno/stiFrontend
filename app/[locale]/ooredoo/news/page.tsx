@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     title: "News & Updates | STI Official Ooredoo Distributor Algeria",
     description:
       "Stay informed with the latest news, official announcements, product updates, wholesale promotions, and partnership opportunities from STI Algeria.",
-    images: ["/assets/hero.png"],
+    images: ["/assets/hero.webp"],
     type: "website",
   },
   twitter: {
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: "https://sti-dz.com/news",
+    canonical: "https://sti.dz/news",
   },
 };
 
@@ -51,8 +51,8 @@ const organizationSchema = {
   "@type": "Organization",
   name: "SARL Smart Technologie Innovation",
   alternateName: "STI",
-  url: "https://sti-dz.com",
-  logo: "https://sti-dz.com/logo.png",
+  url: "https://sti.dz",
+  logo: "https://sti.dz/logo.png",
   description:
     "Official Ooredoo distributor specializing in mobile recharge credit and prepaid SIM card distribution across Algeria.",
   address: {
@@ -76,14 +76,14 @@ const newsArticleSchema = {
     name: "SARL Smart Technologie Innovation",
     logo: {
       "@type": "ImageObject",
-      url: "https://sti-dz.com/logo.png",
+      url: "https://sti.dz/logo.png",
     },
   },
   datePublished: "2026-05-20",
   dateModified: "2026-05-20",
   mainEntityOfPage: {
     "@type": "WebPage",
-    "@id": "https://sti-dz.com/news/sti-expands-distribution",
+    "@id": "https://sti.dz/news/sti-expands-distribution",
   },
 };
 
@@ -93,7 +93,7 @@ const collectionSchema = {
   name: "News & Updates",
   description:
     "Latest news, announcements, and updates from SARL Smart Technologie Innovation (STI), official Ooredoo distributor in Algeria.",
-  url: "https://sti-dz.com/news",
+  url: "https://sti.dz/news",
   mainEntity: {
     "@type": "ItemList",
     numberOfItems: 6,
@@ -101,17 +101,17 @@ const collectionSchema = {
       {
         "@type": "ListItem",
         position: 1,
-        url: "https://sti-dz.com/news/sti-opens-new-regional-distribution-center",
+        url: "https://sti.dz/news/sti-opens-new-regional-distribution-center",
       },
       {
         "@type": "ListItem",
         position: 2,
-        url: "https://sti-dz.com/news/new-ooredoo-recharge-options",
+        url: "https://sti.dz/news/new-ooredoo-recharge-options",
       },
       {
         "@type": "ListItem",
         position: 3,
-        url: "https://sti-dz.com/news/growing-our-retail-partner-network",
+        url: "https://sti.dz/news/growing-our-retail-partner-network",
       },
     ],
   },

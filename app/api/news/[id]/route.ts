@@ -12,7 +12,7 @@ function normalizeArticle(item: any): ApiNewsItem {
     ...item,
     publishedAt: item.published_at || item.publishedAt || new Date().toISOString().split("T")[0],
     readingTime: item.reading_time || item.readingTime || "3 min read",
-    heroImage: item.hero_image || item.heroImage || "/assets/hero.png",
+    heroImage: item.hero_image || item.heroImage || "/assets/hero.webp",
   };
 }
 
