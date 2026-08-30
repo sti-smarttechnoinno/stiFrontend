@@ -31,12 +31,12 @@ export function VivoPanel({ state, expanded }: { state: PanelState; expanded: bo
           fill
           priority
           sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover object-center opacity-85 transition-transform duration-700 ease-out"
+          className="object-cover object-center opacity-95 transition-transform duration-700 ease-out"
           style={{
             transform: expanded ? "scale(1.05)" : isCollapsed ? "scale(0.98)" : "scale(1)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-warm-gray/95 via-warm-gray/70 to-warm-gray/30 md:bg-gradient-to-l md:from-warm-gray/95 md:via-warm-gray/80 md:to-warm-gray/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-warm-gray/75 via-warm-gray/40 to-transparent md:bg-gradient-to-l md:from-warm-gray/75 md:via-warm-gray/40 md:to-warm-gray/10" />
       </div>
 
       {/* Content */}

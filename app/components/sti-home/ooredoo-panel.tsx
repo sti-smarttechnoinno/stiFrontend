@@ -28,12 +28,12 @@ export function OoredooPanel({ state, expanded }: { state: PanelState; expanded:
           fill
           priority
           sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover object-center opacity-45 transition-transform duration-700 ease-out"
+          className="object-cover object-center opacity-75 transition-transform duration-700 ease-out"
           style={{
             transform: expanded ? "scale(1.05)" : isCollapsed ? "scale(0.98)" : "scale(1)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/75 to-charcoal/30 md:bg-gradient-to-r md:from-charcoal/95 md:via-charcoal/70 md:to-charcoal/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/45 to-transparent md:bg-gradient-to-r md:from-charcoal/80 md:via-charcoal/45 md:to-charcoal/10" />
       </div>
 
       {/* Content */}
