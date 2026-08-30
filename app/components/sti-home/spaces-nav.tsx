@@ -4,17 +4,28 @@ import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { ArrowRight } from "lucide-react"
+import { useTranslations } from "@/app/[locale]/use-translations"
 
 export function SpacesNav() {
   const params = useParams()
   const currentLocale = (params?.locale as string) || "fr"
+  const t = useTranslations() as any
+  const spacesT = t?.stiHome?.spaces || {
+    title: "Explorez nos espaces dédiés",
+    ooredooTitle: "Espace Ooredoo",
+    ooredooDesc: "Recharge crédit · Carte SIM · Ticket de recharge",
+    ooredooCta: "Voir les produits Ooredoo",
+    vivoTitle: "Espace VIVO",
+    vivoDesc: "Smartphones Série V et Série Y · Garantie constructeur STI",
+    vivoCta: "Découvrir la gamme VIVO",
+  }
 
   return (
     <section id="nos-espaces" aria-labelledby="spaces-heading" className="bg-background">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
         <div className="mx-auto max-w-2xl text-center">
           <h2 id="spaces-heading" className="font-heading text-3xl font-bold text-balance text-charcoal sm:text-4xl">
-            Explorez nos espaces dédiés
+            {spacesT.title}
           </h2>
           <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-crimson" />
         </div>
@@ -33,16 +44,16 @@ export function SpacesNav() {
               <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/40 to-transparent" />
             </div>
             <div className="p-7">
-              <h3 className="font-heading text-xl font-bold text-white">Espace Ooredoo</h3>
+              <h3 className="font-heading text-xl font-bold text-white">{spacesT.ooredooTitle}</h3>
               <p className="mt-2 text-sm font-medium text-white/70">
-                Recharge crédit · Carte SIM · Ticket de recharge
+                {spacesT.ooredooDesc}
               </p>
               <Link
                 href={`/${currentLocale}/ooredoo`}
                 className="mt-6 inline-flex items-center gap-2 rounded-full bg-crimson px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-crimson-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-crimson"
               >
-                Voir les produits Ooredoo
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                {spacesT.ooredooCta}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" aria-hidden="true" />
               </Link>
             </div>
           </article>
@@ -60,14 +71,14 @@ export function SpacesNav() {
               <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
             </div>
             <div className="p-7">
-              <h3 className="font-heading text-xl font-bold text-charcoal">Espace VIVO</h3>
-              <p className="mt-2 text-sm font-medium text-muted-foreground">Smartphones Série V et Série Y · Garantie constructeur STI</p>
+              <h3 className="font-heading text-xl font-bold text-charcoal">{spacesT.vivoTitle}</h3>
+              <p className="mt-2 text-sm font-medium text-muted-foreground">{spacesT.vivoDesc}</p>
               <Link
                 href={`/${currentLocale}/vivo`}
                 className="mt-6 inline-flex items-center gap-2 rounded-full bg-charcoal px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-charcoal"
               >
-                Découvrir la gamme VIVO
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                {spacesT.vivoCta}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" aria-hidden="true" />
               </Link>
             </div>
           </article>

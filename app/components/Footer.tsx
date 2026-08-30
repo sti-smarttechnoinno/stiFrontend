@@ -116,6 +116,9 @@ export default function Footer() {
     },
   ];
 
+  const displayPhone = currentLocale === "ar" ? "36 35 02 0552" : (phone || "+213 35 82 60 60");
+  const displayEmail = email || "contact@sti-dz.com";
+
   return (
     <footer className="bg-gray-900 pt-20 pb-8">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-8">
@@ -181,12 +184,14 @@ export default function Footer() {
               {t.footer.contact}
             </h4>
             <ul className="space-y-3">
-              {phone && (
+              {displayPhone && (
                 <li className="flex items-start gap-2.5">
                   <Phone size={15} className="mt-0.5 shrink-0 text-red-primary" />
                   <div className="text-start">
                     <div className="text-sm font-bold text-gray-200">
-                      <bdo dir="ltr" className="inline-block">{phone}</bdo>
+                      <a href={`tel:${displayPhone.replace(/[^0-9+]/g, "")}`} className="hover:text-white transition-colors">
+                        <span className="inline-block">{displayPhone}</span>
+                      </a>
                     </div>
                     {activeWorkingHours && <div className="text-xs text-gray-500">{activeWorkingHours}</div>}
                   </div>
@@ -194,14 +199,14 @@ export default function Footer() {
               )}
               <li className="flex items-center gap-2.5">
                 <Mail size={15} className="shrink-0 text-gray-500" />
-                <a href={`mailto:${email}`} className="text-sm text-gray-300 hover:text-white transition-colors">
-                  {email}
+                <a href={`mailto:${displayEmail}`} className="text-sm text-gray-300 hover:text-white transition-colors">
+                  {displayEmail}
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-gray-500" />
                 <span className="text-sm text-gray-300 leading-snug">
-                  {activeLocation}
+                  {activeLocation || (currentLocale === "ar" ? "حي النصر، برج بوعريريج، الجزائر" : "Cité Ennasr, Bordj Bou Arréridj, Algérie")}
                 </span>
               </li>
             </ul>
@@ -212,10 +217,10 @@ export default function Footer() {
         <div className="mt-16 border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500">
             {currentLocale === "ar"
-              ? `© ${new Date().getFullYear()} شركة سمارت تكنولوجي إينوفيشين (STI). جميع الحقوق محفوظة.`
+              ? `© ${new Date().getFullYear()} ش.ذ.م.م سمارت تكنولوجي إنوفايشن (STI). جميع الحقوق محفوظة.`
               : currentLocale === "fr"
               ? `© ${new Date().getFullYear()} SARL Smart Technologie Innovation (STI). Tous droits réservés.`
-              : `© ${new Date().getFullYear()} SARL Smart Technologie Innovation (STI). All rights reserved.`}
+              : `© ${new Date().getFullYear()} SARL Smart Technology Innovation (STI). All rights reserved.`}
           </p>
           <div />
         </div>

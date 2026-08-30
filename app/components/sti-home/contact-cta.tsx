@@ -1,12 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "@/app/[locale]/use-translations";
 
 export function ContactCta() {
-  const pathname = usePathname();
-  const currentLocale = pathname.split("/").filter(Boolean).find((s) => ["en", "fr", "ar"].includes(s)) || "fr";
+  const params = useParams();
+  const currentLocale = (params?.locale as string) || "fr";
+  const t = useTranslations() as any;
+  const ctaT = t?.stiHome?.contactCta || {
+    badge: "Partenariat & Contact",
+    title: "Parlons de votre prochain projet",
+    description: "Notre équipe vous accompagne avec des solutions télécoms et mobiles fiables et performantes partout en Algérie.",
+    cta: "Contacter STI",
+  };
 
   return (
     <section id="contact" aria-labelledby="cta-heading" className="py-28 lg:py-36 bg-red-primary relative overflow-hidden">
@@ -30,7 +38,7 @@ export function ContactCta() {
 
       <div className="relative mx-auto max-w-[1320px] px-6 lg:px-8 text-center">
         <span className="mb-4 inline-block text-xs font-bold uppercase tracking-widest text-white/80">
-          Partenariat &amp; Contact
+          {ctaT.badge}
         </span>
 
         <h2
@@ -38,11 +46,11 @@ export function ContactCta() {
           className="mb-6 text-3xl font-extrabold text-white md:text-4xl lg:text-5xl"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          Parlons de votre prochain projet
+          {ctaT.title}
         </h2>
 
         <p className="mx-auto mb-10 max-w-2xl text-base sm:text-lg text-white/85 leading-relaxed">
-          Notre équipe vous accompagne avec des solutions télécoms et mobiles fiables et performantes partout en Algérie.
+          {ctaT.description}
         </p>
 
         <div className="flex items-center justify-center">
@@ -50,7 +58,7 @@ export function ContactCta() {
             href={`/${currentLocale}/ooredoo/contact`}
             className="group inline-flex items-center gap-2.5 rounded-full bg-white px-8 py-4 text-[15px] font-bold text-red-primary shadow-lg transition-all duration-250 hover:shadow-xl hover:scale-[1.03]"
           >
-            Contacter STI
+            {ctaT.cta}
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
           </Link>
         </div>

@@ -718,3 +718,115 @@
 .store-empty-inner h2 { margin: 25px 0 0; font-family: "Manrope", sans-serif; font-size: clamp(52px, 6vw, 79px); font-weight: 600; letter-spacing: -.08em; line-height: .93; }
 .store-empty-inner p { max-width: 390px; margin: 30px 0 27px; color: rgba(255,255,255,.56); font-size: 13px; line-height: 1.75; }
 @media (max-width: 760px) { .store-locator-hero { min-height: 640px; } .store-locator-hero-inner { display: block; min-height: 535px; padding-top: 61px; padding-bottom: 57px; } .store-locator-hero h1 { font-size: clamp(58px, 15vw, 80px); } .store-locator-hero p { max-width: 320px; font-size: 13px; } .store-locator-hero-meta { margin-top: 43px; font-size: 8px; } .store-locator-hero-meta span + span::before { width: 10px; margin-right: 9px; } .store-locator-tool, .store-empty-state { padding-block: 80px; } .locator-layout { display: block; } .locator-map-wrap { min-height: 410px; margin-top: 56px; } .locator-map { height: 410px !important; } .locator-map-note { top: 12px; right: 12px; } .locator-map-label { left: 12px; bottom: 12px; } .store-empty-inner { display: block; } .store-empty-mark { width: 180px; margin: 0 auto 59px; } }
+
+/* RTL Support for VIVO UI */
+[dir="rtl"] .products-menu,
+html[dir="rtl"] .products-menu,
+body[dir="rtl"] .products-menu {
+  left: auto;
+  right: -24px;
+  text-align: right;
+}
+
+[dir="rtl"] .products-menu-intro,
+html[dir="rtl"] .products-menu-intro {
+  text-align: right;
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .products-menu-intro p,
+html[dir="rtl"] .products-menu-intro p {
+  text-align: right;
+}
+
+[dir="rtl"] .products-menu-grid a,
+html[dir="rtl"] .products-menu-grid a {
+  text-align: right;
+  grid-template-columns: 1fr auto;
+}
+
+[dir="rtl"] .products-menu-grid a svg,
+html[dir="rtl"] .products-menu-grid a svg {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .desktop-nav,
+html[dir="rtl"] .desktop-nav {
+  margin-left: 47px;
+  margin-right: auto;
+}
+
+[dir="rtl"] .nav-cta svg,
+html[dir="rtl"] .nav-cta svg {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .search-panel,
+html[dir="rtl"] .search-panel {
+  text-align: right;
+}
+
+[dir="rtl"] .search-close,
+html[dir="rtl"] .search-close {
+  right: auto;
+  left: 40px;
+}
+
+[dir="rtl"] .mobile-link,
+html[dir="rtl"] .mobile-link {
+  direction: rtl;
+}
+
+[dir="rtl"] .mobile-link svg,
+html[dir="rtl"] .mobile-link svg {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .mobile-menu-kicker,
+html[dir="rtl"] .mobile-menu-kicker {
+  text-align: right;
+}
+
+[dir="rtl"] .mobile-menu-footer a svg,
+html[dir="rtl"] .mobile-menu-footer a svg {
+  transform: scaleX(-1);
+}
+
+/* Hero RTL adjustments */
+[dir="rtl"] .hero-product--centered,
+html[dir="rtl"] .hero-product--centered,
+body[dir="rtl"] .hero-product--centered {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  transform: none;
+}
+
+[dir="rtl"] .hero-product--centered::after,
+html[dir="rtl"] .hero-product--centered::after {
+  background: linear-gradient(270deg, rgba(14,27,47,.88) 0%, rgba(14,27,47,.48) 42%, rgba(14,27,47,.12) 74%, rgba(14,27,47,.26) 100%), linear-gradient(180deg, rgba(14,27,47,.25) 0%, transparent 34%, rgba(14,27,47,.35) 100%);
+}
+
+[dir="rtl"] .product-index,
+html[dir="rtl"] .product-index {
+  right: auto;
+  left: clamp(28px, 6vw, 80px);
+  direction: ltr;
+}
+
+[dir="rtl"] .hero-product--centered .product-caption,
+html[dir="rtl"] .hero-product--centered .product-caption {
+  right: auto;
+  left: clamp(28px, 6vw, 80px);
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+[dir="rtl"] .hero-actions a svg,
+html[dir="rtl"] .hero-actions a svg {
+  transform: scaleX(-1);
+}
+
+
+

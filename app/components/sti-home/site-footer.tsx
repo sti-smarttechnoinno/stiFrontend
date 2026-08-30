@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { usePreferences } from "@/app/[locale]/preferences-context";
+import { useTranslations } from "@/app/[locale]/use-translations";
 
 const LinkedinIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -40,26 +41,57 @@ const InstagramIcon = () => (
   </svg>
 );
 
-const NAV = [
-  { label: "Accueil", href: "#accueil" },
-  { label: "À propos", href: "#a-propos" },
-  { label: "Nos univers", href: "#nos-espaces" },
-  { label: "Nos services", href: "#services" },
-  { label: "Contact", href: "#contact" },
-];
-
 export function SiteFooter() {
   const params = useParams();
   const currentLocale = (params?.locale as string) || "fr";
   const currentYear = new Date().getFullYear();
 
   const { preferences, phone, email, socialMedia, locationObj, activeLocation } = usePreferences();
+  const t = useTranslations() as any;
+  const footerT = t?.stiHome?.footer || {
+    distributorDesc: "Distributeur Agréé Ooredoo en Algérie & Production et Distribution VIVO.",
+    navigation: "Navigation",
+    ooredooSpace: "Espace Ooredoo",
+    vivoSpace: "Espace VIVO",
+    navHome: "Accueil",
+    navAbout: "À propos",
+    navSpaces: "Nos univers",
+    navServices: "Nos services",
+    navContact: "Contact",
+    ooredooHome: "Accueil Ooredoo",
+    ooredooSolutions: "Solutions de distribution",
+    ooredooProducts: "Produits & Cartes SIM",
+    ooredooAbout: "À propos du partenariat",
+    ooredooNews: "Actualités & Guides",
+    ooredooContact: "Contacter l'équipe",
+    vivoHome: "Accueil VIVO",
+    vivoProducts: "Tous les smartphones",
+    vivoVSeries: "Smartphones Série V",
+    vivoYSeries: "Smartphones Série Y",
+    vivoStore: "Trouver un point de vente",
+    vivoAbout: "À propos de VIVO Algérie",
+    rights: "Tous droits réservés.",
+  };
+
+  const nav = [
+    { label: footerT.navHome || "Accueil", href: "#accueil" },
+    { label: footerT.navAbout || "À propos", href: "#a-propos" },
+    { label: footerT.navSpaces || "Nos univers", href: "#nos-espaces" },
+    { label: footerT.navServices || "Nos services", href: "#services" },
+    { label: footerT.navContact || "Contact", href: "#contact" },
+  ];
 
   const companyName =
-    preferences?.businessInfo?.companyName?.[currentLocale as "en" | "fr" | "ar"] ||
-    preferences?.businessInfo?.companyName?.fr ||
-    preferences?.businessInfo?.companyName?.en ||
-    "SARL Smart Technologie Innovation";
+    (typeof preferences?.businessInfo?.companyName === "object"
+      ? preferences?.businessInfo?.companyName?.[currentLocale as "en" | "fr" | "ar"] ||
+        preferences?.businessInfo?.companyName?.fr
+      : undefined) ||
+    footerT.companyName ||
+    (currentLocale === "ar"
+      ? "ش.ذ.م.م سمارت تكنولوجي إنوفايشن"
+      : currentLocale === "en"
+      ? "SARL Smart Technology Innovation"
+      : "SARL Smart Technologie Innovation");
 
   const displayLocation =
     activeLocation ||
@@ -68,7 +100,10 @@ export function SiteFooter() {
     locationObj.en ||
     "Cité Ennasr, Bordj Bou Arréridj, Algérie";
 
-  const displayPhone = phone || "+213 35 82 60 60";
+  const displayPhone =
+    currentLocale === "ar"
+      ? "36 35 02 0552"
+      : phone || "+213 35 82 60 60";
   const displayEmail = email || "contact@sti-dz.com";
 
   const socials = [
@@ -79,22 +114,22 @@ export function SiteFooter() {
     { icon: <InstagramIcon />, label: "Instagram", href: socialMedia?.instagram },
   ].filter((s) => s.href && s.href.trim() !== "" && s.href !== "#");
 
-  const OOREDOO_LINKS = [
-    { label: "Accueil Ooredoo", href: `/${currentLocale}/ooredoo` },
-    { label: "Solutions de distribution", href: `/${currentLocale}/ooredoo/solutions` },
-    { label: "Produits & Cartes SIM", href: `/${currentLocale}/ooredoo/products` },
-    { label: "À propos du partenariat", href: `/${currentLocale}/ooredoo/about` },
-    { label: "Actualités & Guides", href: `/${currentLocale}/ooredoo/news` },
-    { label: "Contacter l'équipe", href: `/${currentLocale}/ooredoo/contact` },
+  const ooredooLinks = [
+    { label: footerT.ooredooHome || "Accueil Ooredoo", href: `/${currentLocale}/ooredoo` },
+    { label: footerT.ooredooSolutions || "Solutions de distribution", href: `/${currentLocale}/ooredoo/solutions` },
+    { label: footerT.ooredooProducts || "Produits & Cartes SIM", href: `/${currentLocale}/ooredoo/products` },
+    { label: footerT.ooredooAbout || "À propos du partenariat", href: `/${currentLocale}/ooredoo/about` },
+    { label: footerT.ooredooNews || "Actualités & Guides", href: `/${currentLocale}/ooredoo/news` },
+    { label: footerT.ooredooContact || "Contacter l'équipe", href: `/${currentLocale}/ooredoo/contact` },
   ];
 
-  const VIVO_LINKS = [
-    { label: "Accueil VIVO", href: `/${currentLocale}/vivo` },
-    { label: "Tous les smartphones", href: `/${currentLocale}/vivo/products` },
-    { label: "Smartphones Série V", href: `/${currentLocale}/vivo/products/v-series` },
-    { label: "Smartphones Série Y", href: `/${currentLocale}/vivo/products/y-series` },
-    { label: "Trouver un point de vente", href: `/${currentLocale}/vivo/find-a-store` },
-    { label: "À propos de VIVO Algérie", href: `/${currentLocale}/vivo/about` },
+  const vivoLinks = [
+    { label: footerT.vivoHome || "Accueil VIVO", href: `/${currentLocale}/vivo` },
+    { label: footerT.vivoProducts || "Tous les smartphones", href: `/${currentLocale}/vivo/products` },
+    { label: footerT.vivoVSeries || "Smartphones Série V", href: `/${currentLocale}/vivo/products/v-series` },
+    { label: footerT.vivoYSeries || "Smartphones Série Y", href: `/${currentLocale}/vivo/products/y-series` },
+    { label: footerT.vivoStore || "Trouver un point de vente", href: `/${currentLocale}/vivo/find-a-store` },
+    { label: footerT.vivoAbout || "À propos de VIVO Algérie", href: `/${currentLocale}/vivo/about` },
   ];
 
   return (
@@ -118,7 +153,7 @@ export function SiteFooter() {
               {companyName}
             </p>
             <p className="mb-5 max-w-sm text-xs leading-relaxed text-gray-400">
-              Distributeur Agréé Ooredoo en Algérie &amp; Production et Distribution VIVO.
+              {footerT.distributorDesc}
             </p>
 
             <ul className="space-y-3 text-xs text-gray-300">
@@ -128,8 +163,8 @@ export function SiteFooter() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-4 w-4 shrink-0 text-red-primary" aria-hidden="true" />
-                <a href={`tel:${displayPhone.replace(/\s+/g, "")}`} className="transition-colors hover:text-white">
-                  {displayPhone}
+                <a href={`tel:${displayPhone.replace(/\s+/g, "")}`} className="transition-colors hover:text-white inline-flex items-center">
+                  <span>{displayPhone}</span>
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -161,10 +196,10 @@ export function SiteFooter() {
           {/* Column 2: Navigation */}
           <div>
             <h3 className="mb-5 text-xs font-bold uppercase tracking-wider text-white">
-              Navigation
+              {footerT.navigation}
             </h3>
             <ul className="space-y-3 text-xs">
-              {NAV.map((item) => (
+              {nav.map((item) => (
                 <li key={item.label}>
                   <a href={item.href} className="transition-colors hover:text-white">
                     {item.label}
@@ -177,10 +212,10 @@ export function SiteFooter() {
           {/* Column 3: Espace Ooredoo */}
           <div>
             <h3 className="mb-5 text-xs font-bold uppercase tracking-wider text-red-400">
-              Espace Ooredoo
+              {footerT.ooredooSpace}
             </h3>
             <ul className="space-y-3 text-xs">
-              {OOREDOO_LINKS.map((item) => (
+              {ooredooLinks.map((item) => (
                 <li key={item.label}>
                   <Link href={item.href} className="transition-colors hover:text-white">
                     {item.label}
@@ -193,10 +228,10 @@ export function SiteFooter() {
           {/* Column 4: Espace VIVO */}
           <div>
             <h3 className="mb-5 text-xs font-bold uppercase tracking-wider text-blue-400">
-              Espace VIVO
+              {footerT.vivoSpace}
             </h3>
             <ul className="space-y-3 text-xs">
-              {VIVO_LINKS.map((item) => (
+              {vivoLinks.map((item) => (
                 <li key={item.label}>
                   <Link href={item.href} className="transition-colors hover:text-white">
                     {item.label}
@@ -209,7 +244,7 @@ export function SiteFooter() {
 
         {/* Bottom bar */}
         <div className="mt-14 flex flex-col items-center justify-center border-t border-gray-800 pt-8 text-xs text-gray-500 text-center">
-          <p>© {currentYear} {companyName}. Tous droits réservés.</p>
+          <p>© {currentYear} {companyName}. {footerT.rights}</p>
         </div>
       </div>
     </footer>

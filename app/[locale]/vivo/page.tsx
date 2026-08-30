@@ -17,56 +17,89 @@ import {
 import { VivoNavbar } from "@/app/components/vivo/VivoNavbar";
 import { VivoMark } from "@/app/components/vivo/VivoMark";
 import { VIVO_ASSETS } from "@/app/components/vivo/assets";
+import { useTranslations } from "@/app/[locale]/use-translations";
 
 export default function VivoHomePage() {
   const params = useParams();
   const locale = (params?.locale as string) || "fr";
+  const t = useTranslations() as any;
 
-  const heroSlides = [
+  const vivoHeroT = t?.vivoHero || t?.stiHome?.vivoHero || {
+    viewAll: "Voir tous les produits",
+    trust: "Distribution officielle STI · Service local en Algérie",
+    scroll: "Défiler pour découvrir",
+    navGroupAria: "Naviguer entre les visuels du hero",
+    prevAria: "Visuel précédent",
+    nextAria: "Visuel suivant",
+    showAria: "Afficher",
+    slides: [
+      {
+        name: "X Series",
+        eyebrow: "Nouvelle génération",
+        title: "La précision",
+        accent: "qui se ressent.",
+        description:
+          "Des images qui restent fidèles à l’instant. Une puissance qui suit votre rythme. Découvrez l’expérience vivo en Algérie.",
+        cta: "Découvrir la Série X",
+        caption: "Optique de précision",
+        alt: "Smartphone vivo X Series bleu nuit présenté en studio",
+      },
+      {
+        name: "V Series",
+        eyebrow: "Portraits nouvelle génération",
+        title: "Votre lumière",
+        accent: "en signature.",
+        description:
+          "Des portraits plus naturels, des couleurs plus justes et une présence qui vous ressemble au quotidien.",
+        cta: "Explorer la Série V",
+        caption: "Portrait, avec intention",
+        alt: "Détail de l’optique d’un smartphone vivo",
+      },
+      {
+        name: "Y Series",
+        eyebrow: "L’essentiel, en mieux",
+        title: "Pensé pour",
+        accent: "chaque jour.",
+        description:
+          "Une expérience vivo simple, fluide et fiable, conçue pour suivre vos journées en Algérie.",
+        cta: "Voir la Série Y",
+        caption: "La vie, en mouvement",
+        alt: "Utilisatrice avec un smartphone vivo sur un rooftop à Alger",
+      },
+    ],
+  };
+
+  const slideConfigs = [
     {
-      name: "X Series",
-      eyebrow: "Nouvelle génération",
-      title: "La précision",
-      accent: "qui se ressent.",
-      description:
-        "Des images qui restent fidèles à l’instant. Une puissance qui suit votre rythme. Découvrez l’expérience vivo en Algérie.",
-      cta: "Découvrir la Série X",
       href: `/${locale}/vivo/technology`,
       image: VIVO_ASSETS.hero,
-      caption: "Optique de précision",
-      alt: "Smartphone vivo X Series bleu nuit présenté en studio",
     },
     {
-      name: "V Series",
-      eyebrow: "Portraits nouvelle génération",
-      title: "Votre lumière",
-      accent: "en signature.",
-      description:
-        "Des portraits plus naturels, des couleurs plus justes et une présence qui vous ressemble au quotidien.",
-      cta: "Explorer la Série V",
       href: `/${locale}/vivo/products`,
       image: VIVO_ASSETS.camera,
-      caption: "Portrait, avec intention",
-      alt: "Détail de l’optique d’un smartphone vivo",
     },
     {
-      name: "Y Series",
-      eyebrow: "L’essentiel, en mieux",
-      title: "Pensé pour",
-      accent: "chaque jour.",
-      description:
-        "Une expérience vivo simple, fluide et fiable, conçue pour suivre vos journées en Algérie.",
-      cta: "Voir la Série Y",
       href: `/${locale}/vivo/products/y-series`,
       image: VIVO_ASSETS.lifestyle,
-      caption: "La vie, en mouvement",
-      alt: "Utilisatrice avec un smartphone vivo sur un rooftop à Alger",
     },
   ];
 
+  const heroSlides = (vivoHeroT.slides || []).map((slide: any, index: number) => ({
+    name: slide.name || (index === 0 ? "X Series" : index === 1 ? "V Series" : "Y Series"),
+    eyebrow: slide.eyebrow,
+    title: slide.title,
+    accent: slide.accent,
+    description: slide.description,
+    cta: slide.cta,
+    href: slideConfigs[index]?.href || `/${locale}/vivo/products`,
+    image: slideConfigs[index]?.image || VIVO_ASSETS.hero,
+    caption: slide.caption,
+    alt: slide.alt,
+  }));
+
   const [activeSlide, setActiveSlide] = useState(0);
   const [heroPaused, setHeroPaused] = useState(false);
-  const currentSlide = heroSlides[activeSlide];
+  const currentSlide = heroSlides[activeSlide] || heroSlides[0];
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -111,12 +144,12 @@ export default function VivoHomePage() {
                   {currentSlide.cta} <ArrowUpRight size={16} />
                 </Link>
                 <Link className="text-link" href={`/${locale}/vivo/products`}>
-                  Voir tous les produits <ArrowDownRight size={16} />
+                  {vivoHeroT.viewAll || "Voir tous les produits"} <ArrowDownRight size={16} />
                 </Link>
               </div>
               <div className="hero-trust reveal-item reveal-item--5">
                 <ShieldCheck size={17} strokeWidth={1.5} />
-                <span>Distribution officielle STI · Service local en Algérie</span>
+                <span>{vivoHeroT.trust || "Distribution officielle STI · Service local en Algérie"}</span>
               </div>
             </div>
 
@@ -127,22 +160,22 @@ export default function VivoHomePage() {
               onFocus={() => setHeroPaused(true)}
               onBlur={() => setHeroPaused(false)}
             >
-              <div className="product-index" role="group" aria-label="Naviguer entre les visuels du hero">
+              <div className="product-index" role="group" aria-label={vivoHeroT.navGroupAria || "Naviguer entre les visuels du hero"}>
                 <button
                   type="button"
                   className="hero-nav-arrow"
                   onClick={() => goToSlide(activeSlide - 1)}
-                  aria-label="Visuel précédent"
+                  aria-label={vivoHeroT.prevAria || "Visuel précédent"}
                 >
                   <ArrowLeft size={14} />
                 </button>
-                {heroSlides.map((slide, index) => (
+                {heroSlides.map((slide: any, index: number) => (
                   <button
                     type="button"
                     key={slide.name}
                     className={`hero-progress ${index === activeSlide ? "hero-progress--active" : ""}`}
                     onClick={() => goToSlide(index)}
-                    aria-label={`Afficher ${slide.name}`}
+                    aria-label={`${vivoHeroT.showAria || "Afficher"} ${slide.name}`}
                     aria-current={index === activeSlide ? "true" : undefined}
                   >
                     {String(index + 1).padStart(2, "0")}
@@ -152,7 +185,7 @@ export default function VivoHomePage() {
                   type="button"
                   className="hero-nav-arrow"
                   onClick={() => goToSlide(activeSlide + 1)}
-                  aria-label="Visuel suivant"
+                  aria-label={vivoHeroT.nextAria || "Visuel suivant"}
                 >
                   <ArrowRight size={14} />
                 </button>
@@ -181,7 +214,7 @@ export default function VivoHomePage() {
           </div>
 
           <div className="hero-scroll content-container">
-            <span>Défiler pour découvrir</span>
+            <span>{vivoHeroT.scroll || "Défiler pour découvrir"}</span>
             <span className="scroll-line" />
           </div>
         </section>

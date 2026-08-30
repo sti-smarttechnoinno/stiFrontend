@@ -11,16 +11,108 @@ import {
   Search,
   X,
 } from "lucide-react";
+import { useTranslations } from "@/app/[locale]/use-translations";
 
 export function VivoNavbar() {
   const params = useParams();
   const pathname = usePathname() || "";
   const locale = (params?.locale as string) || "fr";
+  const t = useTranslations() as any;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const localeDicts: Record<string, any> = {
+    fr: {
+      announcement: "vivo Algérie — Distributeur officiel",
+      learnMore: "En savoir plus",
+      products: "Produits",
+      technology: "Technologie",
+      support: "Support",
+      about: "À propos",
+      exploreIntro: "Explorer vivo",
+      exploreDesc: "Une gamme pensée pour chaque façon de voir le monde.",
+      vSeriesName: "Série V",
+      vSeriesDesc: "Portraits qui se démarquent · Design premium",
+      ySeriesName: "Série Y",
+      ySeriesDesc: "L’essentiel, en mieux · Autonomie longue durée",
+      findStore: "Trouver un point de vente",
+      searchAria: "Rechercher",
+      menuOpenAria: "Ouvrir le menu",
+      menuCloseAria: "Fermer le menu",
+      navAria: "Navigation principale",
+      mobileNavKicker: "Navigation",
+      mobileFooterDistributor: "Distributeur Officiel STI",
+      searchOverlayAria: "Recherche",
+      searchCloseAria: "Fermer la recherche",
+      searchEyebrow: "Recherche vivo Algérie",
+      searchTitle: "Que cherchez-vous ?",
+      searchPlaceholder: "Rechercher un produit, une série…",
+      searchHint: "Essayez « Série V », « Série Y », « service après-vente » ou « revendeurs ».",
+    },
+    en: {
+      announcement: "vivo Algeria — Official Distributor",
+      learnMore: "Learn more",
+      products: "Products",
+      technology: "Technology",
+      support: "Support",
+      about: "About",
+      exploreIntro: "Explore vivo",
+      exploreDesc: "A lineup designed for every perspective on the world.",
+      vSeriesName: "V Series",
+      vSeriesDesc: "Portraits that stand out · Premium design",
+      ySeriesName: "Y Series",
+      ySeriesDesc: "The essentials, elevated · Long battery life",
+      findStore: "Find a Store",
+      searchAria: "Search",
+      menuOpenAria: "Open menu",
+      menuCloseAria: "Close menu",
+      navAria: "Main navigation",
+      mobileNavKicker: "Navigation",
+      mobileFooterDistributor: "Official STI Distributor",
+      searchOverlayAria: "Search",
+      searchCloseAria: "Close search",
+      searchEyebrow: "Search vivo Algeria",
+      searchTitle: "What are you looking for?",
+      searchPlaceholder: "Search a product, series…",
+      searchHint: "Try \"V Series\", \"Y Series\", \"after-sales service\" or \"retailers\".",
+    },
+    ar: {
+      announcement: "فيفو الجزائر — الموزع الرسمي",
+      learnMore: "اعرف المزيد",
+      products: "المنتجات",
+      technology: "التكنولوجيا",
+      support: "الدعم",
+      about: "من نحن",
+      exploreIntro: "استكشف فيفو",
+      exploreDesc: "تشكيلة مبتكرة صُممت لكل أسلوب ورؤية.",
+      vSeriesName: "سلسلة V",
+      vSeriesDesc: "بورتريه مميز واستثنائي · تصميم راقٍ",
+      ySeriesName: "سلسلة Y",
+      ySeriesDesc: "الأساسيات بأداء أفضل · بطارية تدوم طويلاً",
+      findStore: "العثور على نقطة بيع",
+      searchAria: "بحث",
+      menuOpenAria: "فتح القائمة",
+      menuCloseAria: "إغلاق القائمة",
+      navAria: "التنقل الرئيسي",
+      mobileNavKicker: "التنقل",
+      mobileFooterDistributor: "الموزع الرسمي STI",
+      searchOverlayAria: "البحث",
+      searchCloseAria: "إغلاق البحث",
+      searchEyebrow: "البحث في فيفو الجزائر",
+      searchTitle: "عن ماذا تبحث؟",
+      searchPlaceholder: "ابحث عن منتج، سلسلة…",
+      searchHint: "جرب «سلسلة V»، «سلسلة Y»، «خدمة ما بعد البيع» أو «الموزعين».",
+    },
+  };
+
+  const navT =
+    t?.vivoNavbar ||
+    t?.stiHome?.vivoNavbar ||
+    localeDicts[locale] ||
+    localeDicts.fr;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 15);
@@ -42,10 +134,23 @@ export function VivoNavbar() {
   };
 
   const navLinks = [
-    { label: "Produits", href: `/${locale}/vivo/products`, dropdown: true },
-    { label: "Technologie", href: `/${locale}/vivo/technology` },
-    { label: "Support", href: `/${locale}/vivo/support` },
-    { label: "À propos", href: `/${locale}/vivo/about` },
+    { label: navT.products || "Produits", href: `/${locale}/vivo/products`, dropdown: true },
+    { label: navT.technology || "Technologie", href: `/${locale}/vivo/technology` },
+    { label: navT.support || "Support", href: `/${locale}/vivo/support` },
+    { label: navT.about || "À propos", href: `/${locale}/vivo/about` },
+  ];
+
+  const productDropdownItems = [
+    [
+      navT.vSeriesName || "Série V",
+      navT.vSeriesDesc || "Portraits qui se démarquent · Design premium",
+      `/${locale}/vivo/products/v-series`,
+    ],
+    [
+      navT.ySeriesName || "Série Y",
+      navT.ySeriesDesc || "L’essentiel, en mieux · Autonomie longue durée",
+      `/${locale}/vivo/products/y-series`,
+    ],
   ];
 
   return (
@@ -53,8 +158,8 @@ export function VivoNavbar() {
       <div className="announcement-bar">
         <div className="announcement-inner">
           <span className="announcement-dot" aria-hidden="true" />
-          <span>vivo Algérie — Distributeur officiel</span>
-          <Link href={`/${locale}/vivo/about`}>En savoir plus</Link>
+          <span>{navT.announcement}</span>
+          <Link href={`/${locale}/vivo/about`}>{navT.learnMore}</Link>
         </div>
       </div>
       <header className={`site-header ${scrolled ? "site-header--scrolled" : ""}`}>
@@ -101,7 +206,7 @@ export function VivoNavbar() {
           </div>
 
           {/* Desktop Navigation Links (Centered in Y-axis) */}
-          <nav className="desktop-nav flex items-center h-full my-auto" aria-label="Navigation principale">
+          <nav className="desktop-nav flex items-center h-full my-auto" aria-label={navT.navAria || "Navigation principale"}>
             {navLinks.map((link) => (
               <div
                 className="nav-item-wrap flex items-center h-full"
@@ -132,16 +237,11 @@ export function VivoNavbar() {
                 {link.dropdown && productsOpen && (
                   <div className="products-menu" role="menu">
                     <div className="products-menu-intro">
-                      <span className="eyebrow eyebrow--blue">Explorer vivo</span>
-                      <p>Une gamme pensée pour chaque façon de voir le monde.</p>
+                      <span className="eyebrow eyebrow--blue">{navT.exploreIntro}</span>
+                      <p>{navT.exploreDesc}</p>
                     </div>
                     <div className="products-menu-grid">
-                      {[
-                        ["X Series", "Imagerie professionnelle", `/${locale}/vivo/products#x-series`],
-                        ["V Series", "Portraits qui se démarquent", `/${locale}/vivo/products`],
-                        ["Y Series", "L’essentiel, en mieux", `/${locale}/vivo/products/y-series`],
-                        ["Accessoires", "L’écosystème vivo", `/${locale}/vivo/support`],
-                      ].map(([name, detail, href]) => (
+                      {productDropdownItems.map(([name, detail, href]) => (
                         <Link
                           key={name}
                           href={href}
@@ -165,18 +265,18 @@ export function VivoNavbar() {
             <button
               className="icon-button"
               type="button"
-              aria-label="Rechercher"
+              aria-label={navT.searchAria || "Rechercher"}
               onClick={() => setSearchOpen(true)}
             >
               <Search size={18} strokeWidth={1.65} />
             </button>
             <Link href={`/${locale}/vivo/find-a-store`} className="nav-cta">
-              Trouver un point de vente <ArrowUpRight size={14} />
+              {navT.findStore} <ArrowUpRight size={14} />
             </Link>
             <button
               className="mobile-toggle"
               type="button"
-              aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-label={menuOpen ? (navT.menuCloseAria || "Fermer le menu") : (navT.menuOpenAria || "Ouvrir le menu")}
               onClick={() => setMenuOpen((open) => !open)}
             >
               {menuOpen ? <X size={21} strokeWidth={1.7} /> : <Menu size={21} strokeWidth={1.7} />}
@@ -187,7 +287,7 @@ export function VivoNavbar() {
         {menuOpen && (
           <div className="mobile-menu">
             <div className="mobile-menu-inner">
-              <div className="mobile-menu-kicker">Navigation</div>
+              <div className="mobile-menu-kicker">{navT.mobileNavKicker}</div>
               {navLinks.map((link, index) => (
                 <Link
                   key={link.label}
@@ -203,9 +303,9 @@ export function VivoNavbar() {
                 </Link>
               ))}
               <div className="mobile-menu-footer">
-                <span>Distributeur Officiel STI</span>
+                <span>{navT.mobileFooterDistributor}</span>
                 <Link href={`/${locale}/vivo/find-a-store`} onClick={closePanels}>
-                  Trouver un point de vente <ArrowUpRight size={14} />
+                  {navT.findStore} <ArrowUpRight size={14} />
                 </Link>
               </div>
             </div>
@@ -214,23 +314,23 @@ export function VivoNavbar() {
       </header>
 
       {searchOpen && (
-        <div className="search-overlay" role="dialog" aria-modal="true" aria-label="Recherche">
+        <div className="search-overlay" role="dialog" aria-modal="true" aria-label={navT.searchOverlayAria || "Recherche"}>
           <button
             className="search-close"
             type="button"
-            aria-label="Fermer la recherche"
+            aria-label={navT.searchCloseAria || "Fermer la recherche"}
             onClick={() => setSearchOpen(false)}
           >
             <X size={22} />
           </button>
           <div className="search-panel">
-            <span className="eyebrow eyebrow--blue">Recherche vivo Algérie</span>
-            <h2>Que cherchez-vous ?</h2>
+            <span className="eyebrow eyebrow--blue">{navT.searchEyebrow}</span>
+            <h2>{navT.searchTitle}</h2>
             <label className="search-field">
               <Search size={22} strokeWidth={1.55} />
-              <input autoFocus type="search" placeholder="Rechercher un produit, une série…" />
+              <input autoFocus type="search" placeholder={navT.searchPlaceholder} />
             </label>
-            <p>Essayez « Série X », « service après-vente » ou « revendeurs ».</p>
+            <p>{navT.searchHint}</p>
           </div>
         </div>
       )}

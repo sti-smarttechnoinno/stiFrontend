@@ -3,59 +3,71 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Smartphone, CreditCard, Building2, Zap, ArrowRight } from "lucide-react";
+import { useTranslations } from "@/app/[locale]/use-translations";
 
-const SERVICES = [
-  {
-    icon: Smartphone,
-    title: "Recharge Crédit Mobile",
-    text: "Distribution nationale de crédits de recharge mobile Ooredoo pour les détaillants, grossistes et revendeurs agréés.",
-    slug: "mobile-recharge-credit",
-  },
-  {
-    icon: CreditCard,
-    title: "Distribution Cartes SIM",
-    text: "Distribution de cartes SIM prépayées et postpayées Ooredoo avec activation rapide et disponibilité garantie pour vos points de vente.",
-    slug: "prepaid-sim-cards",
-  },
-  {
-    icon: Building2,
-    title: "Solutions Grossiste",
-    text: "Approvisionnement en gros de crédits et produits télécoms pour les grossistes et grands réseaux à tarifs compétitifs.",
-    slug: "wholesale-recharge",
-  },
-  {
-    icon: Zap,
-    title: "Services Partenaires",
-    text: "Support opérationnel dédié, gestion des commandes, traçabilité et assistance continue à travers toute l'Algérie.",
-    slug: "partner-services",
-  },
-];
+const ICONS = [Smartphone, CreditCard, Building2, Zap];
 
 export function ServicesSection() {
   const params = useParams();
   const currentLocale = (params?.locale as string) || "fr";
+  const t = useTranslations() as any;
+  const servicesT = t?.stiHome?.services || {
+    badge: "Solutions & Services Ooredoo",
+    title: "Nos services de distribution et solutions",
+    subtitle: "De la distribution mobile à la gestion de réseau pour professionnels, STI fournit des solutions télécoms complètes adaptées au marché algérien.",
+    learnMore: "En savoir plus",
+    items: [
+      {
+        title: "Recharge Crédit Mobile",
+        text: "Distribution nationale de crédits de recharge mobile Ooredoo pour les détaillants, grossistes et revendeurs agréés.",
+        slug: "mobile-recharge-credit",
+      },
+      {
+        title: "Distribution Cartes SIM",
+        text: "Distribution de cartes SIM prépayées et postpayées Ooredoo avec activation rapide et disponibilité garantie pour vos points de vente.",
+        slug: "prepaid-sim-cards",
+      },
+      {
+        title: "Solutions Grossiste",
+        text: "Approvisionnement en gros de crédits et produits télécoms pour les grossistes et grands réseaux à tarifs compétitifs.",
+        slug: "wholesale-recharge",
+      },
+      {
+        title: "Services Partenaires",
+        text: "Support opérationnel dédié, gestion des commandes, traçabilité et assistance continue à travers toute l'Algérie.",
+        slug: "partner-services",
+      },
+    ],
+  };
+
+  const services = (servicesT.items || []).map((item: { title: string; text: string; slug: string }, i: number) => ({
+    icon: ICONS[i % ICONS.length],
+    title: item.title,
+    text: item.text,
+    slug: item.slug,
+  }));
 
   return (
     <section id="services" aria-labelledby="services-heading" className="py-20 sm:py-28 bg-white">
       <div className="mx-auto max-w-[1320px] px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center mb-14">
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-            Solutions &amp; Services Ooredoo
+            {servicesT.badge}
           </span>
           <h2
             id="services-heading"
             className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Nos services de distribution et solutions
+            {servicesT.title}
           </h2>
           <p className="mt-4 text-base text-gray-500 leading-relaxed">
-            De la distribution mobile à la gestion de réseau pour professionnels, STI fournit des solutions télécoms complètes adaptées au marché algérien.
+            {servicesT.subtitle}
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICES.map(({ icon: Icon, title, text, slug }) => (
+          {services.map(({ icon: Icon, title, text, slug }: { icon: any; title: string; text: string; slug: string }) => (
             <Link
               key={slug}
               href={`/${currentLocale}/ooredoo/solutions/${slug}`}
@@ -80,8 +92,8 @@ export function ServicesSection() {
               </p>
 
               <div className="mt-auto inline-flex items-center gap-1.5 text-xs font-bold text-red-primary transition-colors group-hover:text-red-accent">
-                <span>En savoir plus</span>
-                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                <span>{servicesT.learnMore}</span>
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" />
               </div>
             </Link>
           ))}

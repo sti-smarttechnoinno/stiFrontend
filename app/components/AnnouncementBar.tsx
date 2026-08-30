@@ -53,6 +53,8 @@ export default function AnnouncementBar() {
   const item = announcementText[currentLocale] || announcementText.fr;
   const workingHours = (workingHoursObj && workingHoursObj[currentLocale]) || activeWorkingHours || "";
 
+  const displayPhone = currentLocale === "ar" ? "36 35 02 0552" : (phone || "+213 35 82 60 60");
+
   return (
     <aside
       aria-label="Informations et sélection de langue"
@@ -75,13 +77,13 @@ export default function AnnouncementBar() {
             </div>
           )}
 
-          {phone && (
+          {displayPhone && (
             <a
-              href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
+              href={`tel:${displayPhone.replace(/[^0-9+]/g, "")}`}
               className="hidden md:inline-flex items-center gap-1.5 text-[11px] text-neutral-400 hover:text-white transition-colors"
             >
-              <Phone className="h-3 w-3 text-neutral-500" />
-              <bdo dir="ltr" className="font-medium">{phone}</bdo>
+              <Phone className="h-3 w-3 text-neutral-500 shrink-0" />
+              <span className="font-medium">{displayPhone}</span>
             </a>
           )}
 

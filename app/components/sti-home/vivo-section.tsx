@@ -3,16 +3,31 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Smartphone, Headphones, Sparkles, ArrowRight } from "lucide-react";
+import { Smartphone, Sparkles, ArrowRight } from "lucide-react";
+import { useTranslations } from "@/app/[locale]/use-translations";
 
-const CARDS = [
-  { icon: Smartphone, title: "Smartphones", text: "Des modèles innovants au design épuré et premium." },
-  { icon: Sparkles, title: "Nouveautés", text: "Les dernières séries et innovations VIVO à découvrir." },
-];
+const CARD_ICONS = [Smartphone, Sparkles];
 
 export function VivoSection() {
   const params = useParams();
   const currentLocale = (params?.locale as string) || "fr";
+  const t = useTranslations() as any;
+  const vivoT = t?.stiHome?.vivoSection || {
+    badge: "Production & Distribution",
+    title: "VIVO : smartphones et technologie mobile",
+    description: "Découvrez les smartphones VIVO et les dernières innovations mobiles disponibles auprès de STI.",
+    cta: "Explorer la gamme VIVO",
+    cards: [
+      { title: "Smartphones", text: "Des modèles innovants au design épuré et premium." },
+      { title: "Nouveautés", text: "Les dernières séries et innovations VIVO à découvrir." },
+    ],
+  };
+
+  const cards = (vivoT.cards || []).map((card: { title: string; text: string }, i: number) => ({
+    icon: CARD_ICONS[i % CARD_ICONS.length],
+    title: card.title,
+    text: card.text,
+  }));
 
   return (
     <section id="produits-vivo" aria-labelledby="vivo-heading" className="py-20 sm:py-28 bg-gray-50/60">
@@ -32,21 +47,21 @@ export function VivoSection() {
         {/* Text + cards */}
         <div>
           <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-[#5f8dff]">
-            Production &amp; Distribution
+            {vivoT.badge}
           </span>
           <h2
             id="vivo-heading"
             className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            VIVO : smartphones et technologie mobile
+            {vivoT.title}
           </h2>
           <p className="mt-4 max-w-md text-base text-gray-500 leading-relaxed">
-            Découvrez les smartphones VIVO et les dernières innovations mobiles disponibles auprès de STI.
+            {vivoT.description}
           </p>
 
           <ul className="mt-8 space-y-3.5">
-            {CARDS.map(({ icon: Icon, title, text }) => (
+            {cards.map(({ icon: Icon, title, text }: { icon: any; title: string; text: string }) => (
               <li
                 key={title}
                 className="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4.5 shadow-[0_2px_16px_rgba(0,0,0,0.03)] transition-all duration-300 hover:border-[#5f8dff]/40 hover:shadow-[0_8px_32px_rgba(95,141,255,0.12)] hover:-translate-y-0.5"
@@ -71,8 +86,8 @@ export function VivoSection() {
             href={`/${currentLocale}/vivo`}
             className="group mt-9 inline-flex items-center gap-2 rounded-full bg-[#102039] px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-[#1a335a] hover:shadow-[0_8px_24px_rgba(16,32,57,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#102039]"
           >
-            Explorer la gamme VIVO
-            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+            {vivoT.cta}
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" aria-hidden="true" />
           </Link>
         </div>
       </div>

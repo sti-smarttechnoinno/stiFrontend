@@ -1119,7 +1119,76 @@
       "vivoYSeries": "Y Series Smartphones",
       "vivoStore": "Find a Store",
       "vivoAbout": "About VIVO Algeria",
+      "companyName": "SARL Smart Technology Innovation",
       "rights": "All rights reserved."
+    },
+    "vivoNavbar": {
+      "announcement": "vivo Algeria — Official Distributor",
+      "learnMore": "Learn more",
+      "products": "Products",
+      "technology": "Technology",
+      "support": "Support",
+      "about": "About",
+      "exploreIntro": "Explore vivo",
+      "exploreDesc": "A lineup designed for every perspective on the world.",
+      "vSeriesName": "V Series",
+      "vSeriesDesc": "Portraits that stand out · Premium design",
+      "ySeriesName": "Y Series",
+      "ySeriesDesc": "The essentials, elevated · Long battery life",
+      "findStore": "Find a Store",
+      "searchAria": "Search",
+      "menuOpenAria": "Open menu",
+      "menuCloseAria": "Close menu",
+      "navAria": "Main navigation",
+      "mobileNavKicker": "Navigation",
+      "mobileFooterDistributor": "Official STI Distributor",
+      "searchOverlayAria": "Search",
+      "searchCloseAria": "Close search",
+      "searchEyebrow": "Search vivo Algeria",
+      "searchTitle": "What are you looking for?",
+      "searchPlaceholder": "Search a product, series…",
+      "searchHint": "Try \"X Series\", \"after-sales service\" or \"retailers\"."
+    },
+    "vivoHero": {
+      "viewAll": "View All Products",
+      "trust": "Official STI Distribution · Local Service in Algeria",
+      "scroll": "Scroll to discover",
+      "navGroupAria": "Navigate hero visuals",
+      "prevAria": "Previous visual",
+      "nextAria": "Next visual",
+      "showAria": "Show",
+      "slides": [
+        {
+          "name": "X Series",
+          "eyebrow": "Next Generation",
+          "title": "Precision",
+          "accent": "you can feel.",
+          "description": "Images that stay true to the moment. Power that keeps pace with you. Discover the VIVO experience in Algeria.",
+          "cta": "Discover X Series",
+          "caption": "Precision optics",
+          "alt": "Midnight blue vivo X Series smartphone presented in studio"
+        },
+        {
+          "name": "V Series",
+          "eyebrow": "Next-Gen Portraits",
+          "title": "Your light",
+          "accent": "as your signature.",
+          "description": "More natural portraits, truer colors, and a presence that reflects you every single day.",
+          "cta": "Explore V Series",
+          "caption": "Portrait, with purpose",
+          "alt": "Detail of vivo smartphone camera optics"
+        },
+        {
+          "name": "Y Series",
+          "eyebrow": "The Essentials, Elevated",
+          "title": "Designed for",
+          "accent": "every day.",
+          "description": "A simple, smooth, and reliable VIVO experience designed to accompany your days in Algeria.",
+          "cta": "View Y Series",
+          "caption": "Life, in motion",
+          "alt": "User with vivo smartphone on a rooftop in Algiers"
+        }
+      ]
     }
   }
 }

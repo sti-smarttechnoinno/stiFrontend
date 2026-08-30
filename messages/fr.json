@@ -1145,7 +1145,76 @@
       "vivoYSeries": "Smartphones Série Y",
       "vivoStore": "Trouver un point de vente",
       "vivoAbout": "À propos de VIVO Algérie",
+      "companyName": "SARL Smart Technologie Innovation",
       "rights": "Tous droits réservés."
+    },
+    "vivoNavbar": {
+      "announcement": "vivo Algérie — Distributeur officiel",
+      "learnMore": "En savoir plus",
+      "products": "Produits",
+      "technology": "Technologie",
+      "support": "Support",
+      "about": "À propos",
+      "exploreIntro": "Explorer vivo",
+      "exploreDesc": "Une gamme pensée pour chaque façon de voir le monde.",
+      "vSeriesName": "Série V",
+      "vSeriesDesc": "Portraits qui se démarquent · Design premium",
+      "ySeriesName": "Série Y",
+      "ySeriesDesc": "L’essentiel, en mieux · Autonomie longue durée",
+      "findStore": "Trouver un point de vente",
+      "searchAria": "Rechercher",
+      "menuOpenAria": "Ouvrir le menu",
+      "menuCloseAria": "Fermer le menu",
+      "navAria": "Navigation principale",
+      "mobileNavKicker": "Navigation",
+      "mobileFooterDistributor": "Distributeur Officiel STI",
+      "searchOverlayAria": "Recherche",
+      "searchCloseAria": "Fermer la recherche",
+      "searchEyebrow": "Recherche vivo Algérie",
+      "searchTitle": "Que cherchez-vous ?",
+      "searchPlaceholder": "Rechercher un produit, une série…",
+      "searchHint": "Essayez « Série X », « service après-vente » ou « revendeurs »."
+    },
+    "vivoHero": {
+      "viewAll": "Voir tous les produits",
+      "trust": "Distribution officielle STI · Service local en Algérie",
+      "scroll": "Défiler pour découvrir",
+      "navGroupAria": "Naviguer entre les visuels du hero",
+      "prevAria": "Visuel précédent",
+      "nextAria": "Visuel suivant",
+      "showAria": "Afficher",
+      "slides": [
+        {
+          "name": "X Series",
+          "eyebrow": "Nouvelle génération",
+          "title": "La précision",
+          "accent": "qui se ressent.",
+          "description": "Des images qui restent fidèles à l’instant. Une puissance qui suit votre rythme. Découvrez l’expérience vivo en Algérie.",
+          "cta": "Découvrir la Série X",
+          "caption": "Optique de précision",
+          "alt": "Smartphone vivo X Series bleu nuit présenté en studio"
+        },
+        {
+          "name": "V Series",
+          "eyebrow": "Portraits nouvelle génération",
+          "title": "Votre lumière",
+          "accent": "en signature.",
+          "description": "Des portraits plus naturels, des couleurs plus justes et une présence qui vous ressemble au quotidien.",
+          "cta": "Explorer la Série V",
+          "caption": "Portrait, avec intention",
+          "alt": "Détail de l’optique d’un smartphone vivo"
+        },
+        {
+          "name": "Y Series",
+          "eyebrow": "L’essentiel, en mieux",
+          "title": "Pensé pour",
+          "accent": "chaque jour.",
+          "description": "Une expérience vivo simple, fluide et fiable, conçue pour suivre vos journées en Algérie.",
+          "cta": "Voir la Série Y",
+          "caption": "La vie, en mouvement",
+          "alt": "Utilisatrice avec un smartphone vivo sur un rooftop à Alger"
+        }
+      ]
     }
   }
 }
