@@ -194,7 +194,7 @@ export default function ProductOverview({ product }: { product: Product }) {
               </div>
 
               <Link
-                href={`/${currentLocale}/quote`}
+                href={`/${currentLocale}/ooredoo/quote`}
                 className="flex items-center justify-center w-full py-3.5 rounded-full bg-red-primary text-white font-semibold shadow-lg shadow-red-primary/20 transition-all duration-300 hover:shadow-xl hover:shadow-red-primary/25"
               >
                 {staticT.requestQuote}

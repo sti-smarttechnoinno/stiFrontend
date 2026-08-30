@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ShieldCheck, Users, Globe, Award } from "lucide-react";
 import { useScrollReveal } from "../hooks";
@@ -72,13 +73,13 @@ export default function Partnership() {
                 ))}
               </div>
 
-              <a
-                href={`/${currentLocale}/about`}
+              <Link
+                href={`/${currentLocale}/ooredoo/about`}
                 className="group inline-flex w-fit items-center gap-2 rounded-full bg-red-primary px-6 py-3 text-sm font-semibold text-white transition-all duration-250 hover:shadow-lg hover:shadow-red-primary/25 hover:scale-[1.03]"
               >
                 {t.partnership.cta}
                 <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
-              </a>
+              </Link>
             </div>
           </div>
         </div>

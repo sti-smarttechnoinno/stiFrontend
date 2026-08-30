@@ -31,7 +31,7 @@ export default function Hero() {
           className="mb-8"
         >
           <ol className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
-            <li><Link href={`/${currentLocale}`} className="transition-colors hover:text-red-primary">{heroT.breadcrumb_home}</Link></li>
+            <li><Link href={`/${currentLocale}/ooredoo`} className="transition-colors hover:text-red-primary">{heroT.breadcrumb_home}</Link></li>
             <li><ChevronRight size={12} className="rtl:rotate-180" /></li>
             <li className="text-gray-700">{heroT.breadcrumb_current}</li>
           </ol>

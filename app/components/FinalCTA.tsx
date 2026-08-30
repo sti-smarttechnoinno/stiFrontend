@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { useScrollReveal } from "../hooks";
@@ -37,19 +38,19 @@ export default function FinalCTA() {
             {t.finalCta.description}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <a
-              href={`/${currentLocale}/contact`}
+            <Link
+              href={`/${currentLocale}/ooredoo/contact`}
               className="group inline-flex items-center gap-2.5 rounded-full bg-white px-7 py-3.5 text-[15px] font-semibold text-red-primary transition-all duration-250 hover:shadow-xl hover:scale-[1.03]"
             >
               {t.finalCta.cta_primary}
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
-            </a>
-            <a
-              href={`/${currentLocale}/quote`}
+            </Link>
+            <Link
+              href={`/${currentLocale}/ooredoo/quote`}
               className="inline-flex items-center gap-2.5 rounded-full border border-white/30 bg-white/10 px-7 py-3.5 text-[15px] font-semibold text-white backdrop-blur-sm transition-all duration-250 hover:bg-white/20 hover:scale-[1.03]"
             >
               {t.finalCta.cta_secondary}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

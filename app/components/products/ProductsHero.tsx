@@ -44,7 +44,7 @@ export default function ProductsHero() {
         >
           <ol className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
             <li>
-              <Link href={`/${currentLocale}`} className="transition-colors hover:text-red-primary">
+              <Link href={`/${currentLocale}/ooredoo`} className="transition-colors hover:text-red-primary">
                 {heroT.breadcrumb_home}
               </Link>
             </li>
@@ -105,7 +105,7 @@ export default function ProductsHero() {
                 />
               </a>
               <Link
-                href={`/${currentLocale}/quote`}
+                href={`/${currentLocale}/ooredoo/quote`}
                 className="inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-8 py-3.5 text-sm font-semibold text-gray-700 transition-all duration-250 hover:border-gray-300 hover:shadow-lg hover:scale-[1.03]"
               >
                 {heroT.cta_secondary}

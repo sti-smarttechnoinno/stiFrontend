@@ -6,11 +6,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from '@/app/[locale]/use-translations';
+import { usePreferences } from '@/app/[locale]/preferences-context';
 
 export default function HeroContact() {
   const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+  const { phone } = usePreferences();
+  const telHref = `tel:${(currentLocale === "ar" ? "0552023536" : (phone || "+21335826060")).replace(/[^0-9+]/g, "")}`;
 
   const staticT = {
     en: {
@@ -72,7 +75,7 @@ export default function HeroContact() {
         >
           <ol className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
             <li>
-              <Link href={`/${currentLocale}`} className="transition-colors hover:text-red-primary">
+              <Link href={`/${currentLocale}/ooredoo`} className="transition-colors hover:text-red-primary">
                 {t.nav?.home || staticT.home}
               </Link>
             </li>
@@ -114,7 +117,7 @@ export default function HeroContact() {
                 <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
               </a>
               <a
-                href="tel:+213550123456"
+                href={telHref}
                 className="inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-8 py-3.5 text-sm font-semibold text-gray-700 transition-all duration-250 hover:border-gray-300 hover:shadow-lg hover:scale-[1.03]"
               >
                 <Phone size={16} />

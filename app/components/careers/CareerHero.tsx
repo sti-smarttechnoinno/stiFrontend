@@ -117,7 +117,7 @@ export default function CareerHero() {
         >
           <ol className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
             <li>
-              <Link href={`/${currentLocale}`} className="transition-colors hover:text-red-primary">
+              <Link href={`/${currentLocale}/ooredoo`} className="transition-colors hover:text-red-primary">
                 {t.nav?.home || staticT.home}
               </Link>
             </li>

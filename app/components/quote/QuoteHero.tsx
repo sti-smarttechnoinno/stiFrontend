@@ -31,7 +31,7 @@ export default function QuoteHero() {
           className="mb-8"
         >
           <ol className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
-            <li><Link href={`/${currentLocale}`} className="transition-colors hover:text-red-primary">{heroT.breadcrumb_home}</Link></li>
+            <li><Link href={`/${currentLocale}/ooredoo`} className="transition-colors hover:text-red-primary">{heroT.breadcrumb_home}</Link></li>
             <li><ChevronRight size={12} className="rtl:rotate-180" /></li>
             <li className="text-gray-700">{heroT.breadcrumb_current}</li>
           </ol>
@@ -83,13 +83,13 @@ export default function QuoteHero() {
                 {heroT.cta_primary}
                 <ChevronRight size={16} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
               </a>
-              <a
-                href={`/${currentLocale}/contact`}
+              <Link
+                href={`/${currentLocale}/ooredoo/contact`}
                 className="inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-8 py-3.5 text-sm font-semibold text-gray-700 transition-all duration-250 hover:border-gray-300 hover:shadow-lg hover:scale-[1.03]"
               >
                 <Phone size={16} />
                 {heroT.cta_secondary}
-              </a>
+              </Link>
             </motion.div>
           </div>
 

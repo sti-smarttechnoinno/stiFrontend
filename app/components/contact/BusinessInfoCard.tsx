@@ -55,7 +55,7 @@ export default function BusinessInfoCard() {
     loadPrefs();
   }, []);
 
-  const phoneValue = prefs?.phone || "+213 550 123 456";
+  const phoneValue = prefs?.phone || "+213 35 82 60 60";
   const emailValue = prefs?.email || "contact@sti.dz";
   const addressValue = prefs?.address?.[currentLocale] || prefs?.address?.en || "Lot 24, Zone Industrielle, Bab Ezzouar, Alger";
 
@@ -162,9 +162,9 @@ export default function BusinessInfoCard() {
                   <Phone size={18} />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-gray-900">
+                  <a href={`tel:${phoneValue.replace(/[^0-9+]/g, "")}`} className="text-sm font-semibold text-gray-900 hover:text-red-primary transition-colors">
                     <bdo dir="ltr" className="inline-block">{phoneValue}</bdo>
-                  </div>
+                  </a>
                   <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{labels.phone}</div>
                 </div>
               </li>
@@ -174,7 +174,9 @@ export default function BusinessInfoCard() {
                   <Mail size={18} />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-gray-900">{emailValue}</div>
+                  <a href={`mailto:${emailValue}`} className="text-sm font-semibold text-gray-900 hover:text-red-primary transition-colors">
+                    {emailValue}
+                  </a>
                   <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{labels.email}</div>
                 </div>
               </li>

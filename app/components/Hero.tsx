@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { useTranslations } from '@/app/[locale]/use-translations';
@@ -78,8 +79,8 @@ export default function Hero() {
               className="animate-fade-in-up flex flex-wrap items-center gap-4 mb-12"
               style={{ animationDelay: "0.45s", animationFillMode: "both" }}
             >
-              <a
-                href={`/${currentLocale}/solutions`}
+              <Link
+                href={`/${currentLocale}/ooredoo/solutions`}
                 className="group inline-flex items-center gap-2.5 rounded-full bg-red-primary px-6 py-3 text-[13px] font-semibold text-white transition-all duration-250 hover:shadow-xl hover:shadow-red-primary/25 hover:scale-[1.03]"
               >
                 {t.hero.cta_primary}
@@ -87,13 +88,13 @@ export default function Hero() {
                   size={16}
                   className="transition-transform duration-250 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
                 />
-              </a>
-              <a
-                href={`/${currentLocale}/contact`}
+              </Link>
+              <Link
+                href={`/${currentLocale}/ooredoo/contact`}
                 className="inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-6 py-3 text-[13px] font-semibold text-gray-700 transition-all duration-250 hover:border-gray-300 hover:shadow-lg hover:scale-[1.03]"
               >
                 {t.hero.cta_secondary}
-              </a>
+              </Link>
             </div>
 
           </header>

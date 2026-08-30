@@ -22,12 +22,14 @@ function Card({
   description,
   icon,
   index,
+  href,
 }: {
   title: string;
   value: string;
   description: string;
   icon: React.ReactNode;
   index: number;
+  href?: string;
 }) {
   return (
     <motion.article
@@ -46,9 +48,19 @@ function Card({
       <span className="text-xs font-bold uppercase tracking-widest text-red-primary mb-2">
         {title}
       </span>
-      <h3 className="text-sm font-bold text-gray-900 mb-2 leading-relaxed" style={{ fontFamily: "var(--font-display)" }}>
-        {value}
-      </h3>
+      {href ? (
+        <a
+          href={href}
+          className="text-sm font-bold text-gray-900 mb-2 leading-relaxed hover:text-red-primary transition-colors block"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          <bdo dir="ltr" className="inline-block">{value}</bdo>
+        </a>
+      ) : (
+        <h3 className="text-sm font-bold text-gray-900 mb-2 leading-relaxed" style={{ fontFamily: "var(--font-display)" }}>
+          {value}
+        </h3>
+      )}
       <p className="text-xs text-gray-500 leading-relaxed mt-auto">{description}</p>
     </motion.article>
   );
@@ -94,8 +106,18 @@ export default function ContactCards() {
   );
 
   const items = [
-    { title: t.contact.cards.phone_title, value: phoneValue, description: t.contact.cards.phone_desc },
-    { title: t.contact.cards.email_title, value: emailValue, description: t.contact.cards.email_desc },
+    {
+      title: t.contact.cards.phone_title,
+      value: phoneValue,
+      description: t.contact.cards.phone_desc,
+      href: phoneValue ? `tel:${phoneValue.replace(/[^0-9+]/g, "")}` : undefined,
+    },
+    {
+      title: t.contact.cards.email_title,
+      value: emailValue,
+      description: t.contact.cards.email_desc,
+      href: emailValue ? `mailto:${emailValue}` : undefined,
+    },
     { title: t.contact.cards.address_title, value: addressValue, description: t.contact.cards.address_desc },
     { title: t.contact.cards.hours_title, value: workingHoursValue, description: closedDaysDesc },
   ];

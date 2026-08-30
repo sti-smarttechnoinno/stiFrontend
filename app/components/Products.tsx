@@ -92,7 +92,7 @@ function ProductCard({
           {description}
         </p>
         <Link
-          href={`/${currentLocale}/products/${slug}`}
+          href={`/${currentLocale}/ooredoo/products/${slug}`}
           className="mt-auto inline-flex items-center gap-1.5 text-xs font-bold text-red-primary transition-colors hover:text-red-accent"
         >
           {ctaText}

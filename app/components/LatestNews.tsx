@@ -30,7 +30,7 @@ function ArticleCard({
   currentLocale: string;
 }) {
   const { ref, visible } = useScrollReveal(0.2);
-  const href = slug ? `/${currentLocale}/news/${slug}` : `/${currentLocale}/news`;
+  const href = slug ? `/${currentLocale}/ooredoo/news/${slug}` : `/${currentLocale}/ooredoo/news`;
 
   return (
     <article
