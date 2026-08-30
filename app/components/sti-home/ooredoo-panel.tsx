@@ -33,7 +33,7 @@ export function OoredooPanel({ state, expanded }: { state: PanelState; expanded:
   ]
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-charcoal text-white">
+    <div className="relative h-full w-full min-h-[340px] sm:min-h-[380px] md:min-h-0 overflow-hidden bg-charcoal text-white">
       {/* Background visual */}
       <div className="absolute inset-0">
         <Image
@@ -51,33 +51,33 @@ export function OoredooPanel({ state, expanded }: { state: PanelState; expanded:
       </div>
 
       {/* Content */}
-      <div className="relative flex h-full flex-col justify-between p-6 sm:p-8 md:p-10 lg:p-14">
+      <div className="relative flex h-full flex-col justify-center md:justify-between p-5 sm:p-7 md:p-10 lg:p-14">
         {/* Center editorial content */}
-        <div className="my-auto max-w-md py-6 pt-16 sm:pt-20 md:pt-32 lg:pt-40">
+        <div className="max-w-md py-4 sm:py-6 md:my-auto md:pt-32 lg:pt-40">
           <h2
-            className="font-heading text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl"
+            className="font-heading text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl"
             style={{ fontFamily: "var(--font-display)" }}
           >
             {panelT.title}
           </h2>
 
-          <p className="mt-2 text-sm font-medium uppercase tracking-wide text-white/70">
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm font-medium uppercase tracking-wide text-white/70">
             {panelT.badge}
           </p>
 
           <div
             className="overflow-hidden transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-            style={{ opacity: isCollapsed ? 0 : 1, maxHeight: isCollapsed ? 0 : 340 }}
+            style={{ opacity: isCollapsed ? 0 : 1, maxHeight: isCollapsed ? 0 : 450 }}
           >
-            <p className="mt-5 max-w-sm text-pretty leading-relaxed text-white/80">
+            <p className="mt-3 sm:mt-4 max-w-sm text-pretty text-sm sm:text-base leading-relaxed text-white/80">
               {panelT.description}
             </p>
 
-            <ul className="mt-6 flex flex-wrap gap-2">
+            <ul className="mt-3.5 sm:mt-5 flex flex-wrap gap-2">
               {products.map((p) => (
                 <li
                   key={p.label}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3.5 py-1 text-xs font-medium text-white/90 backdrop-blur-sm shadow-sm transition-colors hover:border-white/30"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 sm:px-3.5 py-1 text-xs font-medium text-white/90 backdrop-blur-sm shadow-sm transition-colors hover:border-white/30"
                 >
                   <p.icon className="h-3 w-3 text-crimson-light shrink-0" />
                   {p.label}
@@ -87,7 +87,7 @@ export function OoredooPanel({ state, expanded }: { state: PanelState; expanded:
 
             <Link
               href={`/${currentLocale}/ooredoo`}
-              className="group mt-7 inline-flex items-center gap-2 rounded-full bg-crimson px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-crimson-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="group mt-5 sm:mt-6 inline-flex items-center gap-2 rounded-full bg-crimson px-6 sm:px-7 py-2.5 sm:py-3.5 text-xs sm:text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-crimson-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               {panelT.cta}
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" />

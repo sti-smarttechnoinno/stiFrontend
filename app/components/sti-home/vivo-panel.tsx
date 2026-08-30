@@ -31,7 +31,7 @@ export function VivoPanel({ state, expanded }: { state: PanelState; expanded: bo
   ]
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-warm-gray text-charcoal">
+    <div className="relative h-full w-full min-h-[340px] sm:min-h-[380px] md:min-h-0 overflow-hidden bg-warm-gray text-charcoal">
       {/* Faint STI-inspired arc */}
       <div className="pointer-events-none absolute -right-24 rtl:-right-auto rtl:-left-24 top-1/2 h-[130%] w-[80%] -translate-y-1/2 rounded-full border-[3px] border-crimson/10" />
       <div className="pointer-events-none absolute -right-10 rtl:-right-auto rtl:-left-10 top-1/2 h-[90%] w-[55%] -translate-y-1/2 rounded-full border-2 border-crimson/[0.07]" />
@@ -53,33 +53,33 @@ export function VivoPanel({ state, expanded }: { state: PanelState; expanded: bo
       </div>
 
       {/* Content */}
-      <div className="relative flex h-full flex-col justify-between p-6 sm:p-8 md:p-10 lg:p-14">
+      <div className="relative flex h-full flex-col justify-center md:justify-between p-5 sm:p-7 md:p-10 lg:p-14">
         {/* Center editorial content */}
-        <div className="my-auto max-w-md py-6 pt-16 sm:pt-20 md:pt-32 lg:pt-40">
+        <div className="max-w-md py-4 sm:py-6 md:my-auto md:pt-32 lg:pt-40">
           <h2
-            className="font-heading text-3xl font-bold tracking-tight text-charcoal sm:text-4xl lg:text-5xl"
+            className="font-heading text-2xl font-bold tracking-tight text-charcoal sm:text-3xl md:text-4xl lg:text-5xl"
             style={{ fontFamily: "var(--font-display)" }}
           >
             {panelT.title}
           </h2>
 
-          <p className="mt-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm font-medium uppercase tracking-wide text-muted-foreground">
             {panelT.badge}
           </p>
 
           <div
             className="overflow-hidden transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-            style={{ opacity: isCollapsed ? 0 : 1, maxHeight: isCollapsed ? 0 : 340 }}
+            style={{ opacity: isCollapsed ? 0 : 1, maxHeight: isCollapsed ? 0 : 450 }}
           >
-            <p className="mt-5 max-w-sm text-pretty leading-relaxed text-charcoal/75">
+            <p className="mt-3 sm:mt-4 max-w-sm text-pretty text-sm sm:text-base leading-relaxed text-charcoal/75">
               {panelT.description}
             </p>
 
-            <ul className="mt-6 flex flex-wrap gap-2">
+            <ul className="mt-3.5 sm:mt-5 flex flex-wrap gap-2">
               {products.map((p) => (
                 <li
                   key={p.label}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300/80 bg-white/85 px-3.5 py-1 text-xs font-medium text-neutral-800 backdrop-blur-sm shadow-sm transition-colors hover:border-neutral-400"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300/80 bg-white/85 px-3 sm:px-3.5 py-1 text-xs font-medium text-neutral-800 backdrop-blur-sm shadow-sm transition-colors hover:border-neutral-400"
                 >
                   <p.icon className="h-3 w-3 text-neutral-600 shrink-0" />
                   {p.label}
@@ -89,7 +89,7 @@ export function VivoPanel({ state, expanded }: { state: PanelState; expanded: bo
 
             <Link
               href={`/${currentLocale}/vivo`}
-              className="group mt-7 inline-flex items-center gap-2 rounded-full bg-charcoal px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-charcoal"
+              className="group mt-5 sm:mt-6 inline-flex items-center gap-2 rounded-full bg-charcoal px-6 sm:px-7 py-2.5 sm:py-3.5 text-xs sm:text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-charcoal"
             >
               {panelT.cta}
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" />

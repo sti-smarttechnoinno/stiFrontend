@@ -54,21 +54,21 @@ export function Hero() {
       className="relative h-auto w-full overflow-hidden md:h-[calc(100vh-36px)] md:min-h-[680px]"
     >
       {/* Mobile intro (in flow) */}
-      <div className="bg-charcoal px-6 py-8 text-center md:hidden">
-        <p className="text-[0.7rem] font-semibold tracking-[0.35em] text-crimson">{heroT.tagline}</p>
-        <div className="my-3 flex justify-center">
+      <div className="bg-charcoal px-5 py-7 text-center md:hidden">
+        <p className="text-[0.68rem] font-semibold tracking-[0.3em] text-crimson">{heroT.tagline}</p>
+        <div className="my-2.5 flex justify-center">
           <Image
             src="/assets/logo.png"
             alt="STI — Smart Technologie Innovation"
-            width={220}
-            height={75}
-            className="h-14 sm:h-16 w-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
+            width={200}
+            height={68}
+            className="h-12 sm:h-14 w-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
           />
         </div>
-        <h1 className="mt-2 font-heading text-2xl font-bold leading-tight text-balance text-white">
+        <h1 className="mt-2 font-heading text-xl sm:text-2xl font-bold leading-tight text-balance text-white">
           {heroT.headline}
         </h1>
-        <p className="mx-auto mt-2 max-w-sm text-pretty text-sm leading-relaxed text-white/80">
+        <p className="mx-auto mt-2 max-w-xs sm:max-w-sm text-pretty text-xs sm:text-sm leading-relaxed text-white/80">
           {heroT.subheadline}
         </p>
       </div>
@@ -110,7 +110,7 @@ export function Hero() {
               setActive((a) => (a === "ooredoo" ? null : "ooredoo"))
             }
           }}
-          className="relative h-[48vh] shrink-0 basis-auto cursor-pointer text-start outline-none ring-inset transition-[flex-grow] duration-[600ms] focus-visible:ring-4 focus-visible:ring-crimson md:h-full md:basis-0"
+          className="relative md:min-h-0 md:h-full shrink-0 basis-auto md:basis-0 cursor-pointer text-start outline-none ring-inset transition-[flex-grow] duration-[600ms] focus-visible:ring-4 focus-visible:ring-crimson"
           style={{ flexGrow: ooredooGrow, transitionTimingFunction: EASE }}
         >
           <OoredooPanel state={stateOf("ooredoo")} expanded={active === "ooredoo"} />
@@ -131,7 +131,7 @@ export function Hero() {
               setActive((a) => (a === "vivo" ? null : "vivo"))
             }
           }}
-          className="relative h-[48vh] shrink-0 basis-auto cursor-pointer text-start outline-none ring-inset transition-[flex-grow] duration-[600ms] focus-visible:ring-4 focus-visible:ring-crimson md:h-full md:basis-0"
+          className="relative md:min-h-0 md:h-full shrink-0 basis-auto md:basis-0 cursor-pointer text-start outline-none ring-inset transition-[flex-grow] duration-[600ms] focus-visible:ring-4 focus-visible:ring-crimson"
           style={{ flexGrow: vivoGrow, transitionTimingFunction: EASE }}
         >
           <VivoPanel state={stateOf("vivo")} expanded={active === "vivo"} />
