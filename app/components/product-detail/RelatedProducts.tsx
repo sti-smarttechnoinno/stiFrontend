@@ -109,7 +109,7 @@ export default function RelatedProducts({ products: initialProducts, currentSlug
               </h3>
               <p className="mb-6 text-sm leading-relaxed text-gray-500 line-clamp-3">{product.description}</p>
               <Link
-                href={`/${currentLocale}/products/${product.slug}`}
+                href={`/${currentLocale}/ooredoo/products/${product.slug}`}
                 className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-red-primary transition-colors hover:text-red-accent"
               >
                 {t.productsPage?.featured?.view_details || t.services?.cta || "View Details"}

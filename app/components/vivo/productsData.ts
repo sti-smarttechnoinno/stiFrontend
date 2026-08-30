@@ -127,7 +127,7 @@ export const VIVO_PRODUCTS_DATA: Record<string, VivoProductDetail> = {
     accent: "en signature.",
     heroDescription:
       "Des portraits d’exception, un design fin et élégant et une technologie d'imagerie avancée pensée pour l'Algérie.",
-    heroImage: VIVO_ASSETS.v70fe,
+    heroImage: VIVO_ASSETS.v70feHero || VIVO_ASSETS.v70fe,
     heroCaptionName: "vivo V70 FE",
     heroCaptionDesc: "Portraits studio · Design premium ultra-fin",
     trustText: "Distribution officielle STI · Garantie & SAV certifié en Algérie",
@@ -155,7 +155,7 @@ export const VIVO_PRODUCTS_DATA: Record<string, VivoProductDetail> = {
         copy: "Un processeur véloce et la fiabilité du réseau de distribution et garantie officielle STI en Algérie.",
       },
     ],
-    detailImage: VIVO_ASSETS.vSeries || VIVO_ASSETS.camera,
+    detailImage: VIVO_ASSETS.v70feDetails || VIVO_ASSETS.vSeries || VIVO_ASSETS.camera,
     detailTitle: "Chaque détail,",
     detailAccent: "sa propre lumière.",
     detailDescription:

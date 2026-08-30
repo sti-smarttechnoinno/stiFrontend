@@ -34,7 +34,7 @@ export async function generateMetadata({
       description: seo?.description || article.excerpt,
       images: [article.heroImage || "/assets/hero.png"],
       type: "article",
-      url: `https://sti-dz.com/news/${article.slug}`,
+      url: `https://sti-dz.com/${locale}/ooredoo/news/${article.slug}`,
       publishedTime: article.publishedAt,
       authors: [article.author],
     },
@@ -49,7 +49,7 @@ export async function generateMetadata({
       follow: true,
     },
     alternates: {
-      canonical: `https://sti-dz.com/news/${article.slug}`,
+      canonical: `https://sti-dz.com/${locale}/ooredoo/news/${article.slug}`,
     },
   };
 }
@@ -88,7 +88,7 @@ export default async function NewsArticlePage({
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://sti-dz.com/news/${article.slug}`,
+      "@id": `https://sti-dz.com/${locale}/ooredoo/news/${article.slug}`,
     },
   };
 

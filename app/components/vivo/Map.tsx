@@ -55,6 +55,11 @@ interface MapViewProps {
   initialCenter?: { lat: number; lng: number };
   initialZoom?: number;
   onMapReady?: (map: { panTo: (pos: { lat: number; lng: number }) => void; setZoom: (z: number) => void }) => void;
+  locale?: string;
+  locationName?: string;
+  locationAddress?: string;
+  locationWilaya?: string;
+  googleMapsText?: string;
 }
 
 export function MapView({
@@ -62,9 +67,15 @@ export function MapView({
   activeLocation,
   initialCenter = { lat: 36.1878817, lng: 5.4266392 },
   onMapReady,
+  locale = "fr",
+  locationName,
+  locationAddress,
+  locationWilaya,
+  googleMapsText = "Google Maps",
 }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const [center, setCenter] = useState(initialCenter);
+  const isRtl = locale === "ar";
 
   useEffect(() => {
     if (activeLocation) {
@@ -84,7 +95,11 @@ export function MapView({
   }, [onMapReady]);
 
   // Google Maps Embed URL
-  const embedUrl = `https://maps.google.com/maps?q=${center.lat},${center.lng}&hl=fr&z=15&output=embed`;
+  const embedUrl = `https://maps.google.com/maps?q=${center.lat},${center.lng}&hl=${locale}&z=15&output=embed`;
+
+  const displayName = locationName || activeLocation?.name;
+  const displayAddress = locationAddress || activeLocation?.address;
+  const displayWilaya = locationWilaya || activeLocation?.wilaya;
 
   return (
     <div
@@ -104,11 +119,17 @@ export function MapView({
 
       {/* Floating active location indicator */}
       {activeLocation && (
-        <div className="absolute top-4 left-4 right-4 md:right-auto md:max-w-xs bg-[#0e1b2f]/95 backdrop-blur-md border border-[#5f8dff]/30 p-3.5 rounded shadow-xl z-10 text-white animate-in fade-in duration-200">
+        <div
+          dir={isRtl ? "rtl" : "ltr"}
+          className={cn(
+            "absolute top-4 left-4 right-4 md:max-w-xs bg-[#0e1b2f]/95 backdrop-blur-md border border-[#5f8dff]/30 p-3.5 rounded shadow-xl z-10 text-white animate-in fade-in duration-200",
+            isRtl ? "md:left-auto md:right-4 text-right" : "md:right-auto md:left-4 text-left"
+          )}
+        >
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1.5 text-[#5f8dff] font-bold text-[11px] tracking-wider uppercase">
               <MapPin size={14} />
-              {activeLocation.wilaya}
+              {displayWilaya}
             </span>
             <a
               href={activeLocation.googleMapsUrl}
@@ -116,11 +137,12 @@ export function MapView({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#5f8dff] hover:text-white transition-colors"
             >
-              Google Maps <ArrowUpRight size={12} />
+              {googleMapsText}{" "}
+              <ArrowUpRight size={12} className={isRtl ? "transform -scale-x-100" : ""} />
             </a>
           </div>
-          <p className="text-xs font-semibold text-white mt-1.5 line-clamp-1">{activeLocation.name}</p>
-          <p className="text-[11px] text-white/60 mt-0.5">{activeLocation.address}</p>
+          <p className="text-xs font-semibold text-white mt-1.5 line-clamp-1">{displayName}</p>
+          <p className="text-[11px] text-white/60 mt-0.5">{displayAddress}</p>
         </div>
       )}
     </div>

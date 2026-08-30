@@ -7,6 +7,7 @@ import { Calendar, Clock, User, ArrowRight, BadgeCheck } from "lucide-react";
 import { useTranslations } from '@/app/[locale]/use-translations';
 import { useAppSelector } from "../../lib/store/hooks";
 import { selectFeaturedArticle, selectNewsCategories, selectNewsLoading } from "../../lib/store/features/newsSlice";
+import { localizeCategory } from '@/app/data/news-articles';
 
 export default function FeaturedArticle() {
   const t = useTranslations();
@@ -30,8 +31,7 @@ export default function FeaturedArticle() {
 
   const title = article.title || article.slug;
   const description = article.excerpt || "";
-  const categoryItem = categories.find((c) => c.id === article.category || c.translations?.en === article.category);
-  const categoryLabel = categoryItem?.translations?.[currentLocale] || categoryItem?.translations?.en || article.category;
+  const categoryLabel = localizeCategory(article.category, currentLocale, categories);
 
   return (
     <section className="py-20 sm:py-28 lg:py-36 bg-gray-50">
@@ -137,7 +137,7 @@ export default function FeaturedArticle() {
 
               {/* CTA */}
               <Link
-                href={`/${currentLocale}/news/${article.slug}`}
+                href={`/${currentLocale}/ooredoo/news/${article.slug || article.id}`}
                 className="group inline-flex items-center gap-2 text-sm font-semibold text-red-primary transition-all duration-300 hover:gap-3"
               >
                 {t.newsPage?.featured?.read_more || "Read Full Article"}

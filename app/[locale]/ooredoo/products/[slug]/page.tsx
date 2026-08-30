@@ -203,7 +203,7 @@ export default async function ProductDetailPage({
     },
     offers: {
       "@type": "Offer",
-      url: `https://sti-dz.com/${locale || "fr"}/products/${product.slug}`,
+      url: `https://sti-dz.com/${locale || "fr"}/ooredoo/products/${product.slug}`,
       priceCurrency: "DZD",
       price: "0.00",
       priceValidUntil: "2026-12-31",
@@ -295,13 +295,13 @@ export default async function ProductDetailPage({
         "@type": "ListItem",
         position: 2,
         name: "Products",
-        item: "https://sti-dz.com/products",
+        item: "https://sti-dz.com/ooredoo/products",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: product.name,
-        item: `https://sti-dz.com/products/${product.slug}`,
+        item: `https://sti-dz.com/ooredoo/products/${product.slug}`,
       },
     ],
   };

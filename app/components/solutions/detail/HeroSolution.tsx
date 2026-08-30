@@ -20,15 +20,20 @@ export default function HeroSolution({ title, description, highlights }: Props) 
   const segments = pathname.split("/").filter(Boolean);
   const currentLocale = segments.find((s) => ["en", "fr", "ar"].includes(s)) || "fr";
 
+  const ctaQuoteText = (t as any).solutionDetail?.cta_quote || "Demander un devis grossiste";
+  const ctaAdvisorText = (t as any).solutionDetail?.cta_advisor || "Contacter un conseiller";
+
+  const defaultChecklist = (t as any).enterprise?.checklist?.slice(0, 4) || [
+    "Distribution officielle certifiée Ooredoo Algérie",
+    "Stock permanent & disponibilité garantie toute l'année",
+    "Couverture logistique intégrale des 58 wilayas",
+    "Accompagnement commercial et support B2B dédié",
+  ];
+
   const checklist =
     highlights && highlights.length > 0
       ? highlights
-      : [
-          "Distribution officielle certifiée Ooredoo Algérie",
-          "Stock permanent & disponibilité garantie toute l'année",
-          "Couverture logistique intégrale des 58 wilayas",
-          "Accompagnement commercial et support B2B dédié",
-        ];
+      : defaultChecklist;
 
   return (
     <section className="relative min-h-[calc(100vh-36px)] flex items-center justify-center overflow-hidden bg-gradient-to-b from-gray-50 via-white to-gray-50/50 pt-32 pb-20 sm:pt-36 sm:pb-24 lg:pt-40">
@@ -118,7 +123,7 @@ export default function HeroSolution({ title, description, highlights }: Props) 
           className="mt-8 pt-6 border-t border-gray-200/80 w-full max-w-3xl"
         >
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left sm:text-left">
-            {checklist.map((item) => (
+            {checklist.map((item: string) => (
               <li
                 key={item}
                 className="flex items-center gap-2.5 text-sm font-medium text-gray-700"
@@ -143,7 +148,7 @@ export default function HeroSolution({ title, description, highlights }: Props) 
             href={`/${currentLocale}/ooredoo/quote`}
             className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-red-primary px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-primary/20 transition-all duration-300 hover:bg-red-primary/90 hover:shadow-xl hover:shadow-red-primary/25 hover:scale-[1.02] w-full sm:w-auto"
           >
-            <span>Demander un devis grossiste</span>
+            <span>{ctaQuoteText}</span>
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
           </Link>
           <Link
@@ -151,7 +156,7 @@ export default function HeroSolution({ title, description, highlights }: Props) 
             className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-7 py-3.5 text-sm font-semibold text-gray-700 shadow-sm transition-all duration-300 hover:border-gray-300 hover:bg-gray-50 hover:scale-[1.02] w-full sm:w-auto"
           >
             <PhoneCall size={15} className="text-gray-400" />
-            <span>Contacter un conseiller</span>
+            <span>{ctaAdvisorText}</span>
           </Link>
         </motion.div>
       </div>

@@ -870,6 +870,30 @@
       ]
     }
   },
+  "solutionDetail": {
+    "cta_quote": "Demander un devis grossiste",
+    "cta_advisor": "Contacter un conseiller",
+    "learn_more": "En Savoir Plus",
+    "key_features_badge": "Fonctionnalités Clés",
+    "key_features_title": "Caractéristiques Principales",
+    "key_features_subtitle": "Tout ce dont vous avez besoin pour une distribution télécom performante",
+    "process_badge": "Processus",
+    "process_title": "Comment Ça Marche",
+    "process_subtitle": "Des étapes simples de la commande à la livraison",
+    "other_solutions_badge": "Solutions",
+    "other_solutions_title": "Explorer d'Autres Solutions",
+    "other_solutions_subtitle": "Découvrez d'autres solutions de distribution STI adaptées à votre activité",
+    "faq_badge": "FAQ",
+    "faq_title": "Foire Aux Questions",
+    "faq_subtitle": "Trouvez les réponses aux questions courantes sur cette solution.",
+    "steps": [
+      { "title": "Demande de Commande", "description": "Le partenaire soumet sa commande via notre processus simplifié." },
+      { "title": "Confirmation", "description": "Notre équipe valide et confirme les détails de votre commande." },
+      { "title": "Préparation", "description": "Les produits sont soigneusement préparés et contrôlés." },
+      { "title": "Réception & Livraison", "description": "Livraison sécurisée et rapide sur l'ensemble des 58 wilayas." },
+      { "title": "Support Partenaire", "description": "Accompagnement continu et assistance dédiée après la vente." }
+    ]
+  },
   "productsPage": {
     "hero": {
       "breadcrumb_home": "Accueil",
@@ -970,6 +994,36 @@
       "button": "S'abonner",
       "success_message": "Merci de votre abonnement aux actualités STI !"
     }
+  },
+  "articleDetail": {
+    "share": "Partager :",
+    "table_of_contents": "Dans cet article",
+    "information": "Informations",
+    "category": "Catégorie",
+    "published": "Date de publication",
+    "author": "Auteur",
+    "read_time": "Temps de lecture",
+    "tags": "Tags",
+    "quote": "« Notre priorité est de fournir aux partenaires un accès fiable à nos produits tout en maintenant un standard de service élevé. »",
+    "quote_author": "Direction STI",
+    "partner_section_title": "Accompagnement des Partenaires Détaillants & Grossistes",
+    "partner_section_desc": "STI soutient les détaillants, grossistes et entreprises partenaires à travers l'Algérie avec un accès garanti aux produits officiels Ooredoo, des tarifs compétitifs et un accompagnement professionnel.",
+    "features": {
+      "official_products": "Produits Officiels",
+      "official_products_desc": "100% de produits officiels Ooredoo.",
+      "reliable_availability": "Disponibilité Garantie",
+      "reliable_availability_desc": "Accès permanent et approvisionnement continu.",
+      "professional_support": "Support Professionnel",
+      "professional_support_desc": "Assistance dédiée pour les partenaires commerciaux.",
+      "business_growth": "Croissance Commerciale",
+      "business_growth_desc": "Des solutions pensées pour booster votre activité."
+    },
+    "gallery": "Galerie",
+    "author_role_default": "SARL Smart Technologie Innovation",
+    "author_bio_default": "Équipe de communication officielle de SARL Smart Technologie Innovation.",
+    "author_default": "Équipe de Communication STI",
+    "min_read": "min de lecture",
+    "company_news": "Actualités de l'Entreprise"
   },
   "stiHome": {
     "hero": {
@@ -1173,7 +1227,11 @@
       "searchEyebrow": "Recherche vivo Algérie",
       "searchTitle": "Que cherchez-vous ?",
       "searchPlaceholder": "Rechercher un produit, une série…",
-      "searchHint": "Essayez « Série X », « service après-vente » ou « revendeurs »."
+      "searchHint": "Essayez « Série V », « Série Y », « service après-vente » ou « revendeurs ».",
+      "noResults": "Aucun résultat trouvé pour « {query} »",
+      "suggestionsLabel": "Suggestions :",
+      "clearSearch": "Effacer la recherche",
+      "quickResultsLabel": "Résultats ({count})"
     },
     "vivoHero": {
       "viewAll": "Voir tous les produits",
@@ -1184,16 +1242,6 @@
       "nextAria": "Visuel suivant",
       "showAria": "Afficher",
       "slides": [
-        {
-          "name": "X Series",
-          "eyebrow": "Nouvelle génération",
-          "title": "La précision",
-          "accent": "qui se ressent.",
-          "description": "Des images qui restent fidèles à l’instant. Une puissance qui suit votre rythme. Découvrez l’expérience vivo en Algérie.",
-          "cta": "Découvrir la Série X",
-          "caption": "Optique de précision",
-          "alt": "Smartphone vivo X Series bleu nuit présenté en studio"
-        },
         {
           "name": "V Series",
           "eyebrow": "Portraits nouvelle génération",
@@ -1215,6 +1263,700 @@
           "alt": "Utilisatrice avec un smartphone vivo sur un rooftop à Alger"
         }
       ]
+    },
+    "vivoSignal": {
+      "number": "01",
+      "label": "Pourquoi vivo",
+      "ariaLabel": "Points forts vivo",
+      "item1Line1": "Imagerie inspirée",
+      "item1Line2": "par le réel",
+      "item2Line1": "Design qui attire",
+      "item2Line2": "le regard",
+      "item3Line1": "Une présence",
+      "item3Line2": "en Algérie",
+      "link": "Notre différence"
+    },
+    "vivoAboutLocal": {
+      "eyebrow": "vivo en Algérie",
+      "title": "Une technologie",
+      "accent": "proche de vous.",
+      "description": "STI est le partenaire distributeur officiel qui vous ouvre les portes de l’univers vivo — avec une sélection authentique, des conseils qui comptent et un accompagnement à chaque étape.",
+      "badgeTitle": "Partenaire officiel vivo",
+      "badgeSubtitle": "Disponibilité locale · Assistance dédiée STI",
+      "cta": "Rencontrer vivo Algérie",
+      "location": "Alger · Algérie",
+      "imageAlt": "Une utilisatrice avec un smartphone vivo sur un rooftop à Alger"
+    },
+    "vivoFeatureOptics": {
+      "imageIndex": "02 / OPTIQUE",
+      "imageAlt": "Détail de l’optique du smartphone vivo",
+      "eyebrow": "L’œil avant tout",
+      "title": "Chaque détail",
+      "accent": "a sa lumière.",
+      "description": "Une approche de la photographie mobile qui privilégie la profondeur, la nuance et le mouvement — pour des souvenirs qui ressemblent vraiment à votre histoire.",
+      "cta": "Explorer la technologie"
+    },
+    "vivoCollection": {
+      "eyebrow": "La collection vivo",
+      "title": "Choisissez votre",
+      "accent": "façon de voir.",
+      "compareLink": "Comparer les séries",
+      "vSeriesName": "Série V",
+      "ySeriesName": "Série Y"
+    },
+    "vivoSupportSection": {
+      "eyebrow": "04 / Support officiel",
+      "title": "On reste",
+      "accent": "à vos côtés.",
+      "findStore": "Trouver un point de vente",
+      "afterSales": "Service après-vente",
+      "contactTeam": "Contacter l’équipe"
+    },
+    "vivoNextLook": {
+      "eyebrow": "05 / Le prochain regard",
+      "title": "Prêt à voir",
+      "accent": "autrement ?",
+      "description": "Découvrez les smartphones vivo officiels en Algérie, explorez nos séries ou contactez notre équipe partenaire STI pour être orienté avec précision.",
+      "talkToVivo": "Parler à vivo Algérie",
+      "exploreProducts": "Explorer les produits"
+    },
+    "vivoFooter": {
+      "copyright": "© 2026 vivo Algeria · STI Partenaire officiel",
+      "tagline": "Conçu pour l’Algérie, avec précision.",
+      "backToSti": "Retour au site STI"
+    },
+    "vivoProductsHero": {
+      "eyebrow": "La collection vivo · Algérie",
+      "title": "Trouvez votre",
+      "accent": "façon de voir.",
+      "description": "Explorez les séries V et Y de vivo pensées pour différents usages, styles et façons de vivre la technologie en Algérie avec STI.",
+      "ctaPrimary": "Découvrir la Série V",
+      "ctaSecondary": "Explorer la Série Y",
+      "trustBadge": "Catalogue officiel STI · Disponibilité garantie en Algérie",
+      "imageAlt": "La collection vivo en Algérie - V Series et Y Series",
+      "captionTitle": "Collection Officielle",
+      "captionSubtitle": "V Series · Y Series",
+      "scrollPrompt": "Défiler pour découvrir"
+    },
+    "vivoProductsSeriesNav": {
+      "ariaLabel": "Filtrer par série",
+      "label": "Explorer par série",
+      "vSeries": "Série V",
+      "ySeries": "Série Y",
+      "note": "Modèles officiels disponibles en Algérie"
+    },
+    "vivoProductsVSeries": {
+      "eyebrow": "02 / Série V",
+      "title": "Votre lumière",
+      "accent": "en signature.",
+      "description": "Des portraits plus naturels, des couleurs plus justes et une présence qui vous ressemble au quotidien avec le design raffiné de la Série V.",
+      "imageAlt": "vivo Série V en Algérie",
+      "imageIndex": "01 / SÉRIE V",
+      "kicker": "SÉRIE V",
+      "featureTitle": "Le portrait",
+      "featureAccent": "en haute définition.",
+      "featureDescription": "Le modèle vivo V70 FE offre un équilibre parfait entre esthétique haut de gamme, photographie de portrait avancée et performances fluides.",
+      "cta": "Découvrir la Série V"
+    },
+    "vivoProductsYSeries": {
+      "eyebrow": "03 / Série Y",
+      "title": "Votre rythme,",
+      "accent": "votre vivo.",
+      "description": "La série Y rassemble des modèles à découvrir avec une navigation simple, une lecture claire et un accompagnement local STI.",
+      "y21d": {
+        "index": "02 / SÉRIE Y",
+        "eyebrow": "L’essentiel, en mieux",
+        "copy": "Une expérience vivo pensée pour accompagner le rythme de chaque journée avec fluidité.",
+        "cta": "Découvrir Y21D",
+        "alt": "Smartphone vivo Y21D"
+      },
+      "y05": {
+        "index": "03 / SÉRIE Y",
+        "eyebrow": "Simplement vivo",
+        "copy": "Un modèle accessible à découvrir avec une approche claire et une autonomie durable.",
+        "cta": "Découvrir Y05",
+        "alt": "Smartphone vivo Y05"
+      }
+    },
+    "vivoProductsSelection": {
+      "eyebrow": "04 / Votre sélection",
+      "title": "Un modèle",
+      "accent": "qui vous suit.",
+      "description": "Vous hésitez entre la Série V et la Série Y ? Notre équipe vous accompagne pour trouver le modèle qui correspond à vos usages.",
+      "cta": "Parler à l’équipe",
+      "noteTitle": "Distribution officielle STI",
+      "noteSubtitle": "Disponibilité et conseil local en Algérie"
+    },
+    "vivoProductsContact": {
+      "eyebrow": "05 / vivo Algérie",
+      "title": "Prêt à trouver",
+      "accent": "le vôtre ?",
+      "description": "Découvrez les modèles officiels vivo disponibles près de chez vous ou contactez l’équipe STI pour un conseil personnalisé.",
+      "findStore": "Trouver un point de vente",
+      "talkAdvisor": "Parler à un conseiller"
+    },
+    "vivoSeriesHero": {
+      "seeModels": "Voir les modèles",
+      "scrollPrompt": "Défiler pour découvrir",
+      "v-series": {
+        "eyebrow": "Collection · vivo Série V",
+        "title": "Votre lumière",
+        "accent": "en signature.",
+        "description": "Explorez la Série V de vivo : une alliance unique entre photographie de portrait de studio, design ultra-fin et élégance en Algérie.",
+        "primaryCtaText": "Découvrir V70 FE",
+        "trustText": "Distribution officielle STI · Garantie & SAV certifié en Algérie",
+        "captionName": "vivo Série V",
+        "captionDesc": "Portraits studio · Design premium",
+        "imageAlt": "Collection vivo Série V en Algérie"
+      },
+      "y-series": {
+        "eyebrow": "Collection · vivo Série Y",
+        "title": "L’essentiel,",
+        "accent": "en grand.",
+        "description": "Une collection de smartphones pensée pour accompagner vos journées avec autonomie, clarté et sérénité en Algérie avec STI.",
+        "primaryCtaText": "Découvrir Y21D",
+        "trustText": "Distribution officielle STI · Disponibilité garantie en Algérie",
+        "captionName": "vivo Série Y",
+        "captionDesc": "Autonomie durable · Polyvalence",
+        "imageAlt": "Collection vivo Série Y en Algérie"
+      }
+    },
+    "vivoSeriesPillars": {
+      "eyebrow": "01 / Choisir simplement",
+      "v-series": {
+        "introTitle": "L'art du",
+        "introAccent": "portrait.",
+        "introDescription": "La V Series incarne la finesse esthétique et l'expertise photographique de vivo, révélant chaque émotion et chaque détail de vos moments précieux.",
+        "pillars": [
+          {
+            "number": "01",
+            "title": "Portrait Studio Aura Light",
+            "copy": "Système d'éclairage intelligent et traitement d'image professionnel pour des visages sublimés."
+          },
+          {
+            "number": "02",
+            "title": "Design Ultra-Mince",
+            "copy": "Des lignes épurées et des matériaux raffinés offrant une prise en main soignée et luxueuse."
+          },
+          {
+            "number": "03",
+            "title": "Distribution & Garantie STI",
+            "copy": "Accompagnement officiel STI avec réseau de techniciens agréés et service après-vente dédié."
+          }
+        ]
+      },
+      "y-series": {
+        "introTitle": "Pensé pour",
+        "introAccent": "votre quotidien.",
+        "introDescription": "La Série Y privilégie l'essentiel : une grande autonomie, un écran lumineux et une prise en main immédiate avec l'accompagnement STI en Algérie.",
+        "pillars": [
+          {
+            "number": "01",
+            "title": "Autonomie longue durée",
+            "copy": "Des batteries haute capacité pour naviguer, communiquer et travailler sans contrainte."
+          },
+          {
+            "number": "02",
+            "title": "Confort & Fluidité",
+            "copy": "Une prise en main légère et agréable avec un affichage fluide pour vos contenus quotidiens."
+          },
+          {
+            "number": "03",
+            "title": "Garantie & Réseau STI",
+            "copy": "Tous les smartphones de la Série Y bénéficient du support officiel et de la garantie certifiée en Algérie."
+          }
+        ]
+      }
+    },
+    "vivoSeriesModels": {
+      "eyebrow": "02 / Les modèles",
+      "title": "Trouvez celui",
+      "accent": "qui vous ressemble.",
+      "description": "Chaque fiche présente l’essentiel du modèle. Les détails de disponibilité et de configuration sont à confirmer avec l’équipe vivo Algérie de STI.",
+      "v-series": {
+        "v70fe": {
+          "tag": "01 / SÉRIE V",
+          "state": "Page détail disponible",
+          "phrase": "Portraits d’exception · Design premium",
+          "copy": "Le smartphone phare de la série V avec capteur haute précision et finition haut de gamme.",
+          "cta": "Découvrir V70 FE",
+          "alt": "Le vivo V70 FE présenté en studio"
+        }
+      },
+      "y-series": {
+        "y21d": {
+          "tag": "01 / SÉRIE Y",
+          "state": "Page détail disponible",
+          "phrase": "Le quotidien, en mieux.",
+          "copy": "Une expérience vivo pensée pour accompagner vos journées avec simplicité, style et confiance.",
+          "cta": "Découvrir Y21D",
+          "alt": "Le vivo Y21D présenté en studio"
+        },
+        "y05": {
+          "tag": "02 / SÉRIE Y",
+          "state": "Page détail disponible",
+          "phrase": "Simplement vivo.",
+          "copy": "Un modèle Y Series à découvrir avec une présentation claire et une autonomie durable en Algérie.",
+          "cta": "Découvrir Y05",
+          "alt": "Le vivo Y05 présenté en studio"
+        }
+      }
+    },
+    "vivoSeriesContact": {
+      "eyebrow": "03 / vivo Algérie",
+      "contactTeam": "Contacter l’équipe",
+      "backToProducts": "Retour à tous les produits",
+      "v-series": {
+        "title": "Révélez votre",
+        "accent": "lumière.",
+        "description": "Intéressé par la Série V ? Contactez l'équipe vivo Algérie pour connaître la disponibilité des modèles et coloris."
+      },
+      "y-series": {
+        "title": "Le bon modèle,",
+        "accent": "au bon moment.",
+        "description": "Vous souhaitez connaître les modèles de la Série Y disponibles près de chez vous ? Notre équipe vous oriente avec précision."
+      }
+    },
+    "vivoProductDetailHero": {
+      "discoverPrefix": "Découvrir",
+      "allSeriesPrefix": "Toute la",
+      "scrollPrompt": "Défiler pour découvrir",
+      "seriesLabels": {
+        "v-series": "Série V",
+        "y-series": "Série Y"
+      },
+      "v70fe": {
+        "eyebrow": "Série V · vivo V70 FE",
+        "title": "Votre lumière",
+        "accent": "en signature.",
+        "description": "Des portraits d’exception, un design fin et élégant et une technologie d'imagerie avancée pensée pour l'Algérie.",
+        "trustText": "Distribution officielle STI · Garantie & SAV certifié en Algérie",
+        "captionName": "vivo V70 FE",
+        "captionDesc": "Portraits studio · Design premium ultra-fin",
+        "imageAlt": "Le smartphone vivo V70 FE présenté en studio"
+      },
+      "y21d": {
+        "eyebrow": "Série Y · vivo Y21D",
+        "title": "Le quotidien,",
+        "accent": "en mieux.",
+        "description": "Une expérience vivo pensée pour suivre vos journées avec simplicité, style, autonomie et confiance en Algérie.",
+        "trustText": "Distribution officielle STI · Garantie & Service local en Algérie",
+        "captionName": "vivo Y21D",
+        "captionDesc": "Autonomie longue durée · Design élégant",
+        "imageAlt": "Le smartphone vivo Y21D présenté en studio"
+      },
+      "y05": {
+        "eyebrow": "Série Y · vivo Y05",
+        "title": "Simplement",
+        "accent": "vivo.",
+        "description": "Un smartphone accessible, autonome et fluide pensé pour répondre aux usages essentiels avec fiabilité.",
+        "trustText": "Distribution officielle STI · Garantie officielle en Algérie",
+        "captionName": "vivo Y05",
+        "captionDesc": "Autonomie fiable · Simplicité au quotidien",
+        "imageAlt": "Le smartphone vivo Y05 présenté en studio"
+      }
+    },
+    "vivoProductDetailHighlights": {
+      "eyebrow": "01 / Une présence simple",
+      "v70fe": {
+        "introTitle": "La beauté",
+        "introAccent": "du détail.",
+        "introDescription": "Le vivo V70 FE sublime chaque instant avec une optique de précision et des algorithmes de portrait conçus pour restituer des couleurs justes et éclatantes.",
+        "pillars": [
+          {
+            "number": "01",
+            "title": "Photographie de Portrait",
+            "copy": "Capteurs haute résolution et éclairage avancé pour des portraits éclatants même en basse lumière."
+          },
+          {
+            "number": "02",
+            "title": "Design Ultra-Fin",
+            "copy": "Une silhouette raffinée, des finitions texturées haut de gamme et une légèreté exceptionnelle en main."
+          },
+          {
+            "number": "03",
+            "title": "Performance & Sérénité",
+            "copy": "Un processeur véloce et la fiabilité du réseau de distribution et garantie officielle STI en Algérie."
+          }
+        ]
+      },
+      "y21d": {
+        "introTitle": "Tout ce qui",
+        "introAccent": "compte.",
+        "introDescription": "Le vivo Y21D s’inscrit dans la série Y avec une promesse claire : rendre l’expérience smartphone plus naturelle, plus fluide et parfaitement adaptée à votre quotidien en Algérie.",
+        "pillars": [
+          {
+            "number": "01",
+            "title": "Batterie longue durée",
+            "copy": "Une autonomie généreuse conçue pour accompagner votre rythme toute la journée sans interruption."
+          },
+          {
+            "number": "02",
+            "title": "Écran immersif",
+            "copy": "Une dalle lumineuse et confortable pour apprécier tous vos contenus avec fluidité et netteté."
+          },
+          {
+            "number": "03",
+            "title": "Accompagnement STI",
+            "copy": "Bénéficiez du service après-vente officiel et de la garantie certifiée par STI à travers le pays."
+          }
+        ]
+      },
+      "y05": {
+        "introTitle": "L'essentiel,",
+        "introAccent": "sans compromis.",
+        "introDescription": "Le vivo Y05 allie ergonomie, autonomie renforcée et simplicité d'utilisation pour vous accompagner au quotidien.",
+        "pillars": [
+          {
+            "number": "01",
+            "title": "Grande Autonomie",
+            "copy": "Une batterie performante pour garder le contact sans vous soucier de la recharge."
+          },
+          {
+            "number": "02",
+            "title": "Interface Fluide",
+            "copy": "Une navigation intuitive et réactive pensée pour un usage confortable et sans friction."
+          },
+          {
+            "number": "03",
+            "title": "Support Officiel STI",
+            "copy": "La tranquillité d’esprit avec la garantie et le suivi assurés par le distributeur officiel en Algérie."
+          }
+        ]
+      }
+    },
+    "vivoProductDetailStory": {
+      "tag": "02 / DÉTAILS",
+      "eyebrow": "L’attention au détail",
+      "v70fe": {
+        "title": "Chaque détail,",
+        "accent": "sa propre lumière.",
+        "description": "Le V70 FE est conçu pour celles et ceux qui exigent l'excellence esthétique et des clichés mémorables au quotidien.",
+        "points": [
+          "Optique portrait professionnelle",
+          "Garantie officielle constructeur via STI",
+          "Support et réseau agréé à travers l'Algérie"
+        ],
+        "alt": "Détail de vivo V70 FE"
+      },
+      "y21d": {
+        "title": "Votre journée,",
+        "accent": "votre angle.",
+        "description": "Le Y21D se découvre dans les détails : une silhouette soignée, une expérience réactive et une technologie qui reste au service de votre rythme.",
+        "points": [
+          "Présentation claire du modèle",
+          "Conseil et disponibilité locale en Algérie",
+          "Orientation vers le réseau officiel STI"
+        ],
+        "alt": "Détail de vivo Y21D"
+      },
+      "y05": {
+        "title": "L'harmonie",
+        "accent": "au quotidien.",
+        "description": "Le vivo Y05 met l'accent sur la fiabilité, la simplicité et une endurance adaptée aux usages quotidiens.",
+        "points": [
+          "Prise en main légère et confortable",
+          "Autonomie généreuse et charge sécurisée",
+          "Service après-vente et garantie officielle STI"
+        ],
+        "alt": "Détail de vivo Y05"
+      }
+    },
+    "vivoProductDetailCta": {
+      "eyebrowPrefix": "03 /",
+      "title": "Prêt à le",
+      "accent": "découvrir ?",
+      "descriptionTemplate": "Contactez l’équipe vivo Algérie pour connaître la disponibilité du {name} et être orienté vers le point de vente adapté.",
+      "contactTeam": "Contacter l’équipe",
+      "seeAllSeriesPrefix": "Voir toute la"
+    },
+    "vivoTechnologyHero": {
+      "eyebrow": "Technologie · vivo Algérie",
+      "title": "La précision",
+      "accent": "qui se ressent.",
+      "description": "Chez vivo, l’innovation reste au service d’une expérience plus naturelle : regarder, créer, partager et continuer.",
+      "exploreProducts": "Explorer les produits",
+      "discoverPrinciples": "Découvrir les principes",
+      "trustText": "Distribution officielle STI · Précision & Innovation",
+      "captionName": "Optique de précision",
+      "captionDesc": "vivo Technology · Algérie",
+      "imageAlt": "Smartphone vivo présenté dans une scène studio bleue",
+      "scrollPrompt": "Défiler pour découvrir"
+    },
+    "vivoTechnologyPrinciples": {
+      "eyebrow": "02 / Les principes",
+      "title": "Invisible dans le geste.",
+      "accent": "Présente dans le résultat.",
+      "description": "La technologie la plus utile est celle qui vous laisse vous concentrer sur ce que vous êtes venu faire.",
+      "pillars": [
+        {
+          "number": "01",
+          "title": "Imagerie fidèle",
+          "copy": "Des outils conçus pour garder le réel au centre : la lumière, les visages et les détails qui donnent du relief à chaque instant."
+        },
+        {
+          "number": "02",
+          "title": "Expérience fluide",
+          "copy": "Une interface pensée pour rester claire, intuitive et agréable, du premier geste à l’usage quotidien."
+        },
+        {
+          "number": "03",
+          "title": "Énergie sereine",
+          "copy": "Une approche de la technologie qui accompagne votre rythme, sans ajouter de complexité à ce qui doit rester simple."
+        }
+      ]
+    },
+    "vivoTechnologyStory": {
+      "tag": "03 / OPTIQUE",
+      "eyebrow": "Regarder autrement",
+      "title": "Chaque détail",
+      "accent": "a sa lumière.",
+      "description": "Une photographie ne commence pas au moment où l’on appuie. Elle commence dans la façon dont un téléphone comprend une scène et vous aide à la garder fidèle à votre intention.",
+      "noteTitle": "Une vision Vivo avec STI",
+      "noteDesc": "La technologie racontée simplement, avec des informations adaptées à chaque modèle officiel.",
+      "exploreProducts": "Explorer les produits",
+      "imageAlt": "Détail macro de l’optique d’un smartphone vivo"
+    },
+    "vivoTechnologyExperience": {
+      "eyebrow": "04 / Dans la vie",
+      "title": "La puissance",
+      "accent": "sans le bruit.",
+      "description": "Une expérience bien pensée ne cherche pas à se faire remarquer à chaque instant. Elle devient une présence fiable, prête quand vous l’êtes.",
+      "items": [
+        { "number": "01", "text": "Des gestes qui restent naturels" },
+        { "number": "02", "text": "Des détails qui se découvrent" },
+        { "number": "03", "text": "Une expérience qui suit le rythme" }
+      ],
+      "tag": "ALGÉRIE / EVERYDAY",
+      "imageAlt": "Utilisatrice avec un smartphone vivo sur un rooftop à Alger"
+    },
+    "vivoTechnologySeries": {
+      "eyebrow": "05 / Choisir son expérience",
+      "title": "Une technologie",
+      "accent": "pour chaque regard.",
+      "description": "Retrouvez l’approche vivo dans les séries pensées pour différents usages et différentes façons de voir.",
+      "cards": {
+        "x-series": {
+          "tag": "01 / X SERIES",
+          "title": "Voir plus",
+          "accent": "loin."
+        },
+        "v-series": {
+          "tag": "02 / V SERIES",
+          "title": "Votre lumière",
+          "accent": "en signature."
+        },
+        "y-series": {
+          "tag": "03 / Y SERIES",
+          "title": "Pensé pour",
+          "accent": "chaque jour."
+        }
+      }
+    },
+    "vivoTechnologyContact": {
+      "eyebrow": "06 / Vivo Algérie",
+      "title": "Une question",
+      "accent": "sur la technologie ?",
+      "description": "Notre équipe vous aide à comprendre l’essentiel et à trouver le modèle qui correspond à vos usages.",
+      "talkToSupport": "Parler au support"
+    },
+    "vivoSupportHero": {
+      "eyebrow": "Support · vivo Algérie",
+      "title": "On reste",
+      "accent": "à vos côtés.",
+      "description": "Une question sur un modèle, un achat ou un service ? Consultez notre FAQ ou écrivez directement à notre équipe locale.",
+      "writeToUs": "Nous écrire",
+      "viewFaq": "Consulter la FAQ",
+      "trustText": "Service client & SAV officiel STI en Algérie",
+      "captionName": "Assistance officielle",
+      "captionDesc": "Service & Garantie · STI Algérie",
+      "imageAlt": "Support technique et service après-vente vivo Algérie",
+      "scrollPrompt": "Défiler pour découvrir"
+    },
+    "vivoSupportShortcuts": {
+      "faq": {
+        "title": "Questions fréquentes",
+        "subtitle": "Consulter la FAQ"
+      },
+      "contact": {
+        "title": "Contacter l’équipe",
+        "subtitle": "Envoyer un message"
+      },
+      "email": {
+        "title": "Écrire directement",
+        "subtitle": "service@dz.vivo.com"
+      }
+    },
+    "vivoSupportFaq": {
+      "eyebrow": "02 / FAQ",
+      "title": "Les réponses",
+      "accent": "essentielles.",
+      "description": "Retrouvez les réponses aux questions les plus courantes posées par nos clients en Algérie.",
+      "items": [
+        {
+          "question": "Où acheter un produit vivo officiel en Algérie ?",
+          "answer": "Utilisez le bouton « Trouver un point de vente » pour découvrir les revendeurs agréés et partenaires officiels STI à travers l'Algérie."
+        },
+        {
+          "question": "Comment obtenir des informations sur un modèle spécifique ?",
+          "answer": "Ouvrez la page du modèle depuis la collection Produits (X Series, V Series ou Y Series), puis contactez notre équipe pour confirmer les coloris et la disponibilité locale."
+        },
+        {
+          "question": "Comment demander un accompagnement après l’achat ou faire jouer la garantie ?",
+          "answer": "Sélectionnez « Service après-vente » dans le formulaire ci-dessous et indiquez le modèle concerné. Nos techniciens vous orienteront vers le centre de service agréé le plus proche."
+        },
+        {
+          "question": "Quels éléments dois-je préparer pour une demande ?",
+          "answer": "Pour accélérer le traitement, préparez le nom du modèle, votre ville/wilaya en Algérie et une description claire de votre besoin."
+        }
+      ]
+    },
+    "vivoSupportGuidance": {
+      "tag": "VIVO / DZ",
+      "eyebrow": "03 / Bien préparer",
+      "title": "Votre demande,",
+      "accent": "bien orientée.",
+      "description": "Quelques informations simples nous aident à vous répondre avec plus de précision et à vous orienter vers le bon interlocuteur STI.",
+      "items": [
+        "Le modèle concerné",
+        "Votre wilaya en Algérie",
+        "Le sujet de votre demande"
+      ]
+    },
+    "vivoSupportContact": {
+      "eyebrow": "04 / Nous écrire",
+      "title": "Parlons",
+      "accent": "de votre besoin.",
+      "description": "Notre équipe est à votre disposition pour toute demande commerciale, technique ou partenariat.",
+      "directNote": "Support client officiel STI Algérie",
+      "nameLabel": "Nom complet",
+      "namePlaceholder": "Votre nom",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "phoneLabel": "Numéro de téléphone / Wilaya (Optionnel)",
+      "phonePlaceholder": "ex: 0550... / Sétif",
+      "subjectLabel": "Sujet",
+      "subjects": {
+        "general": "Question générale",
+        "product": "Informations produit",
+        "afterSales": "Service après-vente & Garantie",
+        "retailer": "Point de vente & Distribution"
+      },
+      "messageLabel": "Message",
+      "messagePlaceholder": "Comment pouvons-nous vous aider ?",
+      "sendButton": "Envoyer la demande",
+      "sendingButton": "Envoi en cours...",
+      "successTitle": "Demande envoyée avec succès.",
+      "successNote": "Merci. Votre message a été transmis à l’équipe vivo Algérie de STI.",
+      "sendAnother": "Envoyer un autre message"
+    },
+    "vivoAboutHero": {
+      "eyebrow": "À propos · vivo Algérie",
+      "title": "La technologie",
+      "accent": "prend racine.",
+      "description": "STI est le partenaire distributeur officiel qui fait vivre l’univers vivo en Algérie — de la découverte d’un produit jusqu’à l’expérience qui suit.",
+      "discoverCollection": "Découvrir la collection",
+      "ourApproach": "Notre manière",
+      "trustText": "Partenaire & distributeur officiel STI en Algérie",
+      "captionName": "Présence locale STI",
+      "captionDesc": "Alger · Algérie",
+      "imageAlt": "Une utilisatrice avec un smartphone vivo dans un paysage urbain algérien",
+      "scrollPrompt": "Défiler pour découvrir"
+    },
+    "vivoAboutRole": {
+      "eyebrow": "02 / Notre rôle",
+      "title": "Vivo, vu",
+      "accent": "d’ici.",
+      "description": "Notre entreprise STI accompagne la présence de vivo en Algérie en réunissant deux responsabilités : distribuer avec exigence, puis traduire cette innovation en une expérience plus proche, plus lisible et plus utile.",
+      "noteLine1": "Une technologie globale.",
+      "noteLine2": "Une lecture locale.",
+      "discoverCollection": "Découvrir la collection"
+    },
+    "vivoAboutPrinciples": {
+      "eyebrow": "03 / Notre manière",
+      "title": "Ce qui nous",
+      "accent": "guide.",
+      "description": "Chaque contact avec vivo Algérie doit être aussi précis que le produit qu’il présente.",
+      "items": [
+        {
+          "number": "01",
+          "title": "Rendre l’innovation proche",
+          "copy": "Nous créons un lien direct entre les produits vivo et les usages réels des personnes qui vivent en Algérie."
+        },
+        {
+          "number": "02",
+          "title": "Distribuer avec précision",
+          "copy": "Notre rôle est de rendre l’expérience vivo plus claire : une sélection, une disponibilité et une orientation adaptées au marché local."
+        },
+        {
+          "number": "03",
+          "title": "Rester présent après l’achat",
+          "copy": "Une relation de confiance continue avec des informations utiles, un accompagnement humain et un accès simple au support."
+        }
+      ]
+    },
+    "vivoAboutTechnology": {
+      "imageIndex": "04 / IMAGING",
+      "imageAlt": "Détail d’une caméra de smartphone vivo",
+      "eyebrow": "Une exigence partagée",
+      "title": "La forme",
+      "accent": "de la confiance.",
+      "description": "Nous croyons qu’un bon produit mérite une présentation claire, une disponibilité transparente et une relation qui ne s’arrête pas au premier contact. C’est cette exigence qui donne du sens à notre rôle de distributeur officiel en Algérie.",
+      "items": [
+        "Sélection et information claires",
+        "Présence locale et conseil",
+        "Accompagnement après l’achat"
+      ]
+    },
+    "vivoAboutContact": {
+      "eyebrow": "05 / Parlons-nous",
+      "title": "Construisons",
+      "accent": "le prochain regard.",
+      "description": "Une question sur vivo en Algérie, nos produits ou notre accompagnement ? Notre équipe est là pour vous orienter.",
+      "contactTeam": "Contacter l’équipe"
+    },
+    "vivoFindAStoreHero": {
+      "eyebrow": "Vivo Algérie · Réseau officiel STI",
+      "title": "Trouvez votre",
+      "accent": "point de vente.",
+      "description": "Localisez le siège officiel STI et les annexes agréées vivo en Algérie.",
+      "metaIndex": "01 / LOCALISER",
+      "metaNetwork": "STI NETWORK"
+    },
+    "vivoFindAStoreTool": {
+      "eyebrow": "02 / Implantations STI",
+      "title": "Centres",
+      "accent": "officiels.",
+      "description": "Sélectionnez un site pour afficher sa localisation Google Maps.",
+      "openMaps": "Ouvrir dans Google Maps",
+      "googleMaps": "Google Maps",
+      "findNearest": "Trouver le centre le plus proche",
+      "geoUnavailable": "La géolocalisation n’est pas disponible sur cet appareil.",
+      "geoSearching": "Recherche de votre position…",
+      "geoClosest": "Point le plus proche : ",
+      "geoError": "Position indisponible. Choisissez un site dans la liste.",
+      "selectedPoint": "Point sélectionné :",
+      "networkTitle": "Réseau officiel",
+      "networkSub": "Garantie & Service STI",
+      "locations": {
+        "sti-setif": {
+          "name": "SARL Smart Technologie Innovation - STI (Siège)",
+          "address": "Sétif, Algérie",
+          "wilaya": "Sétif"
+        },
+        "sti-alger": {
+          "name": "SARL Smart Technologie Innovation - STI Annexe",
+          "address": "Staoueli / Chéraga, Alger, Algérie",
+          "wilaya": "Alger"
+        }
+      }
+    },
+    "vivoFindAStorePartner": {
+      "eyebrow": "Distributeur Officiel",
+      "title": "Devenir revendeur",
+      "accent": "partenaire.",
+      "description": "Vous êtes un professionnel de la téléphonie en Algérie et souhaitez distribuer les smartphones vivo officiels ? Rejoignez le réseau STI.",
+      "joinNetwork": "Rejoindre le réseau de distribution"
     }
   }
 }

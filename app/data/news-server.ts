@@ -1,23 +1,24 @@
 import { fetchFromBackend } from '@/app/api/backend-helper';
 import type { ApiNewsItem } from '@/app/api/news/route';
-import { convertApiItemToNewsArticle, type NewsArticle } from "./news-articles";
+import { convertApiItemToNewsArticle, type NewsArticle, FALLBACK_NEWS_ITEMS } from "./news-articles";
 
 export async function getAllPublishedArticlesServer(locale: string = "en"): Promise<NewsArticle[]> {
   try {
     const res = await fetchFromBackend("/news", { cache: "no-store" }, 8000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
-      if (Array.isArray(data)) {
-        return data
-          .filter((item: ApiNewsItem) => !item.status || item.status === "Published")
-          .map((item: ApiNewsItem) => convertApiItemToNewsArticle(item, locale));
+      if (Array.isArray(data) && data.length > 0) {
+        const published = data.filter((item: ApiNewsItem) => !item.status || item.status === "Published");
+        if (published.length > 0) {
+          return published.map((item: ApiNewsItem) => convertApiItemToNewsArticle(item, locale));
+        }
       }
     }
   } catch (err) {
     console.error("Backend fetch error in getAllPublishedArticlesServer:", err);
   }
 
-  return [];
+  return FALLBACK_NEWS_ITEMS.map((item) => convertApiItemToNewsArticle(item, locale));
 }
 
 export async function getArticleBySlugServer(slug: string, locale: string = "en"): Promise<NewsArticle | undefined> {

@@ -146,7 +146,7 @@ export default function FeaturedProductsGrid() {
                   </div>
 
                   {/* Title */}
-                  <Link href={`/${currentLocale}/products/${product.slug}`}>
+                  <Link href={`/${currentLocale}/ooredoo/products/${product.slug}`}>
                     <h3
                       className="text-lg font-bold text-gray-900 mb-2 group-hover:text-red-primary transition-colors duration-300"
                       style={{ fontFamily: "var(--font-display)" }}
@@ -164,14 +164,14 @@ export default function FeaturedProductsGrid() {
                 {/* Bottom row: Actions */}
                 <div className="pt-4 border-t border-gray-100 flex flex-col gap-3 mt-auto">
                   <Link
-                    href={`/${currentLocale}/products/${product.slug}`}
+                    href={`/${currentLocale}/ooredoo/products/${product.slug}`}
                     className="flex items-center justify-center w-full py-2.5 rounded-full bg-red-primary text-white text-xs font-semibold shadow-md shadow-red-primary/10 transition-all duration-300 hover:bg-red-primary/95 hover:shadow-lg"
                   >
                     <span>{featT.view_details || "View Details"}</span>
                     <ArrowRight size={14} className="ml-1.5 rtl:mr-1.5 rtl:ml-0 rtl:rotate-180" />
                   </Link>
                   <Link
-                    href={`/${currentLocale}/quote`}
+                    href={`/${currentLocale}/ooredoo/quote`}
                     className="flex items-center justify-center w-full py-2.5 rounded-full border border-gray-200 text-xs font-semibold text-gray-700 transition-all duration-300 hover:border-gray-300 hover:bg-gray-50"
                   >
                     <span>{featT.cta_quote || "Request Quote"}</span>

@@ -39,7 +39,7 @@ export default function ProductCTA() {
               Get competitive wholesale pricing and reliable product availability for your business across Algeria.
             </p>
             <Link
-              href={`/${currentLocale}/quote`}
+              href={`/${currentLocale}/ooredoo/quote`}
               className="group inline-flex items-center gap-2.5 rounded-full bg-white px-8 py-4 text-sm font-semibold text-red-primary transition-all duration-300 hover:shadow-xl hover:scale-[1.03]"
             >
               Request a Quote

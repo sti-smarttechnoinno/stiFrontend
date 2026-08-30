@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from '@/app/[locale]/use-translations';
+import { localizeCategory } from '@/app/data/news-articles';
 
 interface Article {
   id: number | string;
@@ -17,7 +19,10 @@ interface Article {
 
 export default function NewsCard({ article }: { article: Article }) {
   const pathname = usePathname();
+  const t = useTranslations();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+  const readMoreText = (t as any).newsPage?.featured?.read_more || (t as any).newsPage?.grid?.read_more || "Read More";
+  const categoryLabel = localizeCategory(article.category, currentLocale);
 
   return (
     <motion.article
@@ -32,7 +37,7 @@ export default function NewsCard({ article }: { article: Article }) {
           className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-red-primary backdrop-blur-sm shadow-sm">
-          {article.category}
+          {categoryLabel}
         </span>
       </div>
 
@@ -49,10 +54,10 @@ export default function NewsCard({ article }: { article: Article }) {
           {article.description}
         </p>
         <Link
-          href={`/${currentLocale}/news/${article.slug || article.id}`}
+          href={`/${currentLocale}/ooredoo/news/${article.slug || article.id}`}
           className="mt-auto inline-flex items-center gap-1.5 text-xs font-bold text-red-primary transition-colors hover:text-red-accent"
         >
-          Read More
+          {readMoreText}
           <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
         </Link>
       </div>

@@ -4,6 +4,8 @@ export const VIVO_ASSETS = {
   camera: "/assets/vivo/vivo-algeria-camera-detail.webp",
   lifestyle: "/assets/vivo/vivo-algeria-lifestyle.webp",
   v70fe: "/assets/vivo/vivo v70fe.webp",
+  v70feHero: "/assets/vivo/v70fe-hero.webp",
+  v70feDetails: "/assets/vivo/v70fe-details.webp",
   vSeries: "/assets/vivo/v-series.webp",
   y21d: "/assets/vivo/vivo y21d.webp",
   y21dHero: "/assets/vivo/y21d-hero.webp",

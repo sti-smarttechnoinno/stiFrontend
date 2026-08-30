@@ -21,8 +21,9 @@ import {
   Quote,
   Share2,
 } from "lucide-react";
-import { NewsArticle, convertApiItemToNewsArticle, getRelatedArticles, getAdjacentArticles } from '@/app/data/news-articles';
+import { NewsArticle, convertApiItemToNewsArticle, getRelatedArticles, getAdjacentArticles, localizeCategory } from '@/app/data/news-articles';
 import NewsletterSection from '@/app/components/news/NewsletterSection';
+import { useTranslations } from '@/app/[locale]/use-translations';
 
 const LinkedinIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -36,6 +37,38 @@ const FacebookIcon = () => (
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
   </svg>
 );
+
+function formatPublishedDate(dateStr: string = "", locale: string = "fr") {
+  if (!dateStr) return "";
+  const parsed = Date.parse(dateStr);
+  if (!isNaN(parsed)) {
+    const lang = locale === "ar" ? "ar-DZ" : locale === "fr" ? "fr-FR" : "en-US";
+    return new Intl.DateTimeFormat(lang, { year: "numeric", month: "short", day: "numeric" }).format(new Date(parsed));
+  }
+  const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthsFr = ["Janv.", "Févr.", "Mars", "Avr.", "Mai", "Juin", "Juil.", "Août", "Sept.", "Oct.", "Nov.", "Déc."];
+  const monthsAr = ["جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان", "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+  
+  let formatted = dateStr;
+  for (let i = 0; i < 12; i++) {
+    const reg = new RegExp(`\\b${monthsEn[i]}[a-z]*\\b`, 'i');
+    if (reg.test(formatted)) {
+      if (locale === "fr") formatted = formatted.replace(reg, monthsFr[i]);
+      if (locale === "ar") formatted = formatted.replace(reg, monthsAr[i]);
+    }
+  }
+  return formatted;
+}
+
+function formatReadingTime(timeStr: string = "", minReadLabel: string = "min read", locale: string = "fr") {
+  const num = (timeStr || "").match(/\d+/)?.[0] || "3";
+  if (locale === "ar") {
+    if (num === "1") return "دقيقة واحدة للقراءة";
+    if (num === "2") return "دقيقتان للقراءة";
+    return `${num} ${minReadLabel}`;
+  }
+  return `${num} ${minReadLabel}`;
+}
 
 function parseMarkdownContent(content: string = "") {
   const sections: { type: string; content: string; level?: number }[] = [];
@@ -98,8 +131,10 @@ export default function ArticlePageClient({
   prev?: NewsArticle | null;
   next?: NewsArticle | null;
 }) {
+  const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
+  const detailT = (t as any).articleDetail || {};
   const [related, setRelated] = useState<NewsArticle[]>(relatedArticles);
   const [prev, setPrev] = useState<NewsArticle | null>(initialPrev);
   const [next, setNext] = useState<NewsArticle | null>(initialNext);
@@ -187,6 +222,55 @@ export default function ArticlePageClient({
   const safeHeroImage = article?.heroImage && article.heroImage.trim() !== "" ? article.heroImage : "/assets/hero.png";
   const safeTags = Array.isArray(article?.tags) ? article.tags : [];
 
+  const publishedDateFormatted = formatPublishedDate(article?.publishedAt, currentLocale);
+  const readingTimeFormatted = formatReadingTime(
+    article?.readingTime,
+    detailT.min_read || (currentLocale === "ar" ? "دقائق للقراءة" : currentLocale === "fr" ? "min de lecture" : "min read"),
+    currentLocale
+  );
+
+  const isDefaultAuthor =
+    !article?.author ||
+    article.author.toLowerCase().includes("sti") ||
+    article.author.toLowerCase().includes("équipe") ||
+    article.author.includes("فريق");
+
+  const authorName = isDefaultAuthor
+    ? detailT.author_default || "STI Communications Team"
+    : article.author;
+
+  const isDefaultRole =
+    !article?.authorRole ||
+    article.authorRole.toLowerCase().includes("smart") ||
+    article.authorRole.includes("سمارت");
+
+  const authorRoleName = isDefaultRole
+    ? detailT.author_role_default || "Smart Technologie Innovation"
+    : article.authorRole;
+
+  const isDefaultBio =
+    !article?.authorBio ||
+    article.authorBio.toLowerCase().includes("communications team") ||
+    article.authorBio.toLowerCase().includes("communication officielle") ||
+    article.authorBio.includes("فريق الاتصال والإعلام");
+
+  const authorBioName = isDefaultBio
+    ? detailT.author_bio_default || "Official communications team at SARL Smart Technologie Innovation."
+    : article.authorBio;
+
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/news/categories")
+      .then((res) => res.json())
+      .then((cats) => {
+        if (Array.isArray(cats)) setCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
+
+  const categoryName = localizeCategory(article?.category, currentLocale, categories);
+
   return (
     <article className="relative bg-white">
       {/* Background decoration grid */}
@@ -203,16 +287,16 @@ export default function ArticlePageClient({
         <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 mb-8 flex-wrap">
-            <Link href={`/${currentLocale}`} className="hover:text-red-primary transition-colors">
-              Home
+            <Link href={`/${currentLocale}/ooredoo`} className="hover:text-red-primary transition-colors">
+              {currentLocale === "ar" ? "الرئيسية" : currentLocale === "fr" ? "Accueil" : "Home"}
             </Link>
-            <ChevronRight size={12} className="text-gray-300" />
-            <Link href={`/${currentLocale}/news`} className="hover:text-red-primary transition-colors">
-              News
+            <ChevronRight size={12} className="text-gray-300 rtl:rotate-180" />
+            <Link href={`/${currentLocale}/ooredoo/news`} className="hover:text-red-primary transition-colors">
+              {currentLocale === "ar" ? "الأخبار" : currentLocale === "fr" ? "Actualités" : "News"}
             </Link>
-            <ChevronRight size={12} className="text-gray-300" />
-            <span className="text-gray-500">{article?.category || "Company News"}</span>
-            <ChevronRight size={12} className="text-gray-300" />
+            <ChevronRight size={12} className="text-gray-300 rtl:rotate-180" />
+            <span className="text-gray-500">{categoryName}</span>
+            <ChevronRight size={12} className="text-gray-300 rtl:rotate-180" />
             <span className="text-red-primary truncate max-w-[200px] sm:max-w-none">
               {article?.title}
             </span>
@@ -221,7 +305,7 @@ export default function ArticlePageClient({
           <div className="max-w-[900px]">
             {/* Category Tag */}
             <span className="mb-4 inline-block text-xs font-bold uppercase tracking-widest text-red-primary">
-              {article?.category || "Company News"}
+              {categoryName}
             </span>
 
             {/* Main Headline */}
@@ -242,23 +326,25 @@ export default function ArticlePageClient({
               <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-semibold text-gray-400">
                 <span className="inline-flex items-center gap-1.5">
                   <Calendar size={14} className="text-gray-300" />
-                  {article?.publishedAt}
+                  {publishedDateFormatted}
                 </span>
                 <span className="h-3 w-px bg-gray-200 hidden sm:inline" />
                 <span className="inline-flex items-center gap-1.5">
                   <User size={14} className="text-gray-300" />
-                  {article?.author}
+                  {authorName}
                 </span>
                 <span className="h-3 w-px bg-gray-200 hidden sm:inline" />
                 <span className="inline-flex items-center gap-1.5">
                   <Clock size={14} className="text-gray-300" />
-                  {article?.readingTime}
+                  {readingTimeFormatted}
                 </span>
               </div>
 
               {/* Share Controls */}
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-widest text-gray-400 mr-2">Share:</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-gray-400 mr-2 rtl:mr-0 rtl:ml-2">
+                  {detailT.share || "Share:"}
+                </span>
                 <a
                   href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
                   target="_blank"
@@ -342,7 +428,7 @@ export default function ArticlePageClient({
               }
               if (section.type === "bullet") {
                 return (
-                  <div key={i} className="mb-3.5 flex items-start gap-3 pl-1">
+                  <div key={i} className="mb-3.5 flex items-start gap-3 pl-1 rtl:pl-0 rtl:pr-1">
                     <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-primary" />
                     <span className="text-sm sm:text-base leading-relaxed text-gray-600 font-medium">{section.content}</span>
                   </div>
@@ -356,13 +442,14 @@ export default function ArticlePageClient({
             })}
 
             {/* Highlighted Quote Callout */}
-            <div className="my-12 rounded-3xl border-l-4 border-red-primary bg-gray-50/50 p-8 shadow-sm">
-              <Quote size={32} className="mb-4 text-red-primary/10" />
+            <div className="my-12 rounded-3xl border-l-4 border-red-primary rtl:border-l-0 rtl:border-r-4 bg-gray-50/50 p-8 shadow-sm">
+              <Quote size={32} className="mb-4 text-red-primary/10 rtl:rotate-180" />
               <blockquote className="mb-4 text-base sm:text-lg font-bold leading-relaxed text-gray-900 italic" style={{ fontFamily: "var(--font-manrope)" }}>
-                &ldquo;Our priority is to provide partners with reliable access to official Ooredoo products
-                while maintaining a high standard of service.&rdquo;
+                {detailT.quote || "“Our priority is to provide partners with reliable access to our products while maintaining a high standard of service.”"}
               </blockquote>
-              <cite className="text-xs font-extrabold uppercase tracking-widest text-red-primary not-italic">— STI Management</cite>
+              <cite className="text-xs font-extrabold uppercase tracking-widest text-red-primary not-italic">
+                {detailT.quote_author || "— STI Management"}
+              </cite>
             </div>
 
             {/* Supporting Partner Feature Grid */}
@@ -371,33 +458,32 @@ export default function ArticlePageClient({
                 className="mb-4 text-2xl font-extrabold text-gray-900"
                 style={{ fontFamily: "var(--font-manrope)" }}
               >
-                Supporting Retail &amp; Wholesale Partners
+                {detailT.partner_section_title || "Supporting Retail & Wholesale Partners"}
               </h2>
               <p className="mb-8 text-sm sm:text-base leading-relaxed text-gray-500 font-medium">
-                STI supports retailers, wholesalers, and business partners throughout Algeria with reliable
-                access to official Ooredoo products, competitive pricing, and dedicated professional support.
+                {detailT.partner_section_desc || "STI supports retailers, wholesalers, and business partners throughout Algeria with reliable access to official Ooredoo products, competitive pricing, and dedicated professional support."}
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
                 {[
                   {
                     icon: BadgeCheck,
-                    title: "Official Products",
-                    desc: "100% official Ooredoo products.",
+                    title: detailT.features?.official_products || "Official Products",
+                    desc: detailT.features?.official_products_desc || "100% official Ooredoo products.",
                   },
                   {
                     icon: PackageCheck,
-                    title: "Reliable Availability",
-                    desc: "Consistent access to essential products.",
+                    title: detailT.features?.reliable_availability || "Reliable Availability",
+                    desc: detailT.features?.reliable_availability_desc || "Consistent access to essential products.",
                   },
                   {
                     icon: Headphones,
-                    title: "Professional Support",
-                    desc: "Dedicated assistance for business partners.",
+                    title: detailT.features?.professional_support || "Professional Support",
+                    desc: detailT.features?.professional_support_desc || "Dedicated assistance for business partners.",
                   },
                   {
                     icon: TrendingUp,
-                    title: "Business Growth",
-                    desc: "Solutions designed for professional partners.",
+                    title: detailT.features?.business_growth || "Business Growth",
+                    desc: detailT.features?.business_growth_desc || "Solutions designed for professional partners.",
                   },
                 ].map((feat) => (
                   <div
@@ -421,7 +507,7 @@ export default function ArticlePageClient({
                   className="mb-6 text-2xl font-extrabold text-gray-900"
                   style={{ fontFamily: "var(--font-manrope)" }}
                 >
-                  Gallery
+                  {detailT.gallery || "Gallery"}
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-3">
                   {article.gallery.map((img, i) => (
@@ -449,9 +535,13 @@ export default function ArticlePageClient({
                   <Image src="/assets/logo.png" alt="STI" width={48} height={48} className="object-contain" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900">{article?.author}</h4>
-                  {article?.authorRole && <p className="mb-2 text-xs font-bold uppercase tracking-wider text-red-primary">{article.authorRole}</p>}
-                  {article?.authorBio && <p className="text-xs leading-relaxed text-gray-500 font-medium">{article.authorBio}</p>}
+                  <h4 className="text-sm font-bold text-gray-900">{authorName}</h4>
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-red-primary">
+                    {authorRoleName}
+                  </p>
+                  <p className="text-xs leading-relaxed text-gray-500 font-medium">
+                    {authorBioName}
+                  </p>
                 </div>
               </div>
             </div>
@@ -461,7 +551,7 @@ export default function ArticlePageClient({
               <div className="my-14 grid gap-4 sm:grid-cols-2 border-t border-gray-100 pt-8">
                 {prev ? (
                   <Link
-                    href={`/${currentLocale}/news/${prev.slug}`}
+                    href={`/${currentLocale}/ooredoo/news/${prev.slug || prev.id}`}
                     className="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 transition-all duration-300 hover:border-red-primary hover:shadow-md hover:scale-[1.01]"
                   >
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400 transition-colors group-hover:bg-red-primary group-hover:text-white rtl:rotate-180">
@@ -481,7 +571,7 @@ export default function ArticlePageClient({
                 )}
                 {next ? (
                   <Link
-                    href={`/${currentLocale}/news/${next.slug}`}
+                    href={`/${currentLocale}/ooredoo/news/${next.slug || next.id}`}
                     className="group flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white p-5 transition-all duration-300 hover:border-red-primary hover:shadow-md hover:scale-[1.01]"
                   >
                     <div className="min-w-0 text-left rtl:text-right">
@@ -509,7 +599,9 @@ export default function ArticlePageClient({
               {/* Table of Contents */}
               {h2Sections.length > 0 && (
                 <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
-                  <h4 className="mb-4 text-xs font-extrabold uppercase tracking-wider text-gray-900">In This Article</h4>
+                  <h4 className="mb-4 text-xs font-extrabold uppercase tracking-wider text-gray-900">
+                    {detailT.table_of_contents || "In This Article"}
+                  </h4>
                   <ul className="space-y-1">
                     {h2Sections.map((section, i) => {
                       const id = slugify(section.content);
@@ -518,7 +610,7 @@ export default function ArticlePageClient({
                         <li key={id}>
                           <button
                             onClick={() => scrollToSection(id)}
-                            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-xs transition-all ${
+                            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left rtl:text-right text-xs transition-all ${
                               isActive
                                 ? "bg-red-primary/5 font-bold text-red-primary"
                                 : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/50"
@@ -538,13 +630,15 @@ export default function ArticlePageClient({
 
               {/* Quick Article Specs */}
               <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
-                <h4 className="mb-4 text-xs font-extrabold uppercase tracking-wider text-gray-900">Information</h4>
+                <h4 className="mb-4 text-xs font-extrabold uppercase tracking-wider text-gray-900">
+                  {detailT.information || "Information"}
+                </h4>
                 <div className="space-y-3.5">
                   {[
-                    { label: "Category", value: article.category, red: true },
-                    { label: "Published", value: article.publishedAt },
-                    { label: "Author", value: article.author },
-                    { label: "Read Time", value: article.readingTime },
+                    { label: detailT.category || "Category", value: categoryName, red: true },
+                    { label: detailT.published || "Published", value: publishedDateFormatted },
+                    { label: detailT.author || "Author", value: authorName },
+                    { label: detailT.read_time || "Read Time", value: readingTimeFormatted },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center justify-between text-xs font-semibold">
                       <span className="text-gray-400">{item.label}</span>
@@ -558,7 +652,9 @@ export default function ArticlePageClient({
 
               {/* Tags Cloud */}
               <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
-                <h4 className="mb-3 text-xs font-extrabold uppercase tracking-wider text-gray-900">Tags</h4>
+                <h4 className="mb-3 text-xs font-extrabold uppercase tracking-wider text-gray-900">
+                  {detailT.tags || "Tags"}
+                </h4>
                 <div className="flex flex-wrap gap-1.5">
                   {safeTags.map((tag) => (
                     <span
@@ -582,7 +678,9 @@ export default function ArticlePageClient({
             onClick={() => setMobileTocOpen(!mobileTocOpen)}
             className="flex w-full items-center justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
           >
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-900">In This Article</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-900">
+              {detailT.table_of_contents || "In This Article"}
+            </span>
             <ChevronRight
               size={16}
               className={`text-gray-400 transition-transform ${mobileTocOpen ? "rotate-90" : ""}`}
@@ -600,7 +698,7 @@ export default function ArticlePageClient({
                           scrollToSection(id);
                           setMobileTocOpen(false);
                         }}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-xs font-semibold text-gray-600 hover:text-red-primary hover:bg-gray-50"
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left rtl:text-right text-xs font-semibold text-gray-600 hover:text-red-primary hover:bg-gray-50"
                       >
                         <span className="text-[10px] font-extrabold text-gray-300">
                           {String(i + 1).padStart(2, "0")}
@@ -633,7 +731,7 @@ export default function ArticlePageClient({
                 </h2>
               </div>
               <Link
-                href={`/${currentLocale}/news`}
+                href={`/${currentLocale}/ooredoo/news`}
                 className="hidden items-center gap-1.5 text-xs font-bold text-red-primary transition-colors hover:text-red-accent sm:inline-flex"
               >
                 <span>{currentLocale === "ar" ? "عرض جميع الأخبار" : currentLocale === "fr" ? "Toutes les actualités" : "View all news"}</span>
@@ -645,7 +743,7 @@ export default function ArticlePageClient({
               {related.map((rel) => (
                 <Link
                   key={rel.id || rel.slug}
-                  href={`/${currentLocale}/news/${rel.slug}`}
+                  href={`/${currentLocale}/ooredoo/news/${rel.slug || rel.id}`}
                   className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_12px_48px_rgba(200,16,46,0.06)] hover:-translate-y-1"
                 >
                   <div>
@@ -685,7 +783,7 @@ export default function ArticlePageClient({
 
             <div className="mt-10 text-center sm:hidden">
               <Link
-                href={`/${currentLocale}/news`}
+                href={`/${currentLocale}/ooredoo/news`}
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-red-primary"
               >
                 <span>{currentLocale === "ar" ? "عرض جميع الأخبار" : currentLocale === "fr" ? "Toutes les actualités" : "View all news"}</span>

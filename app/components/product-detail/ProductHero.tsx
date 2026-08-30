@@ -54,14 +54,14 @@ export default function ProductHero({ product }: { product: Product }) {
           className="flex items-center gap-2 text-xs text-gray-400 mb-8"
           aria-label="Breadcrumb"
         >
-          <Link href={`/${currentLocale}`} className="hover:text-red-primary transition-colors">
-            {t.nav?.home || "Home"}
+          <Link href={`/${currentLocale}/ooredoo`} className="hover:text-red-primary transition-colors">
+            {t.nav?.home || (currentLocale === "ar" ? "الرئيسية" : currentLocale === "fr" ? "Accueil" : "Home")}
           </Link>
-          <ChevronRight size={12} />
-          <Link href={`/${currentLocale}/products`} className="hover:text-red-primary transition-colors">
-            {t.nav?.products || "Products"}
+          <ChevronRight size={12} className="rtl:rotate-180" />
+          <Link href={`/${currentLocale}/ooredoo/products`} className="hover:text-red-primary transition-colors">
+            {t.nav?.products || (currentLocale === "ar" ? "المنتجات" : currentLocale === "fr" ? "Produits" : "Products")}
           </Link>
-          <ChevronRight size={12} />
+          <ChevronRight size={12} className="rtl:rotate-180" />
           <span className="text-gray-700 font-medium truncate max-w-[200px]">{name}</span>
         </motion.nav>
 
@@ -128,14 +128,14 @@ export default function ProductHero({ product }: { product: Product }) {
               className="flex flex-wrap gap-4"
             >
               <Link
-                href={`/${currentLocale}/quote?product=${encodeURIComponent(product.slug)}`}
+                href={`/${currentLocale}/ooredoo/quote?product=${encodeURIComponent(product.slug)}`}
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-red-primary text-white font-semibold text-sm shadow-lg shadow-red-primary/25 hover:bg-red-accent hover:shadow-xl hover:shadow-red-primary/30 transition-all hover:-translate-y-0.5"
               >
                 {staticT.quote}
-                <ArrowRight size={16} />
+                <ArrowRight size={16} className="rtl:rotate-180" />
               </Link>
               <Link
-                href={`/${currentLocale}/contact`}
+                href={`/${currentLocale}/ooredoo/contact`}
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-gray-50 hover:border-gray-300 transition-all"
               >
                 <Phone size={16} />
