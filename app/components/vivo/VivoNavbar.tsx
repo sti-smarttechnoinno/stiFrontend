@@ -21,6 +21,7 @@ export function VivoNavbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -417,6 +418,7 @@ export function VivoNavbar() {
   const closePanels = () => {
     setMenuOpen(false);
     setProductsOpen(false);
+    setMobileProductsOpen(false);
     setSearchOpen(false);
     setSearchQuery("");
   };
@@ -580,28 +582,85 @@ export function VivoNavbar() {
             </button>
           </div>
         </div>
+      </header>
 
-        {menuOpen && (
-          <div className="mobile-menu">
-            <div className="mobile-menu-inner">
-              <button
-                type="button"
-                className="w-full flex items-center justify-between py-3.5 mb-4 px-4 rounded bg-white/5 border border-white/10 text-white/80 text-sm hover:bg-white/10 transition-colors"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setSearchOpen(true);
-                }}
-              >
-                <span className="flex items-center gap-2.5">
-                  <Search size={16} className="text-[#5f8dff]" />
-                  <span>{navT.searchPlaceholder}</span>
-                </span>
-                <span className="text-[10px] text-[#5f8dff] font-bold uppercase tracking-wider">
-                  {navT.searchAria}
-                </span>
-              </button>
-              <div className="mobile-menu-kicker">{navT.mobileNavKicker}</div>
-              {navLinks.map((link, index) => (
+      {menuOpen && (
+        <div className="mobile-menu">
+          <div className="mobile-menu-inner">
+            <button
+              type="button"
+              className="w-full flex items-center justify-between py-3.5 mb-4 px-4 rounded bg-white/5 border border-white/10 text-white/80 text-sm hover:bg-white/10 transition-colors"
+              onClick={() => {
+                setMenuOpen(false);
+                setSearchOpen(true);
+              }}
+            >
+              <span className="flex items-center gap-2.5">
+                <Search size={16} className="text-[#5f8dff]" />
+                <span>{navT.searchPlaceholder}</span>
+              </span>
+              <span className="text-[10px] text-[#5f8dff] font-bold uppercase tracking-wider">
+                {navT.searchAria}
+              </span>
+            </button>
+            <div className="mobile-menu-kicker">{navT.mobileNavKicker}</div>
+            {navLinks.map((link, index) => {
+              if (link.dropdown) {
+                return (
+                  <div key={link.label} className="mobile-nav-item">
+                    <button
+                      type="button"
+                      className="mobile-link mobile-dropdown-toggle"
+                      onClick={() => setMobileProductsOpen((prev) => !prev)}
+                      aria-expanded={mobileProductsOpen}
+                    >
+                      <span>
+                        <sup>0{index + 1}</sup>
+                        {link.label}
+                      </span>
+                      <ChevronDown
+                        size={17}
+                        className={`transition-transform duration-200 ${
+                          mobileProductsOpen ? "rotate-180 text-[#5f8dff]" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {mobileProductsOpen && (
+                      <div className="mobile-submenu">
+                        {productDropdownItems.map(([name, detail, href]) => (
+                          <Link
+                            key={name}
+                            href={href}
+                            className="mobile-sublink"
+                            onClick={closePanels}
+                          >
+                            <div className="mobile-sublink-info">
+                              <span className="mobile-sublink-title">{name}</span>
+                              <span className="mobile-sublink-desc">{detail}</span>
+                            </div>
+                            <ArrowUpRight size={16} />
+                          </Link>
+                        ))}
+                        <Link
+                          href={`/${locale}/vivo/products`}
+                          className="mobile-sublink"
+                          onClick={closePanels}
+                        >
+                          <div className="mobile-sublink-info">
+                            <span className="mobile-sublink-title text-[#5f8dff]">
+                              {t?.vivoHero?.viewAll || "Voir tous les produits"}
+                            </span>
+                          </div>
+                          <ArrowUpRight size={16} />
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
                 <Link
                   key={link.label}
                   href={link.href}
@@ -612,19 +671,19 @@ export function VivoNavbar() {
                     <sup>0{index + 1}</sup>
                     {link.label}
                   </span>
-                  {link.dropdown ? <ChevronDown size={17} /> : <ArrowUpRight size={17} />}
+                  <ArrowUpRight size={17} />
                 </Link>
-              ))}
-              <div className="mobile-menu-footer">
-                <span>{navT.mobileFooterDistributor}</span>
-                <Link href={`/${locale}/vivo/find-a-store`} onClick={closePanels}>
-                  {navT.findStore} <ArrowUpRight size={14} />
-                </Link>
-              </div>
+              );
+            })}
+            <div className="mobile-menu-footer">
+              <span>{navT.mobileFooterDistributor}</span>
+              <Link href={`/${locale}/vivo/find-a-store`} onClick={closePanels}>
+                {navT.findStore} <ArrowUpRight size={14} />
+              </Link>
             </div>
           </div>
-        )}
-      </header>
+        </div>
+      )}
 
       {searchOpen && (
         <div
