@@ -62,7 +62,7 @@ export function SpacesNav() {
           <article className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
             <div className="relative h-56 w-full overflow-hidden sm:h-64">
               <Image
-                src="/assets/vivo-smartphones.png"
+                src="/assets/vivo-smartphones.webp"
                 alt="Smartphones VIVO et accessoires premium"
                 width={800}
                 height={500}

@@ -1,5 +1,5 @@
 export const VIVO_ASSETS = {
-  hero: "/assets/vivo-smartphones.png",
+  hero: "/assets/vivo-smartphones.webp",
   productsHero: "/assets/vivo/products-hero.webp",
   camera: "/assets/vivo/vivo-algeria-camera-detail.webp",
   lifestyle: "/assets/vivo/vivo-algeria-lifestyle.webp",

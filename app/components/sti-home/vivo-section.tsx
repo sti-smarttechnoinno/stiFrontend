@@ -35,7 +35,7 @@ export function VivoSection() {
         {/* Visual — first on desktop for editorial alternation */}
         <div className="relative order-last overflow-hidden rounded-[24px] border border-gray-200/80 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)] lg:order-first">
           <Image
-            src="/assets/vivo-smartphones.png"
+            src="/assets/vivo-smartphones.webp"
             alt="Smartphones VIVO premium présentés sur un piédestal blanc avec accessoires"
             width={800}
             height={800}

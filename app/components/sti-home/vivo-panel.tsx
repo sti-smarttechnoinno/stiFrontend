@@ -39,7 +39,7 @@ export function VivoPanel({ state, expanded }: { state: PanelState; expanded: bo
       {/* Background visual */}
       <div className="absolute inset-0">
         <Image
-          src="/assets/vivo-smartphones.png"
+          src="/assets/vivo-smartphones.webp"
           alt="Smartphones VIVO : Série V et Série Y"
           fill
           priority
