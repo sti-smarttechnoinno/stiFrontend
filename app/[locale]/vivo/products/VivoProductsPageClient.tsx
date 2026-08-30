@@ -106,7 +106,7 @@ export default function VivoProductsPageClient() {
       name: "vivo V70 FE",
       eyebrow: "Portraits d’exception · Design premium",
       copy: "Une collection pensée autour du portrait, de l'élégance et de la lumière naturelle.",
-      image: VIVO_ASSETS.v70fe || VIVO_ASSETS.camera,
+      image: VIVO_ASSETS.v70feHero || VIVO_ASSETS.v70fe || VIVO_ASSETS.camera,
       alt: "Smartphone vivo V70 FE",
       index: "01 / SÉRIE V",
       tone: "product-card--dark",

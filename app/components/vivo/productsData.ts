@@ -330,7 +330,7 @@ export const VIVO_SERIES_DATA: Record<string, VivoSeriesDetail> = {
         name: "vivo V70 FE",
         phrase: "Portraits d’exception · Design premium",
         copy: "Le smartphone phare de la série V avec capteur haute précision et finition haut de gamme.",
-        image: VIVO_ASSETS.v70fe,
+        image: VIVO_ASSETS.v70feHero,
         alt: "Le vivo V70 FE présenté en studio",
         state: "Page détail disponible",
         cta: "Découvrir V70 FE",
