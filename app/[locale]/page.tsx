@@ -9,6 +9,7 @@ import { SpacesNav } from "@/app/components/sti-home/spaces-nav";
 import { FaqSection } from "@/app/components/sti-home/faq-section";
 import { ContactCta } from "@/app/components/sti-home/contact-cta";
 import { SiteFooter } from "@/app/components/sti-home/site-footer";
+import { getCompanyPreferences } from "@/app/api/preferences/route";
 
 interface PageParams {
   locale: string;
@@ -185,6 +186,13 @@ export default async function LocalizedHomePage({
   const { locale } = await params;
   const loc = (locale as "en" | "ar" | "fr") || "fr";
   const siteUrl = "https://sti.dz";
+  const prefs = await getCompanyPreferences().catch(() => null);
+  const contactPhone = prefs?.phone?.trim() || "";
+  const contactEmail = prefs?.email?.trim() || "";
+  const streetAddr =
+    (typeof prefs?.address === "object"
+      ? prefs?.address?.[loc] || prefs?.address?.fr || prefs?.address?.en || prefs?.address?.ar
+      : prefs?.address) || "";
 
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -199,23 +207,29 @@ export default async function LocalizedHomePage({
         : loc === "en"
         ? "SARL Smart Technologie Innovation is the official authorized distributor for Ooredoo and VIVO in Algeria."
         : "SARL Smart Technologie Innovation est le distributeur officiel agréé Ooredoo et VIVO en Algérie.",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "02, Rue de la Paix, Centre Ville",
-      addressLocality: "Bordj Bou Arreridj",
-      addressRegion: "Bordj Bou Arreridj",
-      postalCode: "34000",
-      addressCountry: "DZ",
-    },
-    contactPoint: [
-      {
-        "@type": "ContactPoint",
-        telephone: "+213-35-82-60-60",
-        contactType: "customer service",
-        areaServed: "DZ",
-        availableLanguage: ["French", "Arabic", "English"],
-      },
-    ],
+    ...(streetAddr
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: streetAddr,
+            addressCountry: "DZ",
+          },
+        }
+      : {}),
+    ...(contactEmail ? { email: contactEmail } : {}),
+    ...(contactPhone
+      ? {
+          contactPoint: [
+            {
+              "@type": "ContactPoint",
+              telephone: contactPhone,
+              contactType: "customer service",
+              areaServed: "DZ",
+              availableLanguage: ["French", "Arabic", "English"],
+            },
+          ],
+        }
+      : {}),
     brand: [
       {
         "@type": "Brand",

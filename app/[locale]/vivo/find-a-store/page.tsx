@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getCompanyPreferences } from "@/app/api/preferences/route";
 import VivoFindAStorePageClient from "./VivoFindAStorePageClient";
 
 interface PageParams {
@@ -138,6 +139,12 @@ export default async function VivoFindAStorePage({
   const { locale } = await params;
   const loc = (locale as "en" | "ar" | "fr") || "fr";
   const siteUrl = "https://sti.dz";
+  const prefs = await getCompanyPreferences().catch(() => null);
+  const contactPhone = prefs?.phone?.trim() || "";
+  const streetAddr =
+    (typeof prefs?.address === "object"
+      ? prefs?.address?.[loc] || prefs?.address?.fr || prefs?.address?.en || prefs?.address?.ar
+      : prefs?.address) || "";
 
   const localBusinessSchema = {
     "@context": "https://schema.org",
@@ -145,14 +152,16 @@ export default async function VivoFindAStorePage({
     name: "STI - Distributeur Officiel VIVO Algérie",
     image: `${siteUrl}/assets/logo.png`,
     url: `${siteUrl}/${loc}/vivo/find-a-store`,
-    telephone: "+213-35-82-60-60",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "02, Rue de la Paix, Centre Ville",
-      addressLocality: "Bordj Bou Arreridj",
-      postalCode: "34000",
-      addressCountry: "DZ",
-    },
+    ...(contactPhone ? { telephone: contactPhone } : {}),
+    ...(streetAddr
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: streetAddr,
+            addressCountry: "DZ",
+          },
+        }
+      : {}),
     geo: {
       "@type": "GeoCoordinates",
       latitude: 36.1905,

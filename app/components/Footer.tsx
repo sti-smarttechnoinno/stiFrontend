@@ -116,8 +116,9 @@ export default function Footer() {
     },
   ];
 
-  const displayPhone = currentLocale === "ar" ? "36 35 02 0552" : (phone || "+213 35 82 60 60");
-  const displayEmail = email || "contact@sti-dz.com";
+  const displayPhone = phone;
+  const displayEmail = email;
+  const displayLocation = activeLocation || locationObj[currentLocale] || locationObj.en || locationObj.fr || locationObj.ar || "";
 
   return (
     <footer className="bg-gray-900 pt-20 pb-8">
@@ -197,18 +198,22 @@ export default function Footer() {
                   </div>
                 </li>
               )}
-              <li className="flex items-center gap-2.5">
-                <Mail size={15} className="shrink-0 text-gray-500" />
-                <a href={`mailto:${displayEmail}`} className="text-sm text-gray-300 hover:text-white transition-colors">
-                  {displayEmail}
-                </a>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <MapPin size={15} className="mt-0.5 shrink-0 text-gray-500" />
-                <span className="text-sm text-gray-300 leading-snug">
-                  {activeLocation || (currentLocale === "ar" ? "حي النصر، برج بوعريريج، الجزائر" : "Cité Ennasr, Bordj Bou Arréridj, Algérie")}
-                </span>
-              </li>
+              {displayEmail && (
+                <li className="flex items-center gap-2.5">
+                  <Mail size={15} className="shrink-0 text-gray-500" />
+                  <a href={`mailto:${displayEmail}`} className="text-sm text-gray-300 hover:text-white transition-colors">
+                    {displayEmail}
+                  </a>
+                </li>
+              )}
+              {displayLocation && (
+                <li className="flex items-start gap-2.5">
+                  <MapPin size={15} className="mt-0.5 shrink-0 text-gray-500" />
+                  <span className="text-sm text-gray-300 leading-snug">
+                    {displayLocation}
+                  </span>
+                </li>
+              )}
             </ul>
           </div>
         </div>

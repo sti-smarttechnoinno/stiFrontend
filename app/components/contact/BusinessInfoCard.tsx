@@ -55,9 +55,9 @@ export default function BusinessInfoCard() {
     loadPrefs();
   }, []);
 
-  const phoneValue = prefs?.phone || "+213 35 82 60 60";
-  const emailValue = prefs?.email || "contact@sti.dz";
-  const addressValue = prefs?.address?.[currentLocale] || prefs?.address?.en || "Lot 24, Zone Industrielle, Bab Ezzouar, Alger";
+  const phoneValue = prefs?.phone || "";
+  const emailValue = prefs?.email || "";
+  const addressValue = prefs?.address?.[currentLocale] || prefs?.address?.fr || prefs?.address?.en || prefs?.address?.ar || "";
 
   const workingHoursText = formatBusinessHours(
     prefs?.businessHours,
@@ -157,39 +157,45 @@ export default function BusinessInfoCard() {
                 </div>
               </li>
 
-              <li className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-primary/10 text-red-primary">
-                  <Phone size={18} />
-                </div>
-                <div>
-                  <a href={`tel:${phoneValue.replace(/[^0-9+]/g, "")}`} className="text-sm font-semibold text-gray-900 hover:text-red-primary transition-colors">
-                    <bdo dir="ltr" className="inline-block">{phoneValue}</bdo>
-                  </a>
-                  <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{labels.phone}</div>
-                </div>
-              </li>
+              {phoneValue && (
+                <li className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-primary/10 text-red-primary">
+                    <Phone size={18} />
+                  </div>
+                  <div>
+                    <a href={`tel:${phoneValue.replace(/[^0-9+]/g, "")}`} className="text-sm font-semibold text-gray-900 hover:text-red-primary transition-colors">
+                      <bdo dir="ltr" className="inline-block">{phoneValue}</bdo>
+                    </a>
+                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{labels.phone}</div>
+                  </div>
+                </li>
+              )}
 
-              <li className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-primary/10 text-red-primary">
-                  <Mail size={18} />
-                </div>
-                <div>
-                  <a href={`mailto:${emailValue}`} className="text-sm font-semibold text-gray-900 hover:text-red-primary transition-colors">
-                    {emailValue}
-                  </a>
-                  <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{labels.email}</div>
-                </div>
-              </li>
+              {emailValue && (
+                <li className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-primary/10 text-red-primary">
+                    <Mail size={18} />
+                  </div>
+                  <div>
+                    <a href={`mailto:${emailValue}`} className="text-sm font-semibold text-gray-900 hover:text-red-primary transition-colors">
+                      {emailValue}
+                    </a>
+                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{labels.email}</div>
+                  </div>
+                </li>
+              )}
 
-              <li className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-primary/10 text-red-primary">
-                  <MapPin size={18} />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-900">{addressValue}</div>
-                  <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{labels.address}</div>
-                </div>
-              </li>
+              {addressValue && (
+                <li className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-primary/10 text-red-primary">
+                    <MapPin size={18} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">{addressValue}</div>
+                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{labels.address}</div>
+                  </div>
+                </li>
+              )}
 
               <li className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-primary/10 text-red-primary">

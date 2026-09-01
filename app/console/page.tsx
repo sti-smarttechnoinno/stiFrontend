@@ -31,9 +31,9 @@ import {
 import type { CompanyPreferences } from '@/app/api/preferences/route';
 
 const defaultContactInfo = [
-  { icon: Phone, label: "Phone", value: "0552 02 35 36" },
+  { icon: Phone, label: "Phone", value: "—" },
   { icon: Mail, label: "Email", value: "servicevente@sti.dz" },
-  { icon: Building2, label: "Address", value: "Setif, Algeria" },
+  { icon: Building2, label: "Address", value: "Sétif, Algeria" },
   { icon: Clock, label: "Working Hours", value: "Saturday - Thursday, 08:00 AM - 05:00 PM" },
 ];
 
@@ -149,7 +149,7 @@ export default function DashboardPage() {
         }
 
         setContactList([
-          { icon: Phone, label: "Phone", value: data.phone || "0552 02 35 36" },
+          { icon: Phone, label: "Phone", value: data.phone || "—" },
           { icon: Mail, label: "Email", value: data.email || "servicevente@sti.dz" },
           { icon: Building2, label: "Address", value: addr },
           { icon: Clock, label: "Working Hours", value: hoursStr },

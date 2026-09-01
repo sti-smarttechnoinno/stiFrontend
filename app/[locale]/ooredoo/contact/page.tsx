@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getCompanyPreferences } from "@/app/api/preferences/route";
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import FinalCTA from '@/app/components/FinalCTA';
@@ -41,27 +42,43 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const prefs = await getCompanyPreferences().catch(() => null);
+  const contactPhone = prefs?.phone?.trim() || "";
+  const contactEmail = prefs?.email?.trim() || "";
+  const streetAddr =
+    (typeof prefs?.address === "object"
+      ? prefs?.address?.fr || prefs?.address?.en || prefs?.address?.ar
+      : prefs?.address) || "";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "SARL Smart Technologie Innovation (STI)",
     url: "https://sti.dz",
     logo: "https://sti.dz/assets/logo.png",
-    contactPoint: {
-      "@type": "ContactPoint",
-      telephone: "+213-XXX-XX-XX-XX",
-      contactType: "customer service",
-      areaServed: "DZ",
-      availableLanguage: ["French", "Arabic", "English"],
-    },
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Sétif",
-      addressCountry: "DZ",
-    },
-    email: "contact@sti.dz",
-    telephone: "+213-XXX-XX-XX-XX",
+    ...(contactPhone
+      ? {
+          contactPoint: {
+            "@type": "ContactPoint",
+            telephone: contactPhone,
+            contactType: "customer service",
+            areaServed: "DZ",
+            availableLanguage: ["French", "Arabic", "English"],
+          },
+          telephone: contactPhone,
+        }
+      : {}),
+    ...(streetAddr
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: streetAddr,
+            addressCountry: "DZ",
+          },
+        }
+      : {}),
+    ...(contactEmail ? { email: contactEmail } : {}),
     openingHoursSpecification: [
       { "@type": "OpeningHoursSpecification", dayOfWeek: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"], opens: "08:00", closes: "17:00" },
     ],

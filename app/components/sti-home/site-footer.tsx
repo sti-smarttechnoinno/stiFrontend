@@ -98,13 +98,11 @@ export function SiteFooter() {
     locationObj[currentLocale] ||
     locationObj.fr ||
     locationObj.en ||
-    "Cité Ennasr, Bordj Bou Arréridj, Algérie";
+    locationObj.ar ||
+    "";
 
-  const displayPhone =
-    currentLocale === "ar"
-      ? "36 35 02 0552"
-      : phone || "+213 35 82 60 60";
-  const displayEmail = email || "contact@sti-dz.com";
+  const displayPhone = phone;
+  const displayEmail = email;
 
   const socials = [
     { icon: <LinkedinIcon />, label: "LinkedIn", href: socialMedia?.linkedin },
@@ -157,22 +155,28 @@ export function SiteFooter() {
             </p>
 
             <ul className="space-y-3 text-xs text-gray-300">
-              <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-primary" aria-hidden="true" />
-                <span>{displayLocation}</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="h-4 w-4 shrink-0 text-red-primary" aria-hidden="true" />
-                <a href={`tel:${displayPhone.replace(/\s+/g, "")}`} className="transition-colors hover:text-white inline-flex items-center">
-                  <span>{displayPhone}</span>
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="h-4 w-4 shrink-0 text-red-primary" aria-hidden="true" />
-                <a href={`mailto:${displayEmail}`} className="transition-colors hover:text-white">
-                  {displayEmail}
-                </a>
-              </li>
+              {displayLocation && (
+                <li className="flex items-start gap-3">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-primary" aria-hidden="true" />
+                  <span>{displayLocation}</span>
+                </li>
+              )}
+              {displayPhone && (
+                <li className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 shrink-0 text-red-primary" aria-hidden="true" />
+                  <a href={`tel:${displayPhone.replace(/\s+/g, "")}`} className="transition-colors hover:text-white inline-flex items-center">
+                    <span>{displayPhone}</span>
+                  </a>
+                </li>
+              )}
+              {displayEmail && (
+                <li className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 shrink-0 text-red-primary" aria-hidden="true" />
+                  <a href={`mailto:${displayEmail}`} className="transition-colors hover:text-white">
+                    {displayEmail}
+                  </a>
+                </li>
+              )}
             </ul>
 
             {socials.length > 0 && (

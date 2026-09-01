@@ -8,7 +8,7 @@ import { useTranslations } from "@/app/[locale]/use-translations";
 export function FaqSection() {
   const [open, setOpen] = useState<number[]>([0, 1]);
   const { email } = usePreferences();
-  const contactEmail = email || "contact@sti-dz.com";
+  const contactEmail = email;
   const t = useTranslations() as any;
   const faqT = t?.stiHome?.faq || {
     badge: "FAQ & Assistance",

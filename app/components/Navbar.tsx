@@ -350,15 +350,15 @@ export default function Navbar() {
             </div>
           ))}
           <div className="mt-6 space-y-3">
-            {(currentLocale === "ar" ? "36 35 02 0552" : phone) && (
+            {phone && (
               <a
-                href={`tel:${(currentLocale === "ar" ? "0552023536" : (phone || "+21335826060")).replace(/[^0-9+]/g, "")}`}
+                href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
                 className="flex items-center gap-3 rounded-xl px-4 py-3 bg-gray-50 text-gray-700"
               >
                 <Phone size={16} className="shrink-0 text-red-primary" />
                 <div className="text-start">
                   <div className="text-[12px] font-bold">
-                    <span className="inline-block">{currentLocale === "ar" ? "36 35 02 0552" : (phone || "+213 35 82 60 60")}</span>
+                    <span className="inline-block">{phone}</span>
                   </div>
                   {activeWorkingHours && <div className="text-[10px] text-gray-400">{activeWorkingHours}</div>}
                 </div>

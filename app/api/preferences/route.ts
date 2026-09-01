@@ -119,15 +119,15 @@ function cleanMerge(target: any, source: any): any {
   return result;
 }
 
-export async function GET() {
+export async function getCompanyPreferences(): Promise<CompanyPreferences> {
   try {
-    const res = await fetchFromBackend("/preferences", { cache: "no-store" }, 10000);
+    const res = await fetchFromBackend("/preferences", { cache: "no-store" }, 5000);
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
       if (data && typeof data === "object" && Object.keys(data).length > 0) {
         const merged = cleanMerge(defaultPreferences, data);
         memoryPreferences = merged;
-        return NextResponse.json(merged);
+        return merged;
       }
     }
   } catch (err) {
@@ -135,10 +135,15 @@ export async function GET() {
   }
 
   if (memoryPreferences) {
-    return NextResponse.json(memoryPreferences);
+    return memoryPreferences;
   }
 
-  return NextResponse.json(defaultPreferences);
+  return defaultPreferences;
+}
+
+export async function GET() {
+  const preferences = await getCompanyPreferences();
+  return NextResponse.json(preferences);
 }
 
 export async function POST(request: NextRequest) {
