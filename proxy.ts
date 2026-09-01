@@ -5,7 +5,18 @@ const locales = ["en", "fr", "ar"];
 const defaultLocale = "en";
 
 // Routes that should NOT get locale prefixes like /en or /ar
-const skippedPrefixes = ["/console", "/gate", "/api", "/_next", "/assets", "/storage"];
+const skippedPrefixes = [
+  "/console",
+  "/gate",
+  "/api",
+  "/_next",
+  "/assets",
+  "/storage",
+  "/sitemap.xml",
+  "/robots.txt",
+  "/icon",
+  "/favicon.ico",
+];
 
 function getLocale(request: NextRequest): string {
   const acceptLanguage = request.headers.get("accept-language");
