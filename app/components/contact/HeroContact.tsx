@@ -13,7 +13,7 @@ export default function HeroContact() {
   const pathname = usePathname();
   const currentLocale = (pathname.split("/")[1] || "en") as "en" | "ar" | "fr";
   const { phone } = usePreferences();
-  const telHref = `tel:${(currentLocale === "ar" ? "0552023536" : (phone || "+21335826060")).replace(/[^0-9+]/g, "")}`;
+  const telHref = `tel:${(currentLocale === "ar" ? "0552023536" : (phone || "+213552023536")).replace(/[^0-9+]/g, "")}`;
 
   const staticT = {
     en: {

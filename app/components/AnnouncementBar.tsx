@@ -53,7 +53,7 @@ export default function AnnouncementBar() {
   const item = announcementText[currentLocale] || announcementText.fr;
   const workingHours = (workingHoursObj && workingHoursObj[currentLocale]) || activeWorkingHours || "";
 
-  const displayPhone = currentLocale === "ar" ? "36 35 02 0552" : (phone || "+213 35 82 60 60");
+  const displayPhone = phone;
 
   return (
     <aside

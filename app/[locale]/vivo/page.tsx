@@ -156,11 +156,6 @@ export default async function VivoHomePage({
     url: `${siteUrl}/${loc}/vivo`,
     logo: `${siteUrl}/assets/logo.png`,
     description: "Official VIVO Smartphones and customer support in Algeria distributed by STI.",
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.8",
-      reviewCount: "280",
-    },
   };
 
   const breadcrumbSchema = {
