@@ -123,5 +123,5 @@ export function proxy(request: NextRequest) {
 export const middleware = proxy;
 
 export const config = {
-  matcher: ["/((?!_next|assets|storage|favicon\\.ico|site\\.webmanifest).*)"],
+  matcher: ["/((?!_next|assets|storage|favicon\\.ico|site\\.webmanifest|sitemap\\.xml|robots\\.txt|icon).*)"],
 };
