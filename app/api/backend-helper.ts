@@ -28,6 +28,18 @@ export async function fetchFromBackend(endpoint: string, options: RequestInit = 
     headers.set("Accept", "application/json");
   }
 
+  if (!headers.has("Origin")) {
+    headers.set("Origin", "https://sti.dz");
+  }
+
+  if (!headers.has("Referer")) {
+    headers.set("Referer", "https://sti.dz/");
+  }
+
+  if (!headers.has("X-Requested-With")) {
+    headers.set("X-Requested-With", "XMLHttpRequest");
+  }
+
   if (!headers.has("Authorization")) {
     const token = await getBackendTokenFromSession();
     if (token) {
