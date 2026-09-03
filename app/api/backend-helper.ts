@@ -1,8 +1,45 @@
+import { cookies } from "next/headers";
+
 let cachedWorkingBaseUrl: string | null = null;
 let lastCheckTime = 0;
 const CHECK_CACHE_TTL_MS = 60000; // 60 seconds
 
+export async function getBackendTokenFromSession(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    const rawCookie = cookieStore.get("sti_admin_token")?.value;
+    if (rawCookie) {
+      const parts = rawCookie.split("_");
+      const payloadBase64 = parts[parts.length - 1];
+      const rawJson = Buffer.from(payloadBase64, "base64").toString("utf-8");
+      const session = JSON.parse(rawJson);
+      return session?.backendToken || null;
+    }
+  } catch {
+    // cookies() may throw outside of request context (e.g. static rendering)
+  }
+  return null;
+}
+
 export async function fetchFromBackend(endpoint: string, options: RequestInit = {}, timeoutMs = 5000): Promise<Response | null> {
+  const headers = new Headers(options.headers || {});
+
+  if (!headers.has("Accept")) {
+    headers.set("Accept", "application/json");
+  }
+
+  if (!headers.has("Authorization")) {
+    const token = await getBackendTokenFromSession();
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+  }
+
+  const effectiveOptions: RequestInit = {
+    ...options,
+    headers,
+  };
+
   const urlsToTry: string[] = [];
 
   // 1. If we have a recently verified working URL, try it first for instant response
@@ -46,7 +83,7 @@ export async function fetchFromBackend(endpoint: string, options: RequestInit = 
 
       const res = await fetch(fullUrl, {
         cache: "no-store",
-        ...options,
+        ...effectiveOptions,
         redirect: "follow",
         signal: controller.signal,
       });
