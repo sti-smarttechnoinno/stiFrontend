@@ -221,14 +221,25 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-16 border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500">
-            {currentLocale === "ar"
-              ? `© ${new Date().getFullYear()} ش.ذ.م.م سمارت تكنولوجي إنوفايشن (STI). جميع الحقوق محفوظة.`
-              : currentLocale === "fr"
-              ? `© ${new Date().getFullYear()} SARL Smart Technologie Innovation (STI). Tous droits réservés.`
-              : `© ${new Date().getFullYear()} SARL Smart Technology Innovation (STI). All rights reserved.`}
-          </p>
-          <div />
-        </div>
+          {currentLocale === "ar"
+      ? `© ${new Date().getFullYear()} ش.ذ.م.م سمارت تكنولوجي إنوفايشن (STI). جميع الحقوق محفوظة.`
+      : currentLocale === "fr"
+      ? `© ${new Date().getFullYear()} SARL Smart Technologie Innovation (STI). Tous droits réservés.`
+      : `© ${new Date().getFullYear()} SARL Smart Technology Innovation (STI). All rights reserved.`}
+  </p>
+
+  <p className="text-xs text-gray-500">
+    {currentLocale === "ar" ? "تطوير بواسطة" : currentLocale === "fr" ? "Développé par" : "Developed by"}{" "}
+    <a
+      href="https://virtanis.net"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-semibold text-white hover:text-emerald-400 transition-colors duration-300"
+    >
+      Virtanis
+    </a>
+  </p>
+</div>
       </div>
     </footer>
   );
