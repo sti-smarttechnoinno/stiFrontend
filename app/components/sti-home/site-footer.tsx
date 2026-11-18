@@ -246,11 +246,13 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* Bottom bar */}
-<div className="mt-14 flex flex-col items-center justify-center border-t border-gray-800 pt-8 text-xs text-gray-500 text-center gap-3">
-  <p>© {currentYear} {companyName}. {footerT.rights}</p>
+{/* Bottom bar */}
+<div className="mt-14 border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+  <p className="text-xs text-gray-500">
+    © {currentYear} {companyName}. {footerT.rights}
+  </p>
 
-  <p>
+  <p className="text-xs text-gray-500">
     {currentLocale === "ar"
       ? "تطوير بواسطة"
       : currentLocale === "fr"
@@ -260,7 +262,7 @@ export function SiteFooter() {
       href="https://virtanis.net"
       target="_blank"
       rel="noopener noreferrer"
-      className="font-semibold text-gray-300 hover:text-emerald-400 transition-colors duration-300"
+      className="font-semibold text-white hover:text-emerald-400 transition-colors duration-300"
     >
       Virtanis
     </a>
