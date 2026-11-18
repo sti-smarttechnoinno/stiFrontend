@@ -73,33 +73,34 @@ export function VivoFooter() {
     backLabel = footerT.backToSti || d.backToSti;
   }
 
-  return (
-    <footer className="site-footer">
-  <div className="content-container footer-inner">
-    <span>{footerT.copyright || d.copyright}</span>
+ 
+return (
+  <footer className="site-footer">
+    <div className="content-container footer-inner">
+      <span>{footerT.copyright || d.copyright}</span>
 
-    <span>{tagline}</span>
+      <span>{tagline}</span>
 
-    <span>
-      {currentLocale === "ar"
-        ? "تطوير بواسطة"
-        : currentLocale === "fr"
-        ? "Développé par"
-        : "Developed by"}{" "}
-      <a
-        href="https://virtanis.net"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="font-semibold hover:opacity-80 transition-opacity"
-      >
-        Virtanis
-      </a>
-    </span>
+      <span>
+        {locale === "ar"
+          ? "تطوير بواسطة"
+          : locale === "fr"
+          ? "Développé par"
+          : "Developed by"}{" "}
+        <a
+          href="https://virtanis.net"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold hover:opacity-80 transition-opacity"
+        >
+          Virtanis
+        </a>
+      </span>
 
-    <Link href={backHref}>
-      {backLabel} <ArrowUpRight size={14} />
-    </Link>
-  </div>
-</footer>
-  );
+      <Link href={backHref}>
+        {backLabel} <ArrowUpRight size={14} />
+      </Link>
+    </div>
+  </footer>
+);
 }
